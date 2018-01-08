@@ -1,0 +1,27 @@
+{
+    "NAME": "SpeedUnitDisplay",
+    "URL": "https://raw.githubusercontent.com/stasikos/SpeedUnitDisplay/master/SpeedUnitDisplay.version",
+    "DOWNLOAD": "https://github.com/stasikos/SpeedUnitDisplay/releases",
+    "VERSION":{
+        "MAJOR": 0,
+        "MINOR": 1,
+        "PATCH": 0,
+        "BUILD": 1
+    },
+    "KSP_VERSION": {
+        "MAJOR": 1,
+        "MINOR": 3,
+        "PATCH": 1
+    },
+    "KSP_VERSION_MIN": {
+        "MAJOR": 1,
+        "MINOR": 3,
+        "PATCH": 1
+    },
+    "KSP_VERSION_MAX": {
+        "MAJOR": 1,
+        "MINOR": 3,
+        "PATCH": 1
+    }
+}
+
