@@ -2,7 +2,7 @@
 using System.Reflection;
 using KSP.Localization;
 
-namespace SpeedUnitDisplay
+namespace SpeedUnitDash
 {
     // http://forum.kerbalspaceprogram.com/index.php?/topic/147576-modders-notes-for-ksp-12/#comment-2754813
     // search for "Mod integration into Stock Settings
@@ -10,27 +10,33 @@ namespace SpeedUnitDisplay
     public class SpeedUnitDashSettings : GameParameters.CustomParameterNode
     {
 
-        public override string Title { get { return Localizer.Format("#SpeedUnitDisplay_navball_info") ; } }
+        public override string Title { get { return Localizer.Format("#SpeedUnitDash_navball_info") ; } }
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
-        public override string Section { get { return "SpeedUnitDisplay"; } }
-        public override string DisplaySection { get { return "SpeedUnitDisplay"; } }
+        public override string Section { get { return "SpeedUnitDash"; } }
+        public override string DisplaySection { get { return "SpeedUnitDash"; } }
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return true; } }
 
-        [GameParameters.CustomStringParameterUI("#SpeedUnitDisplay_surf", lines = 2, title = "#SpeedUnitDisplay_surf")]
+        [GameParameters.CustomStringParameterUI("#SpeedUnitDash_surfaceMode", lines = 2, title = "#SpeedUnitDash_surfaceMode")]
         public string UIstring1 = "";
 
-        [GameParameters.CustomParameterUI("#SpeedUnitDisplay_speedometer", toolTip = "#SpeedUnitDisplay_speedometer_toolTip")]
+        [GameParameters.CustomParameterUI("#SpeedUnitDash_speedometer", toolTip = "#SpeedUnitDash_speedometer_toolTip")]
         public bool kph = true;
 
-        [GameParameters.CustomParameterUI("#SpeedUnitDisplay_altimeter", toolTip = "#SpeedUnitDisplay_altimeter_toolTip")]
+        [GameParameters.CustomParameterUI("#SpeedUnitDash_altimeter", toolTip = "#SpeedUnitDash_altimeter_toolTip")]
         public bool radar = true;
 
-        [GameParameters.CustomStringParameterUI("#SpeedUnitDisplay_orb", lines = 2, title = "#SpeedUnitDisplay_orb")]
+        [GameParameters.CustomStringParameterUI("#SpeedUnitDash_orbitMode", lines = 2, title = "#SpeedUnitDash_orbitMode")]
         public string UIstring2 = "";
 
-        [GameParameters.CustomParameterUI("#SpeedUnitDisplay_Ap", toolTip = "#SpeedUnitDisplay_Ap_toolTip")]
+        [GameParameters.CustomParameterUI("#SpeedUnitDash_Ap", toolTip = "#SpeedUnitDash_Ap_toolTip")]
         public bool orbit = true;
+
+        [GameParameters.CustomStringParameterUI("#SpeedUnitDash_targetMode", lines = 2, title = "#SpeedUnitDash_targetMode")]
+        public string UIstring3 = "";
+
+        [GameParameters.CustomParameterUI("#SpeedUnitDash_targetName", toolTip = "#SpeedUnitDash_targetName_toolTip")]
+        public bool targetName = true;
 
         public override void SetDifficultyPreset(GameParameters.Preset preset)
         {

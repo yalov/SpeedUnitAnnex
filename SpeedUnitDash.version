@@ -1,12 +1,12 @@
 {
-    "NAME": "SpeedUnitDisplay",
-    "URL": "https://raw.githubusercontent.com/stasikos/SpeedUnitDisplay/master/SpeedUnitDisplay.version",
-    "DOWNLOAD": "https://github.com/stasikos/SpeedUnitDisplay/releases",
+    "NAME": "SpeedUnitDash",
+    "URL": "https://raw.githubusercontent.com/flart/SpeedUnitDash/master/SpeedUnitDash.version",
+    "DOWNLOAD": "https://github.com/flart/SpeedUnitDash/releases",
     "VERSION":{
         "MAJOR": 0,
         "MINOR": 9,
-        "PATCH": 0,
-        "BUILD": 0
+        "PATCH": 4,
+        "BUILD": 1
     },
     "KSP_VERSION": {
         "MAJOR": 1,
