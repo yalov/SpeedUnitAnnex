@@ -237,18 +237,27 @@ namespace SpeedUnitDash
                             {
                                 ITargetable obj = FlightGlobals.fetch.VesselTarget;
 
-                                // from KER
-                                var targetOrbit = FlightGlobals.fetch.VesselTarget.GetOrbit();
-                                var originOrbit = (FlightGlobals.ship_orbit.referenceBody == Planetarium.fetch.Sun ||
-                                                    FlightGlobals.ship_orbit.referenceBody == FlightGlobals.ActiveVessel.targetObject.GetOrbit().referenceBody)
-                                    ? FlightGlobals.ship_orbit
-                                    : FlightGlobals.ship_orbit.referenceBody.orbit;
+                                // from Docking Port Alignment Indicator
+                                Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
+                                //ITargetable targetPort = obj as ITargetable;
+                                Transform targetTransform = obj.GetTransform();
+                                Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
+                                float distanceToTarget = targetToOwnship.magnitude;
 
-                                double distance = Vector3d.Distance(targetOrbit.pos, originOrbit.pos);
-                                // TODO: distance should be slightly different for target = vessel and target = ModuleDockingNode 
+
+
+                                // from KER
+                                //var targetOrbit = FlightGlobals.fetch.VesselTarget.GetOrbit();
+                                //var originOrbit = (FlightGlobals.ship_orbit.referenceBody == Planetarium.fetch.Sun ||
+                                //                    FlightGlobals.ship_orbit.referenceBody == FlightGlobals.ActiveVessel.targetObject.GetOrbit().referenceBody)
+                                //    ? FlightGlobals.ship_orbit
+                                //    : FlightGlobals.ship_orbit.referenceBody.orbit;
+
+                                //double distance = Vector3d.Distance(targetOrbit.pos, originOrbit.pos);
+                                
 
                                 display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
-                                display.textTitle.text = Target + Unitize_short(distance);
+                                display.textTitle.text = Target + Unitize_short(distanceToTarget);
                             }
                             break;
                         }
