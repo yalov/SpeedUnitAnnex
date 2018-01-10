@@ -35,8 +35,8 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2, title = "#SpeedUnitAnnex_targetMode")]
         public string UIstring3 = "";
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetName", toolTip = "#SpeedUnitAnnex_targetName_toolTip")]
-        public bool targetName = true;
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDistance", toolTip = "#SpeedUnitAnnex_targetDistance_toolTip")]
+        public bool targetDistance = true;
 
         public override void SetDifficultyPreset(GameParameters.Preset preset)
         {

@@ -11,8 +11,8 @@ namespace SpeedUnitAnnex
     public class SpeedUnitAnnex : MonoBehaviour
     {
         private SpeedDisplay display;
-        private float fontSize;
-        private float titleFontSize;
+        //private float fontSize;
+        //private float titleFontSize;
         private float mph_ms = 2.23694f;
         private float kmph_ms = 3.6f;
         private float kn_ms = 0.514f;
@@ -23,10 +23,13 @@ namespace SpeedUnitAnnex
 
         //private string Orbit   = Localizer.Format("#autoLOC_7001217") + " ";
         private string Surface = Localizer.Format("#autoLOC_7001218") + " ";
-        private string Target  = Localizer.Format("#autoLOC_7001219") + ": ";
+        //private string Target  = Localizer.Format("#autoLOC_7001219") + " ";
 
         private string Surf3 = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
         private string Surf5 = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
+
+        private string Trg = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
+        //private string TrgDP = Localizer.Format("#SpeedUnitAnnex_TrgDockingPort") + " ";
 
         private string m = Localizer.Format("#SpeedUnitAnnex_meter");
         private string k = Localizer.Format("#SpeedUnitAnnex_kilo");
@@ -53,10 +56,11 @@ namespace SpeedUnitAnnex
                 display = GameObject.FindObjectOfType<SpeedDisplay>();
                 if (display != null)
                 {
-                    fontSize = display.textSpeed.fontSize;
-                    titleFontSize = display.textTitle.fontSize;
-                    display.textTitle.fontSize = titleFontSize / 1.15f;
-                    
+                    //fontSize = display.textSpeed.fontSize;
+                    //titleFontSize = display.textTitle.fontSize;
+                    //display.textTitle.fontSize = titleFontSize / 1.15f;
+
+                    display.textTitle.fontSize /= 1.15f;
                 }
             }
         }
@@ -107,8 +111,10 @@ namespace SpeedUnitAnnex
             double v = Math.Abs(value);
             //  KerbATM 70kм   Minmus 47M Moho 4G  Eeloo 113G  Plock 700G      
             //  Moon 400M      Mercury 60G Pluto 7300G
+            if (v < 1E3)          // 0.0 m - 999.9 m
+                str = Truncate(value, "N", 1) + " " + m;
 
-            if (v < 1E8)          // 1 m - 99,999,999 m
+            else if (v < 1E8)          // 1,000 m - 99,999,999 m
                 str = Truncate(value, "N", 0) + " " + m;
 
             else if (v < 1E12)    // 100.0 Mm - 999,999.9 Mm
@@ -149,13 +155,13 @@ namespace SpeedUnitAnnex
                             //VesselType.Station
                             //VesselType.Unlnown
 
-                            // Boat or Submarine (trying exclude SPLASHED rocket)
+                            // Boat or Submarine (trying exclude SPLASHED rocket) 
                             if (situation == Vessel.Situations.SPLASHED && (vesselType == VesselType.Plane || vesselType == VesselType.Base || vesselType == VesselType.Rover))
                             {
                                 bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar;
 
                                 if (FlightGlobals.ActiveVessel.altitude < -50 && isradar) // Submarine
-                                    titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.radarAltitude) + "  " + (spd * kn_ms).ToString("F1") + kn; 
+                                    titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.terrainAltitude) + "  " + (spd * kn_ms).ToString("F1") + kn; 
                                 else                                                       // Boat
                                     titleText = Surf5 + (spd * kn_ms).ToString("F1") + kn;
                             }
@@ -190,7 +196,7 @@ namespace SpeedUnitAnnex
                                 else
                                     titleText = Surf5 + (spd * mph_ms).ToString("F1") + mph;
                             }
-                            // Other: Rocket, Lander, etc (anchored base too)
+                            // Other: Rocket, Lander, etc   // also Rover over 100m (therefore really not rover), base, EVA, flag  
                             else
                             {
                                 if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar)
@@ -199,8 +205,8 @@ namespace SpeedUnitAnnex
                                     titleText = Surface;
                             }
 
-                            // TODO test repulsors
-                            // TODO other vs anchored bases
+                            
+                            
 
                             display.textTitle.text = titleText;
                             break;
@@ -220,33 +226,28 @@ namespace SpeedUnitAnnex
                         }
                     case FlightGlobals.SpeedDisplayModes.Target:
                         {
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().targetName)
-                            {
-                                ITargetable obj = FlightGlobals.fetch.VesselTarget;
+                            
+                 
+                            ITargetable obj = FlightGlobals.fetch.VesselTarget;
 
-                                // ITargetable ->  CelestialBody;
-                                //                 FlightCoMTracker;
-                                //                 ModuleDockingNode;
-                                //                 PositionTarget;
-                                //                 Vessel;
+                            // ITargetable ->  CelestialBody;
+                            //                 FlightCoMTracker;
+                            //                 ModuleDockingNode;
+                            //                 PositionTarget;
+                            //                 Vessel;
 
-                                string text;
+                            string text;
+                            string name;
 
-                                if (obj is ModuleDockingNode)
-                                    text = "-> " + obj.GetVessel().GetDisplayName();
-                                else
-                                    text = Target + obj.GetDisplayName();
-
-                                if (text.Length > 1 && text.Substring(text.Length - 2, 1) == "^")
-                                    text = text.Substring(0, text.Length - 2);
-
-                                if (text.Length <= 17)
-                                    display.textTitle.text = text;
-                                else
-                                    display.textTitle.text = text.Substring(0, 16) + "...";
-
-                            }
+                            if (obj is ModuleDockingNode)
+                                name = obj.GetVessel().GetDisplayName();
                             else
+                                name = obj.GetDisplayName();
+
+                            if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
+                                name = name.Substring(0, name.Length - 2);
+
+                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().targetDistance)
                             {
                                 // from Docking Port Alignment Indicator
                                 Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
@@ -254,18 +255,19 @@ namespace SpeedUnitAnnex
                                 Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
                                 float distanceToTarget = targetToOwnship.magnitude;
 
-
-                                // from KER
-                                //var targetOrbit = FlightGlobals.fetch.VesselTarget.GetOrbit();
-                                //var originOrbit = (FlightGlobals.ship_orbit.referenceBody == Planetarium.fetch.Sun ||
-                                //                    FlightGlobals.ship_orbit.referenceBody == FlightGlobals.ActiveVessel.targetObject.GetOrbit().referenceBody)
-                                //    ? FlightGlobals.ship_orbit
-                                //    : FlightGlobals.ship_orbit.referenceBody.orbit;
-
-                                //double distance = Vector3d.Distance(targetOrbit.pos, originOrbit.pos);
-                                
-                                display.textTitle.text = Target + Unitize_short(distanceToTarget);
+                                text = Trg + Unitize_short(distanceToTarget) + " " +name;
                             }
+                            else
+                            {
+                                text = Trg + name;
+                            }
+
+
+                            if (text.Length <= 17)
+                                display.textTitle.text = text;
+                            else
+                                display.textTitle.text = text.Substring(0, 16) + "...";
+
                             break;
                         }
                 }
