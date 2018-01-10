@@ -1,12 +1,12 @@
 {
-    "NAME": "SpeedUnitDash",
-    "URL": "https://raw.githubusercontent.com/flart/SpeedUnitDash/master/SpeedUnitDash.version",
-    "DOWNLOAD": "https://github.com/flart/SpeedUnitDash/releases",
+    "NAME": "SpeedUnitAnnex",
+    "URL": "https://raw.githubusercontent.com/flart/SpeedUnitAnnex/master/SpeedUnitAnnex.version",
+    "DOWNLOAD": "https://github.com/flart/SpeedUnitAnnex/releases",
     "VERSION":{
         "MAJOR": 0,
         "MINOR": 9,
-        "PATCH": 4,
-        "BUILD": 3
+        "PATCH": 5,
+        "BUILD": 1
     },
     "KSP_VERSION": {
         "MAJOR": 1,

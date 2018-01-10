@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeedUnitDash", "SpeedUnitDash\SpeedUnitDash.csproj", "{760AEC5B-AEE9-486E-AA10-C29EF2A91C8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeedUnitAnnex", "SpeedUnitAnnex\SpeedUnitAnnex.csproj", "{760AEC5B-AEE9-486E-AA10-C29EF2A91C8E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F5760BB4-1567-4ECD-AE9A-BCC1115CE4B1}"
 	ProjectSection(SolutionItems) = preProject
 		buildDeploy.bat = buildDeploy.bat
 		buildRelease.bat = buildRelease.bat
-		GameData\SpeedUnitDash\localization\en-us.cfg = GameData\SpeedUnitDash\localization\en-us.cfg
-		GameData\SpeedUnitDash\localization\ru.cfg = GameData\SpeedUnitDash\localization\ru.cfg
-		SpeedUnitDash.version = SpeedUnitDash.version
+		GameData\SpeedUnitAnnex\localization\en-us.cfg = GameData\SpeedUnitAnnex\localization\en-us.cfg
+		GameData\SpeedUnitAnnex\localization\ru.cfg = GameData\SpeedUnitAnnex\localization\ru.cfg
+		SpeedUnitAnnex.version = SpeedUnitAnnex.version
 	EndProjectSection
 EndProject
 Global
@@ -32,6 +32,6 @@ Global
 		SolutionGuid = {77FA98CD-3C07-47F5-98C4-A2CC493AEC29}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = SpeedUnitDash\SpeedUnitDash.csproj
+		StartupItem = SpeedUnitAnnex\SpeedUnitAnnex.csproj
 	EndGlobalSection
 EndGlobal

@@ -3,11 +3,11 @@ using System.Runtime.CompilerServices;
 
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
-[assembly: AssemblyTitle ("SpeedUnitDash")]
+[assembly: AssemblyTitle ("SpeedUnitAnnex")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("SpeedUnitDash")]
+[assembly: AssemblyProduct ("SpeedUnitAnnex")]
 [assembly: AssemblyCopyright ("flart")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]

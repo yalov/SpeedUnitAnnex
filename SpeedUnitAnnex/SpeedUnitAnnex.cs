@@ -3,11 +3,12 @@ using UnityEngine;
 using KSP.UI.Screens.Flight;
 using KSP.Localization;
 
-namespace SpeedUnitDash
+
+namespace SpeedUnitAnnex
 {
 
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class SpeedUnitDash : MonoBehaviour
+    public class SpeedUnitAnnex : MonoBehaviour
     {
         private SpeedDisplay display;
         private float fontSize;
@@ -16,31 +17,31 @@ namespace SpeedUnitDash
         private float kmph_ms = 3.6f;
         private float kn_ms = 0.514f;
 
-        private string kn =   " " + Localizer.Format("#SpeedUnitDash_knot");
-        private string kmph = " " + Localizer.Format("#SpeedUnitDash_kmph");
-        private string mph =  " " + Localizer.Format("#SpeedUnitDash_mph");
+        private string kn =   " " + Localizer.Format("#SpeedUnitAnnex_knot");
+        private string kmph = " " + Localizer.Format("#SpeedUnitAnnex_kmph");
+        private string mph =  " " + Localizer.Format("#SpeedUnitAnnex_mph");
 
         //private string Orbit   = Localizer.Format("#autoLOC_7001217") + " ";
         private string Surface = Localizer.Format("#autoLOC_7001218") + " ";
         private string Target  = Localizer.Format("#autoLOC_7001219") + ": ";
 
-        private string Surf3 = Localizer.Format("#SpeedUnitDash_Surf3") + " ";
-        private string Surf5 = Localizer.Format("#SpeedUnitDash_Surf5") + " ";
+        private string Surf3 = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
+        private string Surf5 = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
 
-        private string m = Localizer.Format("#SpeedUnitDash_meter");
-        private string k = Localizer.Format("#SpeedUnitDash_kilo");
-        private string M = Localizer.Format("#SpeedUnitDash_mega");
-        private string G = Localizer.Format("#SpeedUnitDash_giga");
-        private string T = Localizer.Format("#SpeedUnitDash_tera");
+        private string m = Localizer.Format("#SpeedUnitAnnex_meter");
+        private string k = Localizer.Format("#SpeedUnitAnnex_kilo");
+        private string M = Localizer.Format("#SpeedUnitAnnex_mega");
+        private string G = Localizer.Format("#SpeedUnitAnnex_giga");
+        private string T = Localizer.Format("#SpeedUnitAnnex_tera");
 
-        private string Mm = Localizer.Format("#SpeedUnitDash_mega") + Localizer.Format("#SpeedUnitDash_meter");
-        private string Gm = Localizer.Format("#SpeedUnitDash_giga") + Localizer.Format("#SpeedUnitDash_meter");
+        private string Mm = Localizer.Format("#SpeedUnitAnnex_mega") + Localizer.Format("#SpeedUnitAnnex_meter");
+        private string Gm = Localizer.Format("#SpeedUnitAnnex_giga") + Localizer.Format("#SpeedUnitAnnex_meter");
 
 
         //private System.Globalization.CultureInfo culture =
         //    System.Globalization.CultureInfo.CreateSpecificCulture(KSP.Localization.Localizer.CurrentLanguage);
 
-        public SpeedUnitDash()
+        public SpeedUnitAnnex()
         {
             // Nothing to be done here
         }
@@ -134,70 +135,84 @@ namespace SpeedUnitDash
                             double spd = FlightGlobals.ActiveVessel.srfSpeed;
                             string titleText;
 
-                            // Boat (or SPLASHED)
-                            if (situation == Vessel.Situations.SPLASHED)
+                            //VesselType.Base;          //Situations.LANDED   
+                            //VesselType.Debris         //Situations.SPLASHED
+                            //VesselType.EVA            //Situations.PRELAUNCH
+                            //VesselType.Flag           //Situations.FLYING
+                            //VesselType.Lander         //Situations.SUB_ORBITAL
+                            //VesselType.Plane;         //Situations.ORBITING
+                            //VesselType.Probe          //Situations.ESCAPING
+                            //VesselType.Relay          //Situations.DOCKED
+                            //VesselType.Rover
+                            //VesselType.Ship
+                            //VesselType.SpaceObject
+                            //VesselType.Station
+                            //VesselType.Unlnown
+
+                            // Boat or Submarine (trying exclude SPLASHED rocket)
+                            if (situation == Vessel.Situations.SPLASHED && (vesselType == VesselType.Plane || vesselType == VesselType.Base || vesselType == VesselType.Rover))
                             {
-                                titleText = Surf5 + (spd * kn_ms).ToString("F1") + kn;
+                                bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar;
+
+                                if (FlightGlobals.ActiveVessel.altitude < -50 && isradar) // Submarine
+                                    titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.radarAltitude) + "  " + (spd * kn_ms).ToString("F1") + kn; 
+                                else                                                       // Boat
+                                    titleText = Surf5 + (spd * kn_ms).ToString("F1") + kn;
                             }
                             // Plane (not LANDED)
-                            else if (vesselType == VesselType.Plane
+                            else if (vesselType == VesselType.Plane 
                                 && situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                             {
-                                bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitDashSettings>().radar;
+                                bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar;
                                 bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
 
                                 if (isradar)
                                 {
                                     if (isATM)
                                         titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
-                                            + Localizer.Format("#SpeedUnitDash_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
+                                            + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
 
                                     else titleText = Surf5 + Unitize_long(FlightGlobals.ActiveVessel.radarAltitude);
                                 }
                                 else
                                 {
                                     if (isATM)
-                                        titleText = Surf5 + Localizer.Format("#SpeedUnitDash_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
+                                        titleText = Surf5 + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
                                     else titleText = Surface;
                                 }
                             }
-                            // Rover or LANDED Plane
+                            // Rover (and LANDED Plane)
                             else if ((vesselType == VesselType.Rover || vesselType == VesselType.Plane)
-                                    && FlightGlobals.ActiveVessel.radarAltitude < 1000)
+                                    && FlightGlobals.ActiveVessel.radarAltitude < 100)
                             {
-                                if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitDashSettings>().kph)
+                                if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().kph)
                                     titleText = Surf5 + (spd * kmph_ms).ToString("F1") + kmph;
                                 else
                                     titleText = Surf5 + (spd * mph_ms).ToString("F1") + mph;
                             }
-                            // Other: Rocket, Lander, etc 
+                            // Other: Rocket, Lander, etc (anchored base too)
                             else
                             {
-                                if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitDashSettings>().radar)
-                                {
+                                if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar)
                                     titleText = Surf5 + Unitize_long(FlightGlobals.ActiveVessel.radarAltitude);
-                                }
                                 else
-                                {
                                     titleText = Surface;
-                                }
                             }
 
                             // TODO test repulsors
+                            // TODO other vs anchored bases
 
                             display.textTitle.text = titleText;
                             break;
                         }
                     case FlightGlobals.SpeedDisplayModes.Orbit:
                         {
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitDashSettings>().orbit)
+                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().orbit)
                             {
                                 string ApStr = Unitize_short(FlightGlobals.ship_orbit.ApA);
                                 string PeStr = Unitize_short(FlightGlobals.ship_orbit.PeA);
 
-                                string titleText = Localizer.Format("#SpeedUnitDash_Apses", ApStr, PeStr);
-
-                                display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+                                string titleText = Localizer.Format("#SpeedUnitAnnex_Apses", ApStr, PeStr);
 
                                 display.textTitle.text = titleText;
                             }
@@ -205,7 +220,7 @@ namespace SpeedUnitDash
                         }
                     case FlightGlobals.SpeedDisplayModes.Target:
                         {
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitDashSettings>().targetName)
+                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().targetName)
                             {
                                 ITargetable obj = FlightGlobals.fetch.VesselTarget;
 
@@ -230,20 +245,14 @@ namespace SpeedUnitDash
                                 else
                                     display.textTitle.text = text.Substring(0, 16) + "...";
 
-                                display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
-             
                             }
                             else
                             {
-                                ITargetable obj = FlightGlobals.fetch.VesselTarget;
-
                                 // from Docking Port Alignment Indicator
                                 Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-                                //ITargetable targetPort = obj as ITargetable;
-                                Transform targetTransform = obj.GetTransform();
+                                Transform targetTransform = FlightGlobals.fetch.VesselTarget.GetTransform();
                                 Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
                                 float distanceToTarget = targetToOwnship.magnitude;
-
 
 
                                 // from KER
@@ -255,13 +264,14 @@ namespace SpeedUnitDash
 
                                 //double distance = Vector3d.Distance(targetOrbit.pos, originOrbit.pos);
                                 
-
-                                display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
                                 display.textTitle.text = Target + Unitize_short(distanceToTarget);
                             }
                             break;
                         }
                 }
+
+                display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+
             }
         }
     }

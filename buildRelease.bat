@@ -1,17 +1,17 @@
 
 @echo off
 
-set MODNAME=SpeedUnitDash
-set LICENSE=SpeedUnitDash-License.txt
+set MODNAME=SpeedUnitAnnex
+set LICENSE=SpeedUnitAnnex-License.txt
 REM set README=ReadMe.txt
 
 REM // copy dll and version to Rep/GameData
-copy /Y "%1%2" "GameData\%MODNAME%"\Plugins
-copy /Y %MODNAME%.version GameData\%MODNAME%
+REM // copy /Y "%1%2" "GameData\%MODNAME%"\Plugins
+REM // copy /Y %MODNAME%.version GameData\%MODNAME%
 REM copy /Y ..\MiniAVC.dll GameData\%MODNAME%
 
-if "%LICENSE%" NEQ "" copy /y  %LICENSE% GameData\%MODNAME%
-if "%README%" NEQ "" copy /Y %README% GameData\%MODNAME%
+if "%LICENSE%" NEQ "" xcopy %LICENSE% GameData\%MODNAME% /Y /I
+if "%README%"  NEQ "" xcopy %README%  GameData\%MODNAME% /Y /I
 
 
 set RELEASESDIR=releases

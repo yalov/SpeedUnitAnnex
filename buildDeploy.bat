@@ -2,13 +2,13 @@
 @echo off
 
 set GAMEPATH=c:\Users\User\Games\Kerbal Space Program 1.3.1 eng
-set MODNAME=SpeedUnitDash
+set MODNAME=SpeedUnitAnnex
 echo %GAMEPATH%
 
 REM // copy dll and version to Rep/GameData
-copy /Y "%1%2" "GameData\%MODNAME%"\Plugins
-copy /Y %MODNAME%.version GameData\%MODNAME%
+xcopy "%1%2" "GameData\%MODNAME%\Plugins\" /Y
+xcopy "%MODNAME%.version" "GameData\%MODNAME%\" /Y 
 
 REM // copy dll and version in Rep/GameData to GAMEPATH
-mkdir "%GAMEPATH%\GameData\%MODNAME%"
-xcopy /y /s  /i GameData\%MODNAME% "%GAMEPATH%\GameData\%MODNAME%"
+REM mkdir "%GAMEPATH%\GameData\%MODNAME%"
+xcopy "GameData\%MODNAME%" "%GAMEPATH%\GameData\%MODNAME%\" /Y /S /I
