@@ -12,8 +12,8 @@ namespace SpeedUnitAnnex
 
         public override string Title { get { return Localizer.Format("#SpeedUnitAnnex_navball_info") ; } }
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
-        public override string Section { get { return "SpeedUnitAnnex"; } }
-        public override string DisplaySection { get { return "SpeedUnitAnnex"; } }
+        public override string Section { get { return "Speed Unit Annex"; } }
+        public override string DisplaySection { get { return "Speed Unit Annex"; } }
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return true; } }
 
