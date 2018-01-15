@@ -1,33 +1,26 @@
 ### SpeedUnitAnnex
 
-Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay. It's doesn't change main `xx.x m/s` line, but add (annex) some new speed unit and helpful value to the top line, depending from navball mode and the vesselType. Also it has difficulty setting page.
+Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay. It's doesn't change main `xx.x m/s` line, but add (annex) some new speed unit and helpful value to the top line, depending from navball mode and the vesselType. Also it has setting page (difficulty section).
+
+![](https://github.com/yalov/SpeedUnitAnnex/blob/master/pictures/modes%20small.jpg?raw=true)
 
  * surface mode
-   * For Rover it shows km/h or mph (difficulty setting)
-   * For Boat/Submarine it shows knots 
-   * For Plane it shows Mach number 
-   * For Kerbal (EVA) it shows Name
-   * For all, except Rover and Boat it show Above Ground Level (difficulty setting)
+   * Rover - it shows km/h or mph (setting)
+   * Boat/Submarine - it shows knots 
+   * Plane - it shows Mach number 
+   * Kerbal (EVA) - it shows Name
+   * All, except Rovers and Boat - it show Above Ground Level (setting)
 
 
  * orbit mode
-   * It shows Apoapsis and Periapsis (difficulty setting)
+   * It shows Apoapsis and Periapsis (setting)
 
  * target mode
    * It shows target vessel
-   * It shows a distance to target (difficulty setting)
+   * It shows a distance to target (setting)
 
-<!--
-[1.3.1] Speed Unit Annex - add some new speed unit, contextually! [20180115]
-note:
-Boat is SPLASHED™ Plane™ or SPLASHED™ Rover™ above -20
-Submarine is SPLASHED™ Plane™ or SPLASHED™ Rover™ below -20.
-Rover is non-SPLASHED™ Rover™ or LANDED™ Plane™
-Plane is non-SPLASHED™ Plane™ and non-LANDED™ Plane™
 
-Notice, sometimes ksp doesn't recognize vessel type correctly. Then select it manually using "rename vessel" option.
-
---->
-
-Releases page:  https://github.com/yalov/SpeedUnitAnnex/releases
-License: GPLv3
+Releases page:  https://github.com/yalov/SpeedUnitAnnex/releases  
+Spacedock:      [Speed Unit Annex](https://spacedock.info/mod/1662/Speed%20Unit%20Annex)  
+Forum: https://forum.kerbalspaceprogram.com/index.php?/topic/169611  
+License: [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html)
