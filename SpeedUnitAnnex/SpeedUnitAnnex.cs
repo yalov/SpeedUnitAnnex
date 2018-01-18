@@ -121,7 +121,7 @@ namespace SpeedUnitAnnex
                 str = Truncate(value / 1E6, "N", 1) + " " + Mm;
 
             else                  // 1,000.0 Gm - 999,999.9 Gm and beyond
-                str = Truncate(value / 1E6, "N", 1) + " " + Gm;
+                str = Truncate(value / 1E9, "N", 1) + " " + Gm;
     
             return str;
         }
