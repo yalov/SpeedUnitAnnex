@@ -20,29 +20,34 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_surfaceMode", lines = 2, title = "#SpeedUnitAnnex_surfaceMode")]
         public string UIstring1 = "";
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_speedometer", toolTip = "#SpeedUnitAnnex_speedometer_toolTip")]
-        public bool kph = true;
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_rover_speedometer", toolTip = "#SpeedUnitAnnex_rover_speedometer_toolTip")]
+        public bool setting_kmph = true;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_aircraft_speedometer", toolTip = "#SpeedUnitAnnex_aircraft_speedometer_toolTip")]
+        public bool setting_mach = true;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_altimeter", toolTip = "#SpeedUnitAnnex_altimeter_toolTip")]
-        public bool radar = true;
+        public bool setting_radar = true;
 
         [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_orbitMode", lines = 2, title = "#SpeedUnitAnnex_orbitMode")]
         public string UIstring2 = "";
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_Ap", toolTip = "#SpeedUnitAnnex_Ap_toolTip")]
-        public bool orbit = true;
+        public bool setting_orbit = true;
 
         [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2, title = "#SpeedUnitAnnex_targetMode")]
         public string UIstring3 = "";
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDistance", toolTip = "#SpeedUnitAnnex_targetDistance_toolTip")]
-        public bool targetDistance = true;
+        public bool setting_targetDistance = true;
 
         public override void SetDifficultyPreset(GameParameters.Preset preset)
         {
-            kph = true;
-            radar = true;
-            orbit = true;
+            setting_kmph = true;
+            setting_mach = true;
+            setting_radar = true;
+            setting_orbit = true;
+            setting_targetDistance = true;
         }
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)

@@ -11,13 +11,13 @@ namespace SpeedUnitAnnex
     public class SpeedUnitAnnex : MonoBehaviour
     {
         private SpeedDisplay display;
-        //private float fontSize;
-        //private float titleFontSize;
+
         private float mph_ms = 2.23694f;
         private float kmph_ms = 3.6f;
-        private float kn_ms = 0.514f;
+        private float kn_ms = 1 / 0.514f;
 
-        private string kn =   " " + Localizer.Format("#SpeedUnitAnnex_knot");
+        private string kn = " " + Localizer.Format("#SpeedUnitAnnex_kn");
+        private string knots =   " " + Localizer.Format("#SpeedUnitAnnex_knots");
         private string kmph = " " + Localizer.Format("#SpeedUnitAnnex_kmph");
         private string mph =  " " + Localizer.Format("#SpeedUnitAnnex_mph");
 
@@ -56,10 +56,6 @@ namespace SpeedUnitAnnex
                 display = GameObject.FindObjectOfType<SpeedDisplay>();
                 if (display != null)
                 {
-                    //fontSize = display.textSpeed.fontSize;
-                    //titleFontSize = display.textTitle.fontSize;
-                    //display.textTitle.fontSize = titleFontSize / 1.15f;
-
                     display.textTitle.fontSize /= 1.15f;
                 }
             }
@@ -165,33 +161,46 @@ namespace SpeedUnitAnnex
                                         // Boat or Submarine
                                         if (situation == Vessel.Situations.SPLASHED)
                                         {
-                                            bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar;
+                                            bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_radar;
 
                                             if (FlightGlobals.ActiveVessel.altitude < -20 && isradar) // Submarine
                                                 titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.terrainAltitude) + "  " + (spd * kn_ms).ToString("F1") + kn;
                                             else                                                       // Boat
-                                                titleText = Surf5 + (spd * kn_ms).ToString("F1") + kn;
+                                                titleText = Surf5 + (spd * kn_ms).ToString("F1") + knots;
                                         }
                                         // Plane (not LANDED) 
                                         else if (vesselType == VesselType.Plane
                                             && situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                                         {
-                                            bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar;
+                                            bool isradar = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_radar;
+                                            bool ismach = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_mach;
                                             bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
 
                                             if (isradar)
                                             {
-                                                if (isATM)
-                                                    titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
-                                                        + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
+                                                if (ismach)
+                                                {
+                                                    if (isATM)
+                                                        titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
+                                                            + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
 
-                                                else titleText = Surf5 + Unitize_long(FlightGlobals.ActiveVessel.radarAltitude);
+                                                    else titleText = Surf5 + Unitize_long(FlightGlobals.ActiveVessel.radarAltitude);
+                                                }
+                                                else
+                                                    titleText = Surf3 + Unitize_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
+                                                        + (spd * kn_ms).ToString("F1") + kn;
+
                                             }
                                             else
                                             {
-                                                if (isATM)
-                                                    titleText = Surf5 + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
-                                                else titleText = Surface;
+                                                if (ismach)
+                                                {
+                                                    if (isATM)
+                                                        titleText = Surf5 + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
+                                                    else titleText = Surface;
+                                                }
+                                                else
+                                                    titleText = Surf5 + (spd * kn_ms).ToString("F1") + knots;
                                             }
                                         }
                                         // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
@@ -199,7 +208,7 @@ namespace SpeedUnitAnnex
                                         // but it make unclear to user, which values shows up.
                                         else //if FlightGlobals.ActiveVessel.radarAltitude < 100)
                                         {
-                                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().kph)
+                                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_kmph)
                                                 titleText = Surf5 + (spd * kmph_ms).ToString("F1") + kmph;
                                             else
                                                 titleText = Surf5 + (spd * mph_ms).ToString("F1") + mph;
@@ -209,7 +218,7 @@ namespace SpeedUnitAnnex
 
                                 case VesselType.EVA:
                                     {
-                                        if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar)
+                                        if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_radar)
                                         {
                                             double alt;
 
@@ -241,7 +250,7 @@ namespace SpeedUnitAnnex
                                 // Other: Rocket, Lander, Base etc 
                                 default:
                                     {
-                                        if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().radar)
+                                        if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_radar)
                                             titleText = Surf5 + Unitize_long(FlightGlobals.ActiveVessel.radarAltitude);
                                         else
                                             titleText = Surface;
@@ -256,7 +265,7 @@ namespace SpeedUnitAnnex
                         }
                     case FlightGlobals.SpeedDisplayModes.Orbit:
                         {
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().orbit)
+                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_orbit)
                             {
                                 string ApStr = Unitize_short(FlightGlobals.ship_orbit.ApA);
                                 string PeStr = Unitize_short(FlightGlobals.ship_orbit.PeA);
@@ -290,7 +299,7 @@ namespace SpeedUnitAnnex
                             if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
                                 name = name.Substring(0, name.Length - 2);
 
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().targetDistance)
+                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_targetDistance)
                             {
                                 // from Docking Port Alignment Indicator
                                 Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;

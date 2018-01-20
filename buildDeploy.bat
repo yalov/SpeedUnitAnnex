@@ -2,6 +2,7 @@
 @echo off
 
 set GAMEPATH=c:\Users\User\Games\Kerbal Space Program 1.3.1 eng
+set GAMEPATH2=c:\Users\User\Games\Kerbal Space Program 1.3.1 rus test
 set MODNAME=SpeedUnitAnnex
 echo %GAMEPATH%
 
@@ -12,3 +13,5 @@ xcopy "%MODNAME%.version" "GameData\%MODNAME%\" /Y
 REM // copy dll and version in Rep/GameData to GAMEPATH
 REM mkdir "%GAMEPATH%\GameData\%MODNAME%"
 xcopy "GameData\%MODNAME%" "%GAMEPATH%\GameData\%MODNAME%\" /Y /S /I
+
+xcopy "GameData\%MODNAME%" "%GAMEPATH2%\GameData\%MODNAME%\" /Y /S /I
