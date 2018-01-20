@@ -12,7 +12,7 @@ Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay. It's doesn't
  * surface mode
    * Rover - it shows km/h or mph (setting)
    * Boat/Submarine - it shows knots 
-   * Plane - it shows Mach number 
+   * Plane - it shows Mach number or knots (setting)
    * Kerbal (EVA) - it shows Name
    * All, except Rovers and Boat - it show Above Ground Level (setting)
 
