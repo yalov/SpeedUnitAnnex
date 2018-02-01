@@ -35,6 +35,9 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_Ap", toolTip = "#SpeedUnitAnnex_Ap_toolTip")]
         public bool setting_orbit = true;
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
+        public bool setting_orbit_EVA = true;
+
         [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2, title = "#SpeedUnitAnnex_targetMode")]
         public string UIstring3 = "";
 
@@ -47,6 +50,7 @@ namespace SpeedUnitAnnex
             setting_mach = true;
             setting_radar = true;
             setting_orbit = true;
+            setting_orbit_EVA = true;
             setting_targetDistance = true;
         }
 

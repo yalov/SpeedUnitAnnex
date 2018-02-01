@@ -25,6 +25,7 @@ namespace SpeedUnitAnnex
         private string Surface = Localizer.Format("#autoLOC_7001218") + " ";
         //private string Target  = Localizer.Format("#autoLOC_7001219") + " ";
 
+        private string Orb   = Localizer.Format("#SpeedUnitAnnex_Orb") + " ";
         private string Surf3 = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
         private string Surf5 = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
 
@@ -205,7 +206,7 @@ namespace SpeedUnitAnnex
                                         }
                                         // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
                                         // All mistake at ksp detecting vessel type can be fixed by some additional checking (ex. altitude for rover-carrier)
-                                        // but it make unclear to user, which values shows up.
+                                        // but it make unclear to user, which values is showed up.
                                         else //if FlightGlobals.ActiveVessel.radarAltitude < 100)
                                         {
                                             if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_kmph)
@@ -265,21 +266,28 @@ namespace SpeedUnitAnnex
                         }
                     case FlightGlobals.SpeedDisplayModes.Orbit:
                         {
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_orbit)
+                            if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA 
+                                && HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_orbit_EVA)
+                            {
+                                string titleText = Orb + FlightGlobals.ActiveVessel.GetDisplayName();
+
+                                if (titleText.Length > 17)
+                                    titleText = titleText.Substring(0, 16) + "...";
+
+                                display.textTitle.text = titleText;
+                            }
+                            else if (HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().setting_orbit)
                             {
                                 string ApStr = Unitize_short(FlightGlobals.ship_orbit.ApA);
                                 string PeStr = Unitize_short(FlightGlobals.ship_orbit.PeA);
 
-                                string titleText = Localizer.Format("#SpeedUnitAnnex_Apses", ApStr, PeStr);
-
-                                display.textTitle.text = titleText;
+                                display.textTitle.text = Orb + ApStr + " " + PeStr;
                             }
+                            
                             break;
                         }
                     case FlightGlobals.SpeedDisplayModes.Target:
                         {
-                            
-                 
                             ITargetable obj = FlightGlobals.fetch.VesselTarget;
 
                             // ITargetable ->  CelestialBody;
@@ -325,7 +333,6 @@ namespace SpeedUnitAnnex
                 }
 
                 display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
-
             }
         }
     }

@@ -10,15 +10,16 @@ Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay. It's doesn't
 ![](https://github.com/yalov/SpeedUnitAnnex/blob/master/pictures/modes%20small.jpg?raw=true)
 
  * surface mode
-   * Rover - it shows km/h or mph (setting)
-   * Boat/Submarine - it shows knots 
-   * Plane - it shows Mach number or knots (setting)
-   * Kerbal (EVA) - it shows Name
-   * All, except Rovers and Boat - it show Above Ground Level (setting)
+   * Rover — km/h or mph (setting)
+   * Boat/Submarine — knots 
+   * Plane — Mach number or knots (setting)
+   * Kerbal (EVA) — Name
+   * All, except Rovers and Boats — Above Ground Level (setting)
 
  * orbit mode
-   * It shows Apoapsis and Periapsis (setting)
+   * Apoapsis and Periapsis (setting)
+   * Kerbal (EVA) — Name (setting)
 
  * target mode
-   * It shows target vessel
-   * It shows a distance to target (setting)
+   * Target vessel
+   * Distance to target (setting)
