@@ -1,8 +1,8 @@
 
 @echo off
 
-set GAMEPATH=c:\Users\User\Games\Kerbal Space Program 1.4.0 eng
-set GAMEPATH2=c:\Users\User\Games\Kerbal Space Program 1.4.0 rus
+set GAMEPATH=c:\Users\User\Games\Kerbal Space Program 1.4.1 eng
+set GAMEPATH2=c:\Users\User\Games\Kerbal Space Program 1.4.1 rus
 set MODNAME=SpeedUnitAnnex
 echo %GAMEPATH%
 

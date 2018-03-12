@@ -35,11 +35,11 @@ namespace SpeedUnitAnnex
             return (Math.Truncate(multiplier * value) / multiplier).ToString(mode + decimal_digits);
         }
 
-        public static string Time(double seconds, string prefix = "T-", bool ok = true)
+        public static string Time(double seconds, string prefix = "T-")
         {
             string str;
 
-            if (Double.IsInfinity(seconds) || seconds<0 || !ok) return "";
+            if (Double.IsInfinity(seconds) || seconds<0 ) return "";
             else str = prefix;
 
             if (seconds < 100)
@@ -74,24 +74,22 @@ namespace SpeedUnitAnnex
 
             return str;
         }
-        
+
         /// <summary>
-        /// significant_digits >= 3
+        /// convert value to Distance string with unit (lower unit is m — 9.99 99.99 999.9 unit )
         /// </summary>
-        public static string Distance_short(double value, int significant_digits = 3)
+        public static string Distance_short(double value)
         {
-            string str;
             double v = Math.Abs(value);
+
             int i;
             for (i = 0; v >= 1000 && i < SI.Length - 1; i++)
                 v /= 1000;
 
-            if (v < 10)        str = Truncate(Math.Sign(value) * v, "F", significant_digits - 1) + SI[i];
-            else if (v < 100)  str = Truncate(Math.Sign(value) * v, "F", significant_digits - 2) + SI[i];
-            else if (v < 1000) str = Truncate(Math.Sign(value) * v, "F", significant_digits - 3) + SI[i];
-            else               str = value.ToString("0e0") + m;
-
-            return str;
+            if (v < 10)        return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
+            else if (v < 100)  return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
+            else if (v < 1000) return Truncate(Math.Sign(value) * v, "F", 0) + SI[i];
+            else               return value.ToString("0e0") + m;
         }
 
         /// <summary>
@@ -107,10 +105,10 @@ namespace SpeedUnitAnnex
             for (i = 0; v >= 1000 && i < SI.Length - 1; i++)
                 v /= 1000;
 
-            if (v < 10) return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
-            else if (v < 100) return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
+            if (v < 10)        return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
+            else if (v < 100)  return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
             else if (v < 1000) return Truncate(Math.Sign(value) * v, "F", 0) + SI[i];
-            else return value.ToString("0e0") + m;
+            else               return value.ToString("0e0") + m;
 
         }
 

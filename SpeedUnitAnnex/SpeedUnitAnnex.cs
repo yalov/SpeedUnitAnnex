@@ -13,9 +13,6 @@ namespace SpeedUnitAnnex
     {
 
         SpeedDisplay display;
-        //float line1_fontsize;
-        //float line2_fontsize;
-        //float lines_fontsize;
 
         const float mph_ms = 2.23694f;
         const float kmph_ms = 3.6f;
@@ -37,15 +34,12 @@ namespace SpeedUnitAnnex
           
         static readonly string Ap_str = Localizer.Format("#autoLOC_6003115") + " ";
         static readonly string Pe_str = Localizer.Format("#autoLOC_6003116") + " ";
-
         static readonly string Ap_pre = Localizer.Format("#SpeedUnitAnnex_ApoapsisTime_prefix");
         static readonly string Pe_pre = Localizer.Format("#SpeedUnitAnnex_PeriapsisTime_prefix");
 
         string titleText;
 
         SpeedUnitAnnexSettings settings;
-        //bool setting_orbit_time;
-
 
         public SpeedUnitAnnex()
         {
@@ -58,73 +52,13 @@ namespace SpeedUnitAnnex
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
-            //setting_orbit_time = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().orbit_time;
 
             display.textSpeed.enableWordWrapping = false;
             display.textTitle.enableWordWrapping = false;
 
-            //lines_fontsize = display.textTitle.fontSize;
-
-            //line1_fontsize = lines_fontsize / 1.15f;
-            //line2_fontsize = display.textSpeed.fontSize;
-
             display.textTitle.fontSize = display.textTitle.fontSize / 1.15f;
 
-            //GameEvents.onSetSpeedMode.Add(onSetSpeedMode);
         }
-
-    /*
-        public void OnGameSettingsWritten()
-        {
-            Log("OnGameSettingsWritten()");
-
-            settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
-            setting_orbit_time = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>().orbit_time;
-
-            onSetSpeedMode(FlightGlobals.speedDisplayMode);
-
-        }
-
-        public void onSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
-        {
-            Log("onSetSpeedMode()");
-
-
-
-            switch (mode)
-            {
-                case FlightGlobals.SpeedDisplayModes.Surface:
-                case FlightGlobals.SpeedDisplayModes.Target:
-                    SetDisplayToDefault();
-                    break;
-                case FlightGlobals.SpeedDisplayModes.Orbit:
-                    if (setting_orbit_time)
-                        SetDisplayToOrbitTime();
-                    else
-                        SetDisplayToDefault();
-                    break;
-            }
-        }
-
-        private void SetDisplayToOrbitTime()
-        {
-
-            display.textTitle.fontSize = lines_fontsize;
-            display.textSpeed.fontSize = lines_fontsize;
-            display.textSpeed.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
-        }
-
-        private void SetDisplayToDefault()
-        {
-            display.textTitle.fontSize = line1_fontsize;
-            display.textSpeed.fontSize = line2_fontsize;
-            display.textSpeed.alignment = TMPro.TextAlignmentOptions.Midline;
-            display.textSpeed.color = new Color(0.0f, 1.0f, 0.0f, 1f);
-            display.textTitle.color = new Color(0.0f, 1.0f, 0.0f, 1f);
-
-            Log("SetDisplayToDefault()" + display.textTitle.fontSize + " " + display.textSpeed.fontSize);
-        }
-        */
 
         public void LateUpdate()
         {
@@ -187,7 +121,6 @@ namespace SpeedUnitAnnex
                                         else
                                             titleText = Surf3 + Formatter.Distance_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
                                                 + (spd * kn_ms).ToString("F1") + kn;
-
                                     }
                                     else
                                     {
@@ -211,7 +144,6 @@ namespace SpeedUnitAnnex
                                     else
                                         titleText = Surf5 + (spd * mph_ms).ToString("F1") + mph;
                                 }
-
                                 break;
 
                             case VesselType.EVA:
@@ -229,7 +161,6 @@ namespace SpeedUnitAnnex
 
                                 if (titleText.Length > 17) 
                                     titleText = titleText.Substring(0, 16) + "...";
-
                                 break;
 
                             case VesselType.Flag:
@@ -238,7 +169,6 @@ namespace SpeedUnitAnnex
 
                                 if (titleText.Length > 17)
                                     titleText = titleText.Substring(0, 16) + "...";
-
                                 break;
 
                             // Other: Rocket, Lander, Base etc 
@@ -248,10 +178,7 @@ namespace SpeedUnitAnnex
                                     titleText = Surf5 + Formatter.Distance_long(FlightGlobals.ActiveVessel.radarAltitude);
                                 else
                                     titleText = Surface;
-
-
                                 break;
-
                         }
 
                         display.textTitle.text = titleText;
@@ -277,41 +204,15 @@ namespace SpeedUnitAnnex
                             double SOI_MASL = FlightGlobals.getMainBody().sphereOfInfluence - FlightGlobals.getMainBody().Radius;
                             bool Ap_ok = FlightGlobals.ship_orbit.ApA > 0 && FlightGlobals.ship_orbit.ApA < SOI_MASL;
                             bool Pe_ok = FlightGlobals.ship_orbit.PeA > 0 && FlightGlobals.ship_orbit.PeA < SOI_MASL;
+                            string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
+                            string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
+                            string Apsises = (Ap_ok ? "<color=#00ff00ff>" : "<color=#00ff009f>") + Ap +
+                                             (Pe_ok ? " <color=#00ff00ff>" : " <color=#00ff009f>") + Pe;
 
-                            
-
-#if false
-                            if (false)
-                            {
-                                string Ap = Formatter.Distance_short(FlightGlobals.ship_orbit.ApA);
-                                string Pe = Formatter.Distance_short(FlightGlobals.ship_orbit.PeA);
-
-                                string TimeAp = Formatter.Time(FlightGlobals.ship_orbit.timeToAp);
-                                string TimePe = Formatter.Time(FlightGlobals.ship_orbit.timeToPe);
-
-                                display.textTitle.text = Ap_str + Ap + TimeAp;
-                                display.textSpeed.text = "  " + Pe_str + Pe + TimePe;
-
-                                if (Ap_ok)
-                                    display.textTitle.color = new Color32(0x00, 0xff, 0x00, 0xff);
-
-                                else
-                                    display.textTitle.color = new Color32(0x00, 0xff, 0x00, 0x9f);
-
-
-                                if (Pe_ok)
-                                    display.textSpeed.color = new Color32(0x00, 0xff, 0x00, 0xff);
-                                else
-                                    display.textSpeed.color = new Color32(0x00, 0xff, 0x00, 0x9f);
-                            }
-#endif
 
                             if (settings.orbit_time)
                             {
-                                string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
-                                string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
                                 //double tTr = FlightGlobals.ship_orbit.timeToTransition1;
-
                                 string TimeApsis;
                                 bool Apsis_ok;
 
@@ -326,18 +227,12 @@ namespace SpeedUnitAnnex
                                     TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToPe, Pe_pre);
                                 }
 
-                                display.textTitle.text = (Ap_ok ? "<color=#00ff00ff>" : "<color=#00ff009f>") + Ap +
-                                                         (Pe_ok ? " <color=#00ff00ff>" : " <color=#00ff009f>") + Pe +
+                                display.textTitle.text = Apsises +
                                                       (Apsis_ok ? " <color=#ffffffff>" : " <color=#ffffff9f>") + TimeApsis;
                             }
                             else
                             {
-                                string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
-                                string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
-
-                                display.textTitle.text = Orb + (Ap_ok ? "<color=#00ff00ff>" : "<color=#00ff009f>") + Ap +
-                                                               (Pe_ok ? "  <color=#00ff00ff>" : "  <color=#00ff009f>") + Pe;
-                                
+                                display.textTitle.text = Orb + Apsises;
                             }
                         }
 
@@ -347,7 +242,6 @@ namespace SpeedUnitAnnex
                     case FlightGlobals.SpeedDisplayModes.Target:
 
                         ITargetable obj = FlightGlobals.fetch.VesselTarget;
-
 #region all Target
                         // ITargetable ->  CelestialBody;
                         //                 FlightCoMTracker;
@@ -355,7 +249,6 @@ namespace SpeedUnitAnnex
                         //                 PositionTarget;
                         //                 Vessel;
 #endregion
-
                         string name;
 
                         if (obj is ModuleDockingNode)
@@ -395,7 +288,7 @@ namespace SpeedUnitAnnex
 
                 //Log("LateUpdate()" + display.textTitle.fontSize + " " + display.textSpeed.fontSize);
 
-                // need to be there
+                // need to be there, for every tick. Doesn't work in the  Start() or onSetSpeedMode()
                 display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
             }
         }
