@@ -1,0 +1,29 @@
+Version 1.1.5
+	Italian localization (thanks to Simog)
+	surface EVA AGL fix, 
+	hide "Orb" for Orbit-EVA while "Orb" hided for other vessel.  
+
+Version 1.1.3/1.1.4 
+	recompiled for KSP 1.3.1/1.4.1, respectively
+	Ap/Pe become a little transparent if they are negative or larger than SOI-radius
+	new orbit mode option: time to closest Ap/Pe (disable by default)
+	speed in the target mode has 2 digit after decimal for < 2 m/s
+
+Version 1.0.0
+	recompiled for KSP 1.4.0
+
+Version 0.9.10
+	Add Spanish localization (thanks to Fitiales)
+
+Version 0.9.9
+	Add kerbal name for kerbals in orbit mode.
+
+Version 0.9.8 
+	add knots for airplanes (Mach number or knots in the setting)
+	fix bugs
+
+Version 0.9.7.1
+	German localization (thanks to Isabelle.V.Fuchs)
+
+Version 0.9.7
+	Released on 2018-01-15

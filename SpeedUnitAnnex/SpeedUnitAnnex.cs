@@ -152,8 +152,8 @@ namespace SpeedUnitAnnex
                                 {
                                     double alt = FlightGlobals.ActiveVessel.radarAltitude;
 
-                                    if (situation == Vessel.Situations.SPLASHED) alt += 0.2;
-                                    else                                         alt -= 0.2;
+                                    if (situation == Vessel.Situations.SPLASHED) alt += 0.21;
+                                    else                                         alt -= 0.27;
 
                                     titleText = Surf3 + Formatter.Distance_short(alt) + " " + FlightGlobals.ActiveVessel.GetDisplayName();
                                 }
@@ -191,7 +191,10 @@ namespace SpeedUnitAnnex
                         if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
                             && settings.orbit_EVA)
                         {
-                            titleText = Orb + FlightGlobals.ActiveVessel.GetDisplayName();
+                            if (settings.orbit_time)
+                                titleText = FlightGlobals.ActiveVessel.GetDisplayName();
+                            else
+                                titleText = Orb + FlightGlobals.ActiveVessel.GetDisplayName();
 
                             if (titleText.Length > 17)
                                 titleText = titleText.Substring(0, 16) + "...";
@@ -285,8 +288,6 @@ namespace SpeedUnitAnnex
                             display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps;
                         break;
                 }
-
-                //Log("LateUpdate()" + display.textTitle.fontSize + " " + display.textSpeed.fontSize);
 
                 // need to be there, for every tick. Doesn't work in the  Start() or onSetSpeedMode()
                 display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;

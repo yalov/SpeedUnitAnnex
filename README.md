@@ -7,7 +7,7 @@
 
 Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay. It's doesn't change main `xx.x m/s` line, but add (annex) some new speed unit and helpful value to the top line, depending from navball mode and the vesselType. Also it has setting page (difficulty section).
 
-![](https://github.com/yalov/SpeedUnitAnnex/blob/master/pictures/modes%20small.jpg?raw=true)
+![](https://i.imgur.com/TTaKyCZ.jpg)
 
  * surface mode
    * Rover — km/h or mph (setting)

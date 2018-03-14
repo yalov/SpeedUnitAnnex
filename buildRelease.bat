@@ -3,6 +3,7 @@
 
 set MODNAME=SpeedUnitAnnex
 set LICENSE=SpeedUnitAnnex-License.txt
+set CHANGELOG=ChangeLog.txt
 REM set README=ReadMe.txt
 
 REM // copy dll and version to Rep/GameData
@@ -12,6 +13,7 @@ REM copy /Y ..\MiniAVC.dll GameData\%MODNAME%
 
 if "%LICENSE%" NEQ "" xcopy %LICENSE% GameData\%MODNAME% /Y /I
 if "%README%"  NEQ "" xcopy %README%  GameData\%MODNAME% /Y /I
+if "%CHANGELOG%"  NEQ "" xcopy %CHANGELOG%  GameData\%MODNAME% /Y /I
 
 
 set RELEASESDIR=releases
