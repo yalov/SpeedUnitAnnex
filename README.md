@@ -5,21 +5,23 @@
 [![Forum thread](https://img.shields.io/badge/Link-Forum%20thread-blue.svg)](https://forum.kerbalspaceprogram.com/index.php?/topic/169611-*)
 [![Spacedock](https://img.shields.io/badge/Link-Spacedock-blue.svg)](https://spacedock.info/mod/1662/Speed%20Unit%20Annex)
 
-Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay. It's doesn't change main `xx.x m/s` line, but add (annex) some new speed unit and helpful value to the top line, depending from navball mode and the vesselType. Also it has setting page (difficulty section).
+Another mod in the family of SpeedUnitChanger and SpeedUnitDisplay.
+The main xx.x m/s line is still there, the mod adds (annex) some new speed unit and helpful value to the top line, depending from navball mode and the vesselType. Configurable in the settings page (difficulty section).
 
 ![](https://i.imgur.com/TTaKyCZ.jpg)
 
- * surface mode
-   * Rover — km/h or mph (setting)
+ * Surface mode
+   * Rover — km/h or mph
    * Boat/Submarine — knots 
-   * Plane — Mach number or knots (setting)
+   * Plane — Mach number or knots
    * Kerbal (EVA) — Name
-   * All, except Rovers and Boats — Above Ground Level (setting)
+   * All, except Rovers and Boats — Above Ground Level
 
  * orbit mode
-   * Apoapsis and Periapsis (setting)
-   * Kerbal (EVA) — Name (setting)
+   * Kerbal (EVA) — name
+   * Ap and Pe (a little transparent for `Apsis ∉ (0, R_soi)`)
+   * Time to the next Ap/Pe (`А-4.5d` — four and a half days until Apoapsis)
 
  * target mode
-   * Target vessel
-   * Distance to target (setting)
+   * Target vessel name
+   * Distance to target
