@@ -16,14 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localization", "{F9A50D22-6DE9-4545-9A21-22E7886A5750}"
 	ProjectSection(SolutionItems) = preProject
-		GameData\SpeedUnitAnnex\localization\de.cfg = GameData\SpeedUnitAnnex\localization\de.cfg
+		GameData\SpeedUnitAnnex\localization\de-de.cfg = GameData\SpeedUnitAnnex\localization\de-de.cfg
 		GameData\SpeedUnitAnnex\localization\en-us.cfg = GameData\SpeedUnitAnnex\localization\en-us.cfg
 		GameData\SpeedUnitAnnex\localization\es-es.cfg = GameData\SpeedUnitAnnex\localization\es-es.cfg
 		GameData\SpeedUnitAnnex\localization\it-it.cfg = GameData\SpeedUnitAnnex\localization\it-it.cfg
 		GameData\SpeedUnitAnnex\localization\ru.cfg = GameData\SpeedUnitAnnex\localization\ru.cfg
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppTest", "ConsoleAppTest\ConsoleAppTest.csproj", "{935C6C50-74FC-4B76-86A9-81A9CE986A06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +33,6 @@ Global
 		{760AEC5B-AEE9-486E-AA10-C29EF2A91C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{760AEC5B-AEE9-486E-AA10-C29EF2A91C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{760AEC5B-AEE9-486E-AA10-C29EF2A91C8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{935C6C50-74FC-4B76-86A9-81A9CE986A06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{935C6C50-74FC-4B76-86A9-81A9CE986A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{935C6C50-74FC-4B76-86A9-81A9CE986A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{935C6C50-74FC-4B76-86A9-81A9CE986A06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

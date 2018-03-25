@@ -1,3 +1,6 @@
+Version 1.1.6
+	Localization update (de-de, en-us, es-es, it-it, ru)
+
 Version 1.1.5
 	Italian localization (thanks to Simog)
 	surface EVA AGL fix, 
