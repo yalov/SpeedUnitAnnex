@@ -1,3 +1,8 @@
+ChangeLog:
+
+Version 1.1.7
+	recompiled for KSP 1.4.2
+
 Version 1.1.6
 	Localization update (de-de, en-us, es-es, it-it, ru)
 

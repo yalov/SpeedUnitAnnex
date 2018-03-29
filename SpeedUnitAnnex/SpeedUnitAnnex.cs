@@ -104,7 +104,8 @@ namespace SpeedUnitAnnex
                                         titleText = Surf5 + (spd * kn_ms).ToString("F1") + knots;
                                 }
                                 // Plane (not LANDED) 
-                                else if (vesselType == VesselType.Plane && situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
+                                else if (vesselType == VesselType.Plane && 
+                                    situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                                 {
                                     bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
 
