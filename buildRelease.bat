@@ -40,6 +40,6 @@ if "%build%" NEQ "0"  set VERSION=%VERSION%.%build%
 
 echo Version:  %VERSION%
 
-set FILE="%RELEASESDIR%\%MODNAME%-%VERSION%.zip"
+set FILE="%RELEASESDIR%\%MODNAME%-v%VERSION%.zip"
 IF EXIST %FILE% del /F %FILE%
 %ZIP% a -tzip %FILE% GameData
