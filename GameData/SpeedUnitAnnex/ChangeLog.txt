@@ -1,4 +1,8 @@
 ChangeLog:
+Version 1.1.8
+	recompiled for KSP 1.4.3
+	fix URL in .version file
+
 
 Version 1.1.7
 	recompiled for KSP 1.4.2
