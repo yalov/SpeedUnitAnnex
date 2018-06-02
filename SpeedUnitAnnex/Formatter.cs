@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using KSP.Localization;
+using UnityEngine;
 
 namespace SpeedUnitAnnex
 {
@@ -15,7 +17,7 @@ namespace SpeedUnitAnnex
 
         private static string Mm = Localizer.Format("#SpeedUnitAnnex_mega") + Localizer.Format("#SpeedUnitAnnex_meter");
         private static string Gm = Localizer.Format("#SpeedUnitAnnex_giga") + Localizer.Format("#SpeedUnitAnnex_meter");
-                
+
         private static string sec_str = Localizer.Format("#SpeedUnitAnnex_sec");
         private static string min_str = Localizer.Format("#SpeedUnitAnnex_min");
         private static string hour_str = Localizer.Format("#SpeedUnitAnnex_hour");
@@ -39,7 +41,7 @@ namespace SpeedUnitAnnex
         {
             string str;
 
-            if (Double.IsInfinity(seconds) || seconds<0 ) return "";
+            if (Double.IsInfinity(seconds) || seconds < 0) return "";
             else str = prefix;
 
             if (seconds < 100)
@@ -76,7 +78,7 @@ namespace SpeedUnitAnnex
         }
 
         /// <summary>
-        /// convert value to Distance string with unit (lower unit is m — 9.99 99.99 999.9 unit )
+        /// convert value to Distance string with unit (lower unit is m — 999m 9.99k 99.9k 999k )
         /// </summary>
         public static string Distance_short(double value)
         {
@@ -86,33 +88,34 @@ namespace SpeedUnitAnnex
             for (i = 0; v >= 1000 && i < SI.Length - 1; i++)
                 v /= 1000;
 
-            if (v < 10)        return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
-            else if (v < 100)  return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
+            if (v < 10) return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
+            else if (v < 100) return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
             else if (v < 1000) return Truncate(Math.Sign(value) * v, "F", 0) + SI[i];
-            else               return value.ToString("0e0") + m;
+            else return value.ToString("0e0") + m;
         }
 
         /// <summary>
-        /// convert value to Distance string with unit (lower unit is km — 9.99 99.99 999.9 unit )
+        /// convert value to Distance string with unit (lower unit is km — 0.99k 9.99k 99.9k 999k )
         /// </summary>
         public static string Distance_k(double value)
         {
             double v = Math.Abs(value);
 
-            if (v < 1E4) return Truncate(value/1E3, "F", 2) + k;
+            if (v < 1E4) return Truncate(value / 1E3, "F", 2) + k;
 
             int i;
             for (i = 0; v >= 1000 && i < SI.Length - 1; i++)
                 v /= 1000;
 
-            if (v < 10)        return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
-            else if (v < 100)  return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
+            if (v < 10) return Truncate(Math.Sign(value) * v, "F", 2) + SI[i];
+            else if (v < 100) return Truncate(Math.Sign(value) * v, "F", 1) + SI[i];
             else if (v < 1000) return Truncate(Math.Sign(value) * v, "F", 0) + SI[i];
-            else               return value.ToString("0e0") + m;
-
+            else return value.ToString("0e0") + m;
         }
 
-
+        /// <summary>
+        /// convert value to Distance string with unit (999.9m, 99,999,999m  999,999.9Mm  999,999.9Gm)
+        /// </summary>
         public static string Distance_long(double value)
         {
             string str;
