@@ -72,7 +72,10 @@ namespace SpeedUnitAnnex
                         Vessel.Situations situation = FlightGlobals.ActiveVessel.situation;
                         VesselType vesselType = FlightGlobals.ActiveVessel.vesselType;
 
-                        double spd = FlightGlobals.ship_srfSpeed;                      
+                        double spd = FlightGlobals.ship_srfSpeed;
+                        string speedText = spd.ToString("F1") + mps;
+
+
 
                         #region all VesselTypes and Situations
                         //VesselType.Base;          //Situations.LANDED   
@@ -108,6 +111,7 @@ namespace SpeedUnitAnnex
                                     situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                                 {
                                     bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
+                                    double speedIAS = FlightGlobals.ActiveVessel.indicatedAirSpeed;
 
                                     if (settings.radar)
                                     {
@@ -134,6 +138,9 @@ namespace SpeedUnitAnnex
                                         else
                                             titleText = Surf5 + (spd * kn_ms).ToString("F1") + knots;
                                     }
+
+                                    if (settings.ias && speedIAS > 0)
+                                        speedText += " " + speedIAS.ToString("F1");
                                 }
                                 // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
                                 // All mistake at ksp detecting vessel type can be fixed by some additional checking (ex. altitude for rover-carrier)
@@ -183,7 +190,7 @@ namespace SpeedUnitAnnex
                         }
 
                         display.textTitle.text = titleText;
-                        display.textSpeed.text = spd.ToString("F1") + mps;
+                        display.textSpeed.text = speedText;
 
                         break;
 
@@ -206,12 +213,13 @@ namespace SpeedUnitAnnex
                         else
                         {
                             double SOI_MASL = FlightGlobals.getMainBody().sphereOfInfluence - FlightGlobals.getMainBody().Radius;
-                            bool Ap_ok = FlightGlobals.ship_orbit.ApA > 0 && FlightGlobals.ship_orbit.ApA < SOI_MASL;
-                            bool Pe_ok = FlightGlobals.ship_orbit.PeA > 0 && FlightGlobals.ship_orbit.PeA < SOI_MASL;
+                            bool Ap_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.ApA && FlightGlobals.ship_orbit.ApA < SOI_MASL;
+                            bool Pe_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.PeA && FlightGlobals.ship_orbit.PeA < SOI_MASL;
                             string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
                             string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
                             string Apsises = (Ap_ok ? "<color=#00ff00ff>" : "<color=#00ff009f>") + Ap +
                                              (Pe_ok ? " <color=#00ff00ff>" : " <color=#00ff009f>") + Pe;
+
 
 
                             if (settings.orbit_time)

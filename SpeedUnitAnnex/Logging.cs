@@ -7,9 +7,9 @@ namespace SpeedUnitAnnex
     {
         private static string PREFIX = "<color=green>SpeedUnitAnnex:</color> " ;
 
-        public static void Log(String msg)
+        public static void Log<T>(T msg)
         {
-             Debug.Log(PREFIX + DateTime.Now.ToString("hh:mm:ss.f ") + msg);
+            Debug.Log(PREFIX + DateTime.Now.ToString("hh:mm:ss.f ") + msg.ToString());
         }
     }
 }

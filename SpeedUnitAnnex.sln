@@ -21,8 +21,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localizatio
 		GameData\SpeedUnitAnnex\localization\es-es.cfg = GameData\SpeedUnitAnnex\localization\es-es.cfg
 		GameData\SpeedUnitAnnex\localization\fr-fr.cfg = GameData\SpeedUnitAnnex\localization\fr-fr.cfg
 		GameData\SpeedUnitAnnex\localization\it-it.cfg = GameData\SpeedUnitAnnex\localization\it-it.cfg
+		GameData\SpeedUnitAnnex\localization\ja.cfg = GameData\SpeedUnitAnnex\localization\ja.cfg
 		GameData\SpeedUnitAnnex\localization\pt-br.cfg = GameData\SpeedUnitAnnex\localization\pt-br.cfg
 		GameData\SpeedUnitAnnex\localization\ru.cfg = GameData\SpeedUnitAnnex\localization\ru.cfg
+		GameData\SpeedUnitAnnex\localization\zh-cn.cfg = GameData\SpeedUnitAnnex\localization\zh-cn.cfg
 	EndProjectSection
 EndProject
 Global

@@ -1,8 +1,14 @@
 ChangeLog:
+
+Version 1.1.9
+	Surface: Indicated AirSpeed (IAS) for airplanes
+	Orbit: Ap/Pe become a little transparent if they are unstable: smaller than atmosphere height or larger than SOI-radius
+	localization updates
+
+
 Version 1.1.8
 	recompiled for KSP 1.4.3
 	fix URL in .version file
-
 
 Version 1.1.7
 	recompiled for KSP 1.4.2
