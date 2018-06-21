@@ -1,6 +1,6 @@
 ChangeLog:
 
-Version 1.1.9
+Version 1.2.0
 	Surface: Indicated AirSpeed (IAS) for airplanes
 	Orbit: Ap/Pe become a little transparent if they are unstable: smaller than atmosphere height or larger than SOI-radius
 	Chinese localization (thanks to Yanchen)	

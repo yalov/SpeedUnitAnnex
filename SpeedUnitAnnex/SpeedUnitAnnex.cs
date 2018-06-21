@@ -73,7 +73,7 @@ namespace SpeedUnitAnnex
                         VesselType vesselType = FlightGlobals.ActiveVessel.vesselType;
 
                         double spd = FlightGlobals.ship_srfSpeed;
-                        string speedText = spd.ToString("F1") + mps;
+                        string srfSpeedText = spd.ToString("F1") + mps;
 
 
 
@@ -140,7 +140,7 @@ namespace SpeedUnitAnnex
                                     }
 
                                     if (settings.ias && speedIAS > 0)
-                                        speedText += " " + speedIAS.ToString("F1");
+                                        srfSpeedText += " " + speedIAS.ToString("F1");
                                 }
                                 // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
                                 // All mistake at ksp detecting vessel type can be fixed by some additional checking (ex. altitude for rover-carrier)
@@ -190,7 +190,7 @@ namespace SpeedUnitAnnex
                         }
 
                         display.textTitle.text = titleText;
-                        display.textSpeed.text = speedText;
+                        display.textSpeed.text = srfSpeedText;
 
                         break;
 
