@@ -53,6 +53,9 @@
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
@@ -67,7 +70,7 @@ start /D $(SolutionDir) /WAIT buildRelease.bat $(TargetDir) $(TargetFileName)
     <PreBuildEvent>
 set textTemplatingPath="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\TextTransform.exe"
 
-
-%25textTemplatingPath%25 -out "$(ProjectDir)Properties\AssemblyVersion.cs" "$(ProjectDir)Properties\AssemblyVersion.tt"</PreBuildEvent>
+%25textTemplatingPath%25 -out "$(ProjectDir)Properties\AssemblyVersion.cs" "$(ProjectDir)Properties\AssemblyVersion.tt"
+</PreBuildEvent>
   </PropertyGroup>
 </Project>

@@ -14,9 +14,9 @@ namespace SpeedUnitAnnex
 
         SpeedDisplay display;
 
-        const float mph_ms = 2.23694f;
-        const float kmph_ms = 3.6f;
-        const float kn_ms = 1 / 0.514f;
+        static readonly float mph_ms = 2.23694f;
+        static readonly float kmph_ms = 3.6f;
+        static readonly float kn_ms = 1 / 0.514f;
 
         static readonly string kn = " " + Localizer.Format("#SpeedUnitAnnex_kn");
         static readonly string knots = " " + Localizer.Format("#SpeedUnitAnnex_knots");

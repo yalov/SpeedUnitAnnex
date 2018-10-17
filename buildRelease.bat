@@ -35,6 +35,7 @@ set /P patch=<tmpfile
 %JD%  ".VERSION.BUILD"  %VERSIONFILE% >tmpfile
 set /P build=<tmpfile
 del tmpfile
+del tmp.version
 set VERSION=%major%.%minor%.%patch%
 if "%build%" NEQ "0"  set VERSION=%VERSION%.%build%
 
