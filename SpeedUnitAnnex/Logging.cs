@@ -11,5 +11,10 @@ namespace SpeedUnitAnnex
         {
             Debug.Log(PREFIX + DateTime.Now.ToString("hh:mm:ss.f ") + msg.ToString());
         }
+
+        public static void Log(string msg, params object[] arg)
+        {
+            Debug.Log(PREFIX + DateTime.Now.ToString("hh:mm:ss.f ") + String.Format(msg, arg));
+        }
     }
 }

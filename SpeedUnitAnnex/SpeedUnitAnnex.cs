@@ -48,6 +48,7 @@ namespace SpeedUnitAnnex
         int MaxCharsInLine = 17;
 
         string titleText;
+        string FinalName;
         SpeedUnitAnnexSettings settings;
 
         public SpeedUnitAnnex()
@@ -55,32 +56,209 @@ namespace SpeedUnitAnnex
             // Nothing to be done here
         }
 
+        string EVA_RadarAltitude()
+        {
+            double alt = FlightGlobals.ActiveVessel.radarAltitude;
+
+            if (FlightGlobals.ActiveVessel.situation == Vessel.Situations.SPLASHED)
+                alt += 0.21;
+            else
+                alt -= 0.27;
+
+            return Formatter.Distance_short(alt) + " ";
+        }
+
+        string TargetDistance()
+        {
+            // from Docking Port Alignment Indicator
+            Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
+            Transform targetTransform = FlightGlobals.fetch.VesselTarget.GetTransform();
+            Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
+            float distance = targetToOwnship.magnitude;
+            return Formatter.Distance_short(distance) + " ";
+        }
+
+        string TargetName(ITargetable obj)
+        {
+            string name;
+            if (obj is ModuleDockingNode)
+                name = obj.GetVessel().GetDisplayName();
+            else if (obj is Vessel && obj.GetVessel().vesselType == VesselType.EVA)
+                name = obj.GetDisplayName().Split(' ')[0];
+            else
+                name = obj.GetDisplayName();
+
+            if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
+                name = name.Substring(0, name.Length - 2);
+
+            return name;
+        }
+
+
+
+
+
+
+        private void SetFinalName(FlightGlobals.SpeedDisplayModes mode)
+        {
+            switch (mode)
+            {
+                case FlightGlobals.SpeedDisplayModes.Surface:
+                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA)
+                        FinalName = CutKerbalName(Surf3 + (settings.radar ? EVA_RadarAltitude() : ""), FlightGlobals.ActiveVessel);
+
+                    else if (FlightGlobals.ActiveVessel.vesselType == VesselType.Flag)
+                        FinalName = CutName(Surf3, FlightGlobals.ActiveVessel.GetDisplayName());
+                    break;
+
+
+                case FlightGlobals.SpeedDisplayModes.Orbit:
+                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA && settings.orbit_EVA)
+                        FinalName = CutKerbalName(settings.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel);
+                    break;
+
+                case FlightGlobals.SpeedDisplayModes.Target:
+                    ITargetable obj = FlightGlobals.fetch.VesselTarget;
+                    if (obj == null) return;
+
+                    string distanceToTarget = "";
+
+                    if (settings.targetDistance)
+                        distanceToTarget = TargetDistance();
+
+
+                    FinalName = CutName(Trg + distanceToTarget, TargetName(obj));
+                    break;
+
+                    
+            }
+            Log("SetFinalName: " + FinalName);
+
+        }
+
+        private string CutKerbalName(string prefix, Vessel kerbal)
+        {
+            if (FlightGlobals.ActiveVessel.vesselType != VesselType.EVA) return "";
+
+            string trait = kerbal.GetVesselCrew()[0].GetLocalizedTrait();
+            string full_name = kerbal.GetDisplayName();
+
+            string first_name;
+
+            if (full_name == Val_full) first_name = Val_short;
+            else if (full_name == Jeb_full) first_name = Jeb_short;
+            else first_name = full_name.Split(delimiterChars)[0];
+
+            string name = trait[0] + ". " + first_name;
+
+            return CutName(prefix, name);
+        }
+
+        private string CutName(string prefix, string name)
+        {
+            display.textTitle.text = prefix + name;
+            Log("GetPreferredValues: " + display.textTitle.GetPreferredValues(prefix + name));
+            display.textTitle.ForceMeshUpdate(true);
+
+
+            if (display.textTitle.renderedWidth > 108)
+            { 
+                for (int i=0; display.textTitle.renderedWidth > 108 && name.Length>0; i++)
+                {
+                    name = name.Substring(0, name.Length - 1);
+                    display.textTitle.text = prefix + name;
+                    Log("GetPreferredValues: "+display.textTitle.GetPreferredValues(prefix + name));
+                    display.textTitle.ForceMeshUpdate(true);
+
+                    //display.textTitle.Cull(new Rect(0, 0, 50, 50), true);
+                    //display.textTitle.RecalculateMasking();
+                    //display.textTitle.RecalculateClipping();
+
+                    Log("#{0}: {1},  W: {2}, {3}, B: {4}, {5}",
+                        i, prefix + name, display.textTitle.renderedWidth, display.textTitle.flexibleWidth,
+                        display.textTitle.textBounds, display.textTitle.bounds);
+                }
+                name += ".";
+            }
+
+            return name;
+        }
+
         void onVesselChange(Vessel vessel)
         {
             Log("onVesselChange: " + vessel.GetDisplayName());
+            SetFinalName(FlightGlobals.speedDisplayMode);
+            // onSetSpeedMode is started there 
+
         }
+
+        void onVesselSwitching(Vessel v1, Vessel v2)
+        {
+            Log("onVesselSwitching: {0}, {1}",v1.GetDisplayName(), v2.GetDisplayName());
+            SetFinalName(FlightGlobals.speedDisplayMode);
+        }
+
+        
 
         void onSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
         {
-            Log("onSetSpeedMode: " + mode.displayDescription());
-            Log("renderedWidth: " + display.textTitle.renderedWidth);
-            Log("bounds.size: " + display.textTitle.bounds.size);
+            // onVesselChange start this event automatically 
 
-            Log("textBounds.size: " + display.textTitle.textBounds.size);
+            Log("onSetSpeedMode: " + mode.displayDescription() + " r:"+display.textTitle.renderedWidth);
+
+            SetFinalName(mode);
         }
 
+        public void OnScenerySettingChanged()
+        {
+            Log("OnScenerySettingChanged");
+            SetFinalName(FlightGlobals.speedDisplayMode);
+        }
+
+        public void OnGameSettingsApplied()
+        {
+            Log("OnGameSettingsApplied");
+        }
+        public void OnGameSettingsWritten()
+        {
+            Log("OnGameSettingsWritten");
+        }
+
+        public void onVesselRename(GameEvents.HostedFromToAction<Vessel, string> hfta)
+        {
+            Log("onVesselRename: {0} {1} {2}",hfta.from, hfta.to, hfta.host.GetDisplayName());
+
+            SetFinalName(FlightGlobals.speedDisplayMode);
+        }
+
+        
 
 
         public void OnDisable()
         {
             G﻿ameEvents.onVesselChange.Remove(onVesselChange);
+            G﻿ameEvents.onVesselSwitching.Remove(onVesselSwitching);
             GameEvents.onSetSpeedMode.Remove(onSetSpeedMode);
+
+            G﻿ameEvents.OnScenerySettingChanged.Remove(OnScenerySettingChanged);
+            G﻿ameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
+            G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
+
+            G﻿ameEvents.onVesselRename.Remove(onVesselRename);
         }
 
         public void Start()
         {
             G﻿ameEvents.onVesselChange.Add(onVesselChange);
+            G﻿ameEvents.onVesselSwitching.Add(onVesselSwitching);
+
             G﻿ameEvents.onSetSpeedMode.Add(onSetSpeedMode);
+
+            G﻿ameEvents.OnScenerySettingChanged.Add(OnScenerySettingChanged);
+            G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
+            G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
+
+            G﻿ameEvents.onVesselRename.Add(onVesselRename);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
@@ -90,87 +268,11 @@ namespace SpeedUnitAnnex
 
             display.textTitle.fontSize = display.textTitle.fontSize / 1.15f;
 
-            Int32.TryParse(Localizer.Format("#SpeedUnitAnnex_MaxCharsInLine"), out MaxCharsInLine);
-
-
-            //Log("MaxCharsInLine " + MaxCharsInLine);
+            SetFinalName(FlightGlobals.speedDisplayMode);
 
             //Log("Font: "+display.textSpeed.font);
             // NotoSans-Regular SDF
         }
-
-        private string CutKerbalName(string prefix, Vessel kerbal, bool full_trait = true)
-        {
-            if (FlightGlobals.ActiveVessel.vesselType != VesselType.EVA) return "";
-
-            string trait = kerbal.GetVesselCrew()[0].GetLocalizedTrait();
-            string name = kerbal.GetDisplayName();
-
-            string first_name;
-
-            if      (name == Val_full) first_name = Val_short;
-            else if (name == Jeb_full) first_name = Jeb_short;
-            else                       first_name = name.Split(delimiterChars)[0];
-	        
-            string str = prefix + trait + " "+ first_name ;
-            // Orb Pilot Jebediah      18 - 5/2 - 2/2 = 14.5
-            // Srf 0.00m P. Jebediah   21 - 6/2 - 2/2 = 17
-            // Srf 0.00m P. Valentina  22 - 6/2 - 3/2 = 17.5
-
-            // Srf 0.00m P. Shelbrett    22 - 6/2 - 3/2 = 17.5
-            // Srf 0.00m P. Wehrming     21 - 6/2 - 1/2 = 17.5
-            // Srf 0.00m P. Billy-Bobsy  24 - 6/2 - 3/2 = 19.5
-            // Srf 0.00m E. Bill         17 - 6/2 - 3/2 = 12.5
-            // Srf 0.00m Engineer Bill   23 - 6/2 - 3/2 = 18.5
-            // Pilot Tomsen     // virf.red  // shel.brett  // jebe.diah
-
-            // str.Length ? MaxCharsInLine + diff = MaxCharsInLine +  str.Length - (int)len - 1
-            // 0 ? MaxCharsInLine - (int)len - 1
-            // (int)len ? MaxCharsInLine - 1
-            // len > MaxCharsInLine
-            // 108
-
-            if (full_trait && SmartLength(str) <= MaxCharsInLine)
-                return str;
-            else
-            {
-                str = prefix  + trait[0] + ". "+ first_name;
-                float len = SmartLength(str);
-
-                if (len <= MaxCharsInLine)
-                    return str;
-                else
-                {
-                    int diff = Math.Max(0, str.Length - (int)len - 1);
-                    return str.Substring(0, MaxCharsInLine + diff) + ".";
-                }
-            }
-        }
-
-        private string CutName(string prefix, string name)
-        {
-            string str = prefix + name;
-
-            if (SmartLength(str) < MaxCharsInLine)
-                return str;
-            else
-                return prefix + name.Substring(0, Math.Max(0, MaxCharsInLine - prefix.Length - 1)) + "...";
-        }
-
-        float SmartLength(string str)
-        {
-            int thin_char_count = 0;
-            int wide_char_count = 0;
-
-            foreach (char c in str)
-            {
-                foreach (char t in thinChars) if (c == t) thin_char_count++;
-                foreach (char w in wideChars) if (c == w) wide_char_count++;
-            }
-            return str.Length - 1/2.0f * thin_char_count + 1/2.0f * wide_char_count;
-        }
-
-        
 
         public void LateUpdate()
         {
@@ -254,35 +356,25 @@ namespace SpeedUnitAnnex
                                     srfSpeedText += " " + speedIAS.ToString("F1");
                             }
                             // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
-                            // All mistake at ksp detecting vessel type can be fixed by some additional checking (ex. altitude for rover-carrier)
-                            // but it make unclear to user, which values is showed up.
-                            else //if FlightGlobals.ActiveVessel.radarAltitude < 100)
+                            else
                             {
                                 if (settings.kmph)
                                     titleText = Surf5 + (spd * kmph_ms).ToString("F1") + kmph;
                                 else
                                     titleText = Surf5 + (spd * mph_ms).ToString("F1") + mph;
                             }
+
+                            // All mistake at ksp detecting vessel type can be fixed by 
+                            // some additional checking (ex. altitude for rover-carrier)
+                            // but it make unclear to user, which values is showed up.
                             break;
 
                         case VesselType.EVA:
-
-                            if (settings.radar)
-                            {
-                                double alt = FlightGlobals.ActiveVessel.radarAltitude;
-
-                                if (situation == Vessel.Situations.SPLASHED) alt += 0.21;
-                                else alt -= 0.27;
-
-                                titleText = CutKerbalName(Surf3 + Formatter.Distance_short(alt) + " ", FlightGlobals.ActiveVessel, false);
-                            }
-                            else
-                                titleText = CutKerbalName(Surf3, FlightGlobals.ActiveVessel);
-
+                            titleText = Surf3 + (settings.radar?EVA_RadarAltitude():"") + FinalName;
                             break;
 
                         case VesselType.Flag:
-                            titleText = CutName(Surf3, FlightGlobals.ActiveVessel.GetDisplayName());
+                            titleText = Surf3 + FinalName;
                             break;
 
                         // Other: Rocket, Lander, Base etc 
@@ -305,8 +397,7 @@ namespace SpeedUnitAnnex
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
                         && settings.orbit_EVA)
                     {
-                        display.textTitle.text =
-                            CutKerbalName(settings.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel);
+                        display.textTitle.text = settings.orbit_time ? "" : Orb + FinalName;
                     }
                     else
                     {
@@ -361,29 +452,11 @@ namespace SpeedUnitAnnex
                     #endregion
 
                     string distanceToTarget = "";
-                    string name = "";
 
                     if (settings.targetDistance)
-                    {
-                        // from Docking Port Alignment Indicator
-                        Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-                        Transform targetTransform = FlightGlobals.fetch.VesselTarget.GetTransform();
-                        Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
-                        float distance = targetToOwnship.magnitude;
-                        distanceToTarget = Formatter.Distance_short(distance) + " ";
-                    }
-             
-                    if (obj is ModuleDockingNode)
-                        name = obj.GetVessel().GetDisplayName();
-                    else if (obj is Vessel && obj.GetVessel().vesselType == VesselType.EVA)
-                        name = obj.GetDisplayName().Split(' ')[0];
-                    else
-                        name = obj.GetDisplayName();
+                        distanceToTarget = TargetDistance();
 
-                    if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
-                        name = name.Substring(0, name.Length - 2);
-
-                    display.textTitle.text = CutName(Trg + distanceToTarget, name);
+                    display.textTitle.text = Trg + distanceToTarget + FinalName;
 
                     if (FlightGlobals.ship_tgtSpeed < 0.195)
                         display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps;
