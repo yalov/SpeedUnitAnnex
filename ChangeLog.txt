@@ -1,8 +1,10 @@
 ChangeLog:
 
-
 Version 1.2.2
-	recompile for KSP 1.5.1
+	show trait in the EVA
+
+Version 1.2.0.1/1.2.1.1
+	for KSP 1.4.5/1.5.1, respectively
 	fix a nullref bug
 
 Version 1.2.1
