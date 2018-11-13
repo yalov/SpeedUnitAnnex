@@ -45,7 +45,8 @@ namespace SpeedUnitAnnex
         readonly char[] wideChars = Localizer.Format("#SpeedUnitAnnex_WideChars").ToCharArray();
         readonly char[] thinChars = Localizer.Format("#SpeedUnitAnnex_ThinChars").ToCharArray();
 
-        int MaxCharsInLine = 17;
+        ITargetable Target;
+        string TargetName;
 
         string titleText;
         string FinalName;
@@ -68,17 +69,17 @@ namespace SpeedUnitAnnex
             return Formatter.Distance_short(alt) + " ";
         }
 
-        string TargetDistance()
+        string CalcTargetDistance(ITargetable obj)
         {
             // from Docking Port Alignment Indicator
             Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-            Transform targetTransform = FlightGlobals.fetch.VesselTarget.GetTransform();
+            Transform targetTransform = obj.GetTransform();
             Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
             float distance = targetToOwnship.magnitude;
             return Formatter.Distance_short(distance) + " ";
         }
 
-        string TargetName(ITargetable obj)
+        string GetTargetName(ITargetable obj)
         {
             string name;
             if (obj is ModuleDockingNode)
@@ -117,22 +118,10 @@ namespace SpeedUnitAnnex
                         FinalName = CutKerbalName(settings.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel);
                     break;
 
-                case FlightGlobals.SpeedDisplayModes.Target:
-                    ITargetable obj = FlightGlobals.fetch.VesselTarget;
-                    if (obj == null) return;
-
-                    string distanceToTarget = "";
-
-                    if (settings.targetDistance)
-                        distanceToTarget = TargetDistance();
-
-
-                    FinalName = CutName(Trg + distanceToTarget, TargetName(obj));
-                    break;
-
+                
                     
             }
-            Log("SetFinalName: " + FinalName);
+            //Log("SetFinalName: " + FinalName);
 
         }
 
@@ -156,109 +145,75 @@ namespace SpeedUnitAnnex
 
         private string CutName(string prefix, string name)
         {
-            display.textTitle.text = prefix + name;
-            Log("GetPreferredValues: " + display.textTitle.GetPreferredValues(prefix + name));
-            display.textTitle.ForceMeshUpdate(true);
+            //Log("CutName: {0}, {1:F1}", prefix + name, display.textTitle.GetPreferredValues(prefix + name).x);
+            //display.textTitle.ForceMeshUpdate(true);
 
-
-            if (display.textTitle.renderedWidth > 108)
+            if (display.textTitle.GetPreferredValues(prefix + name).x > 108)
             { 
-                for (int i=0; display.textTitle.renderedWidth > 108 && name.Length>0; i++)
+                for (int i=0; display.textTitle.GetPreferredValues(prefix + name).x > 108 && name.Length>0; i++)
                 {
                     name = name.Substring(0, name.Length - 1);
-                    display.textTitle.text = prefix + name;
-                    Log("GetPreferredValues: "+display.textTitle.GetPreferredValues(prefix + name));
-                    display.textTitle.ForceMeshUpdate(true);
-
-                    //display.textTitle.Cull(new Rect(0, 0, 50, 50), true);
-                    //display.textTitle.RecalculateMasking();
-                    //display.textTitle.RecalculateClipping();
-
-                    Log("#{0}: {1},  W: {2}, {3}, B: {4}, {5}",
-                        i, prefix + name, display.textTitle.renderedWidth, display.textTitle.flexibleWidth,
-                        display.textTitle.textBounds, display.textTitle.bounds);
+                    //Log("GetPreferredValues: "+display.textTitle.GetPreferredValues(prefix + name));
                 }
                 name += ".";
             }
-
             return name;
         }
 
         void onVesselChange(Vessel vessel)
         {
-            Log("onVesselChange: " + vessel.GetDisplayName());
-            SetFinalName(FlightGlobals.speedDisplayMode);
-            // onSetSpeedMode is started there 
-
-        }
-
-        void onVesselSwitching(Vessel v1, Vessel v2)
-        {
-            Log("onVesselSwitching: {0}, {1}",v1.GetDisplayName(), v2.GetDisplayName());
+            //Log("onVesselChange: " + vessel.GetDisplayName());
             SetFinalName(FlightGlobals.speedDisplayMode);
         }
-
-        
 
         void onSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
         {
-            // onVesselChange start this event automatically 
-
-            Log("onSetSpeedMode: " + mode.displayDescription() + " r:"+display.textTitle.renderedWidth);
-
+            //Log("onSetSpeedMode: " + mode.displayDescription());
             SetFinalName(mode);
         }
 
-        public void OnScenerySettingChanged()
-        {
-            Log("OnScenerySettingChanged");
-            SetFinalName(FlightGlobals.speedDisplayMode);
-        }
-
-        public void OnGameSettingsApplied()
-        {
-            Log("OnGameSettingsApplied");
-        }
+        
         public void OnGameSettingsWritten()
         {
-            Log("OnGameSettingsWritten");
-        }
-
-        public void onVesselRename(GameEvents.HostedFromToAction<Vessel, string> hfta)
-        {
-            Log("onVesselRename: {0} {1} {2}",hfta.from, hfta.to, hfta.host.GetDisplayName());
-
+            //Log("OnGameSettingsWritten");
             SetFinalName(FlightGlobals.speedDisplayMode);
         }
 
-        
+        public void onGameStateSave(ConfigNode cn)
+        {
+            //Log("onGameStateSave");
+            SetFinalName(FlightGlobals.speedDisplayMode);
+        }
 
 
         public void OnDisable()
         {
             G﻿ameEvents.onVesselChange.Remove(onVesselChange);
-            G﻿ameEvents.onVesselSwitching.Remove(onVesselSwitching);
+            //G﻿ameEvents.onVesselSwitching.Remove(onVesselSwitching);
             GameEvents.onSetSpeedMode.Remove(onSetSpeedMode);
 
-            G﻿ameEvents.OnScenerySettingChanged.Remove(OnScenerySettingChanged);
-            G﻿ameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
+            //G﻿ameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
             G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
 
-            G﻿ameEvents.onVesselRename.Remove(onVesselRename);
+            //G﻿ameEvents.onVesselRename.Remove(onVesselRename);
+            G﻿ameEvents.onGameStateSave.Remove(onGameStateSave);
+            //G﻿ameEvents.onPlanetariumTargetChanged.Remove(onPlanetariumTargetChanged);
+
         }
 
         public void Start()
         {
             G﻿ameEvents.onVesselChange.Add(onVesselChange);
-            G﻿ameEvents.onVesselSwitching.Add(onVesselSwitching);
+            //G﻿ameEvents.onVesselSwitching.Add(onVesselSwitching);
 
             G﻿ameEvents.onSetSpeedMode.Add(onSetSpeedMode);
 
-            G﻿ameEvents.OnScenerySettingChanged.Add(OnScenerySettingChanged);
-            G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
+            //G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
             G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
 
-            G﻿ameEvents.onVesselRename.Add(onVesselRename);
+            //G﻿ameEvents.onVesselRename.Add(onVesselRename);
+            G﻿ameEvents.onGameStateSave.Add(onGameStateSave);
+            //G﻿ameEvents.onPlanetariumTargetChanged.Add(onPlanetariumTargetChanged);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
@@ -451,12 +406,22 @@ namespace SpeedUnitAnnex
                     //                 Vessel;
                     #endregion
 
+
                     string distanceToTarget = "";
 
                     if (settings.targetDistance)
-                        distanceToTarget = TargetDistance();
+                        distanceToTarget = CalcTargetDistance(obj);
 
-                    display.textTitle.text = Trg + distanceToTarget + FinalName;
+
+                    if (Target != obj)
+                    {
+                        TargetName = CutName(Trg + distanceToTarget, GetTargetName(obj));
+                        Target = obj;
+                        //Log("Target != Obj");
+                    }
+
+                    display.textTitle.text = Trg + distanceToTarget + TargetName;
+
 
                     if (FlightGlobals.ship_tgtSpeed < 0.195)
                         display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps;
@@ -464,7 +429,6 @@ namespace SpeedUnitAnnex
                         display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps;
                     break;
             }
-
 
             // need to be there, for every tick. Doesn't work in the  Start() or onSetSpeedMode()
             display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
