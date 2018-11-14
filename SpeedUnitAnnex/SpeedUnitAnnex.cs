@@ -17,6 +17,11 @@ namespace SpeedUnitAnnex
         readonly float kmph_ms = 3.6f;
         readonly float kn_ms = 1 / 0.514f;
 
+        readonly double Eva_CoM_fix_landed = -0.27;
+        readonly double Eva_CoM_fix_splashed = 0.21;
+
+        readonly double BoatSubmarineBorderAlt = -20;
+
         readonly string kn = " " + Localizer.Format("#SpeedUnitAnnex_kn");
         readonly string knots = " " + Localizer.Format("#SpeedUnitAnnex_knots");
         readonly string kmph = " " + Localizer.Format("#SpeedUnitAnnex_kmph");
@@ -45,7 +50,7 @@ namespace SpeedUnitAnnex
         readonly char[] wideChars = Localizer.Format("#SpeedUnitAnnex_WideChars").ToCharArray();
         readonly char[] thinChars = Localizer.Format("#SpeedUnitAnnex_ThinChars").ToCharArray();
 
-        ITargetable Target;
+        ITargetable Target = null;
         string TargetName;
 
         string titleText;
@@ -62,9 +67,9 @@ namespace SpeedUnitAnnex
             double alt = FlightGlobals.ActiveVessel.radarAltitude;
 
             if (FlightGlobals.ActiveVessel.situation == Vessel.Situations.SPLASHED)
-                alt += 0.21;
+                alt += Eva_CoM_fix_splashed;
             else
-                alt -= 0.27;
+                alt += Eva_CoM_fix_landed;
 
             return Formatter.Distance_short(alt) + " ";
         }
@@ -89,10 +94,10 @@ namespace SpeedUnitAnnex
             else
                 name = obj.GetDisplayName();
 
-            if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
-                name = name.Substring(0, name.Length - 2);
+            //if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
+            //    name = name.Substring(0, name.Length - 2);
 
-            return name;
+            return Localizer.Format("<<1>>", name);
         }
 
 
@@ -150,10 +155,9 @@ namespace SpeedUnitAnnex
 
             if (display.textTitle.GetPreferredValues(prefix + name).x > 108)
             { 
-                for (int i=0; display.textTitle.GetPreferredValues(prefix + name).x > 108 && name.Length>0; i++)
+                while (display.textTitle.GetPreferredValues(prefix + name).x > 108 && name.Length>0)
                 {
                     name = name.Substring(0, name.Length - 1);
-                    //Log("GetPreferredValues: "+display.textTitle.GetPreferredValues(prefix + name));
                 }
                 name += ".";
             }
@@ -164,6 +168,9 @@ namespace SpeedUnitAnnex
         {
             //Log("onVesselChange: " + vessel.GetDisplayName());
             SetFinalName(FlightGlobals.speedDisplayMode);
+            
+            //FlightGlobals.CycleSpeedModes();
+           
         }
 
         void onSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
@@ -182,22 +189,16 @@ namespace SpeedUnitAnnex
         public void onGameStateSave(ConfigNode cn)
         {
             //Log("onGameStateSave");
-            SetFinalName(FlightGlobals.speedDisplayMode);
+            //SetFinalName(FlightGlobals.speedDisplayMode);
         }
 
 
         public void OnDisable()
         {
             G﻿ameEvents.onVesselChange.Remove(onVesselChange);
-            //G﻿ameEvents.onVesselSwitching.Remove(onVesselSwitching);
             GameEvents.onSetSpeedMode.Remove(onSetSpeedMode);
-
-            //G﻿ameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
             G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
-
-            //G﻿ameEvents.onVesselRename.Remove(onVesselRename);
-            G﻿ameEvents.onGameStateSave.Remove(onGameStateSave);
-            //G﻿ameEvents.onPlanetariumTargetChanged.Remove(onPlanetariumTargetChanged);
+            //G﻿ameEvents.onGameStateSave.Remove(onGameStateSave);
 
         }
 
@@ -212,7 +213,7 @@ namespace SpeedUnitAnnex
             G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
 
             //G﻿ameEvents.onVesselRename.Add(onVesselRename);
-            G﻿ameEvents.onGameStateSave.Add(onGameStateSave);
+            //G﻿ameEvents.onGameStateSave.Add(onGameStateSave);
             //G﻿ameEvents.onPlanetariumTargetChanged.Add(onPlanetariumTargetChanged);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
@@ -268,10 +269,11 @@ namespace SpeedUnitAnnex
                             // Boat or Submarine
                             if (situation == Vessel.Situations.SPLASHED)
                             {
-                                if (FlightGlobals.ActiveVessel.altitude < -20 && settings.radar) // Submarine
+                                // Submarine
+                                if (FlightGlobals.ActiveVessel.altitude < BoatSubmarineBorderAlt && settings.radar) 
                                     titleText = Surf3 + Formatter.Distance_short(FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.terrainAltitude)
                                         + "  " + (spd * kn_ms).ToString("F1") + kn;
-                                else                                                       // Boat
+                                else  // Boat
                                     titleText = Surf5 + (spd * kn_ms).ToString("F1") + knots;
                             }
                             // Plane (not LANDED) 
@@ -283,16 +285,17 @@ namespace SpeedUnitAnnex
 
                                 if (settings.radar)
                                 {
+                                    double radar = FlightGlobals.ActiveVessel.radarAltitude;
                                     if (settings.mach)
                                     {
                                         if (isATM)
-                                            titleText = Surf3 + Formatter.Distance_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
+                                            titleText = Surf3 + Formatter.Distance_short(radar) + "  "
                                                 + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
 
-                                        else titleText = Surf5 + Formatter.Distance_long(FlightGlobals.ActiveVessel.radarAltitude);
+                                        else titleText = Surf5 + Formatter.Distance_long(radar);
                                     }
                                     else
-                                        titleText = Surf3 + Formatter.Distance_short(FlightGlobals.ActiveVessel.radarAltitude) + "  "
+                                        titleText = Surf3 + Formatter.Distance_short(radar) + "  "
                                             + (spd * kn_ms).ToString("F1") + kn;
                                 }
                                 else
@@ -394,9 +397,6 @@ namespace SpeedUnitAnnex
 
                 case FlightGlobals.SpeedDisplayModes.Target:
 
-                    ITargetable obj = FlightGlobals.fetch.VesselTarget;
-                    if (obj == null) return;
-
                     #region all Target
                     // 1.5.1
                     // ITargetable ->  CelestialBody;
@@ -406,6 +406,12 @@ namespace SpeedUnitAnnex
                     //                 Vessel;
                     #endregion
 
+                    ITargetable obj = FlightGlobals.fetch.VesselTarget;
+                    if (obj == null)
+                    {
+                        display.textTitle.text = Localizer.Format("#autoLOC_339139");
+                        return;
+                    }
 
                     string distanceToTarget = "";
 
@@ -417,7 +423,6 @@ namespace SpeedUnitAnnex
                     {
                         TargetName = CutName(Trg + distanceToTarget, GetTargetName(obj));
                         Target = obj;
-                        //Log("Target != Obj");
                     }
 
                     display.textTitle.text = Trg + distanceToTarget + TargetName;
