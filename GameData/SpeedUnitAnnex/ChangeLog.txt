@@ -1,5 +1,8 @@
 ChangeLog:
 
+Version 1.2.6
+	recompile for ksp 1.6.0
+
 Version 1.2.5
 	show a kerbal trait in the EVA
 	better kerbal name cropping

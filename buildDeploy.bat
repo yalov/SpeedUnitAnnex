@@ -3,8 +3,8 @@
 setlocal enabledelayedexpansion
 
 
-set GAMEPATH[0]=c:\Users\User\Games\Kerbal Space Program 1.5.1
-set GAMEPATH[1]=c:\Users\User\Games\Kerbal Space Program 1.5.1 rus
+set GAMEPATH[0]=c:\Users\User\Games\Kerbal Space Program 1.6.0
+rem set GAMEPATH[1]=c:\Users\User\Games\Kerbal Space Program 1.5.1 rus
 
 set MODNAME=SpeedUnitAnnex
 

@@ -87,19 +87,6 @@ namespace SpeedUnitAnnex
         }
 
 
-
-        //double RadarAltitude()
-        //{
-        //    if (FlightGlobals.ActiveVessel.terrainAltitude < 0.0
-        //        && FlightGlobals.ActiveVessel.situation != Vessel.Situations.SPLASHED
-        //        && FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
-        //    return FlightGlobals.ActiveVessel.radarAltitude;
-        //    else
-        //        return FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude;
-
-        //}
-
-
         string RadarAltitudeEVA_str()
         {
             double alt = RadarAltitude();
@@ -132,15 +119,8 @@ namespace SpeedUnitAnnex
             else
                 name = obj.GetDisplayName();
 
-            //if (name.Length > 1 && name.Substring(name.Length - 2, 1) == "^")
-            //    name = name.Substring(0, name.Length - 2);
-
             return Localizer.Format("<<1>>", name);
         }
-
-
-
-
 
 
         private void SetFinalName(FlightGlobals.SpeedDisplayModes mode)
@@ -154,7 +134,6 @@ namespace SpeedUnitAnnex
                     else if (FlightGlobals.ActiveVessel.vesselType == VesselType.Flag)
                         FinalName = CutName(Surf3, FlightGlobals.ActiveVessel.GetDisplayName());
                     break;
-
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA && settings.orbit_EVA)
@@ -208,9 +187,6 @@ namespace SpeedUnitAnnex
         {
             //Log("onVesselChange: " + vessel.GetDisplayName());
             SetFinalName(FlightGlobals.speedDisplayMode);
-            
-            //FlightGlobals.CycleSpeedModes();
-           
         }
 
         void onSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
@@ -220,9 +196,9 @@ namespace SpeedUnitAnnex
         }
 
         
-        public void OnGameSettingsWritten()
+        public void OnGameSettingsApplied()
         {
-            //Log("OnGameSettingsWritten");
+            //Log("OnGameSettingsApplied");
             SetFinalName(FlightGlobals.speedDisplayMode);
         }
 
@@ -230,24 +206,14 @@ namespace SpeedUnitAnnex
         {
             G﻿ameEvents.onVesselChange.Remove(onVesselChange);
             GameEvents.onSetSpeedMode.Remove(onSetSpeedMode);
-            G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
-            //G﻿ameEvents.onGameStateSave.Remove(onGameStateSave);
-
+            G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsApplied);
         }
 
         public void Start()
         {
             G﻿ameEvents.onVesselChange.Add(onVesselChange);
-            //G﻿ameEvents.onVesselSwitching.Add(onVesselSwitching);
-
             G﻿ameEvents.onSetSpeedMode.Add(onSetSpeedMode);
-
-            //G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
-            G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
-
-            //G﻿ameEvents.onVesselRename.Add(onVesselRename);
-            //G﻿ameEvents.onGameStateSave.Add(onGameStateSave);
-            //G﻿ameEvents.onPlanetariumTargetChanged.Add(onPlanetariumTargetChanged);
+            G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
@@ -270,6 +236,22 @@ namespace SpeedUnitAnnex
 
             FlightGlobals.SpeedDisplayModes mode = FlightGlobals.speedDisplayMode;
 
+            #region all VesselTypes and Situations
+            //VesselType.Base;          //Situations.LANDED   
+            //VesselType.Debris         //Situations.SPLASHED
+            //VesselType.EVA            //Situations.PRELAUNCH
+            //VesselType.Flag           //Situations.FLYING
+            //VesselType.Lander         //Situations.SUB_ORBITAL
+            //VesselType.Plane;         //Situations.ORBITING
+            //VesselType.Probe          //Situations.ESCAPING
+            //VesselType.Relay          //Situations.DOCKED
+            //VesselType.Rover
+            //VesselType.Ship
+            //VesselType.SpaceObject
+            //VesselType.Station
+            //VesselType.Unknown
+            #endregion
+
             switch (mode)
             {
                 case FlightGlobals.SpeedDisplayModes.Surface:
@@ -279,24 +261,6 @@ namespace SpeedUnitAnnex
 
                     double spd = FlightGlobals.ship_srfSpeed;
                     string srfSpeedText = spd.ToString("F1") + mps;
-
-                    #region all VesselTypes and Situations
-                    //VesselType.Base;          //Situations.LANDED   
-                    //VesselType.Debris         //Situations.SPLASHED
-                    //VesselType.EVA            //Situations.PRELAUNCH
-                    //VesselType.Flag           //Situations.FLYING
-                    //VesselType.Lander         //Situations.SUB_ORBITAL
-                    //VesselType.Plane;         //Situations.ORBITING
-                    //VesselType.Probe          //Situations.ESCAPING
-                    //VesselType.Relay          //Situations.DOCKED
-                    //VesselType.Rover
-                    //VesselType.Ship
-                    //VesselType.SpaceObject
-                    //VesselType.Station
-                    //VesselType.Unknown
-                    #endregion
-                    
-                    
 
                     switch (vesselType)
                     {
@@ -309,7 +273,8 @@ namespace SpeedUnitAnnex
                                 if (FlightGlobals.ActiveVessel.altitude < BoatSubmarineBorderAlt && settings.radar) 
                                     titleText = Surf3 + Formatter.Distance_short(AGL())
                                         + "  " + (spd * kn_ms).ToString("F1") + kn;
-                                else  // Boat
+                                // Boat
+                                else
                                     titleText = Surf5 + (spd * kn_ms).ToString("F1") + knots;
                             }
                             // Plane (not LANDED) 
