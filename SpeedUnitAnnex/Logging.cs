@@ -5,7 +5,7 @@ namespace SpeedUnitAnnex
 {
     public static class Logging
     {
-        private static string PREFIX = "<color=green>SpeedUnitAnnex:</color> " ;
+        private static readonly string PREFIX = "<color=green>SpeedUnitAnnex:</color> " ;
 
         public static void Log<T>(T msg)
         {

@@ -5,8 +5,8 @@
 <#@ assembly name="System.Windows.Forms" #>
 <#
 
-	// Original - https://github.com/linuxgurugamer/JanitorsCloset/blob/master/JanitorsCloset/AssemblyVersion.tt
-	// Instructions
+
+	// Instructions by LGG
 	// 1.  Add a new Text Template to the project
 	// 2.  Copy this file into the new template
 	// 3.  Update the string: versionfile with the complete path to the .version file

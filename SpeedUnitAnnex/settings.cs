@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using KSP.Localization;
 
@@ -9,22 +10,21 @@ namespace SpeedUnitAnnex
 
     public class SpeedUnitAnnexSettings : GameParameters.CustomParameterNode
     {
-
-        public override string Title { get { return Localizer.Format("#SpeedUnitAnnex_navball_info") ; } }
+        public override string Title { get { return Localizer.Format("#SpeedUnitAnnex_navball_info"); } }
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
         public override string Section { get { return "Speed Unit Annex"; } }
         public override string DisplaySection { get { return "Speed Unit Annex"; } }
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return false; } }
 
-        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_surfaceMode", lines = 2, title = "#SpeedUnitAnnex_surfaceMode")]
+        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_surfaceMode", lines = 2)]
         public string UIstring1 = "";
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_rover_speedometer", toolTip = "#SpeedUnitAnnex_rover_speedometer_toolTip")]
-        public bool kmph = true;
+        public string rover = Localizer.Format("#SpeedUnitAnnex_kmph");
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_aircraft_speedometer", toolTip = "#SpeedUnitAnnex_aircraft_speedometer_toolTip")]
-        public bool mach = true;
+        public string aircraft = Localizer.Format("#SpeedUnitAnnex_machNumber");
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_aircraft_ias", toolTip = "#SpeedUnitAnnex_aircraft_ias_toolTip")]
         public bool ias = false;
@@ -32,9 +32,9 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_altimeter", toolTip = "#SpeedUnitAnnex_altimeter_toolTip")]
         public bool radar = true;
 
-        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_orbitMode", lines = 2, title = "#SpeedUnitAnnex_orbitMode")]
-        public string UIstring2 = "";
 
+        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_orbitMode", lines = 2)]
+        public string UIstring2 = "";
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
         public bool orbit_EVA = true;
@@ -42,27 +42,60 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitTime", toolTip = "#SpeedUnitAnnex_orbitTime_toolTip")]
         public bool orbit_time = false;
 
-        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2, title = "#SpeedUnitAnnex_targetMode")]
+
+        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2)]
         public string UIstring3 = "";
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDistance", toolTip = "#SpeedUnitAnnex_targetDistance_toolTip")]
         public bool targetDistance = true;
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngle", toolTip = "#SpeedUnitAnnex_targetAngle_toolTip")]
+        public bool targetAngle = true;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngles", toolTip = "#SpeedUnitAnnex_targetAngles_toolTip")]
+        public bool targetAngles = true;
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
             return true;
         }
 
-
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
+            if (member.Name == "targetDistance" || member.Name == "targetAngle")
+                return !targetAngles;
+
             return true;
         }
 
         public override IList ValidValues(MemberInfo member)
         {
-            return null;
+            if (member.Name == "rover")
+            {
+                List<string> myList = new List<string>
+                {
+                    Localizer.Format("#SpeedUnitAnnex_kmph"),
+                    Localizer.Format("#SpeedUnitAnnex_mph")
+                };
+
+                return myList;
+            }
+            else if (member.Name == "aircraft")
+            {
+                List<string> myList = new List<string>
+                {
+                    Localizer.Format("#SpeedUnitAnnex_machNumber"),
+                    Localizer.Format("#SpeedUnitAnnex_knots"),
+                    Localizer.Format("#SpeedUnitAnnex_kmph"),
+                    Localizer.Format("#SpeedUnitAnnex_mph")
+                };
+
+                return myList;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

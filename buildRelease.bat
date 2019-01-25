@@ -1,15 +1,22 @@
 
 @echo off
 
+rem Put the following text into the Post-build event command line:
+rem without the "rem":
+
+rem start /D $(SolutionDir) /WAIT buildDeploy.bat  $(TargetDir) $(TargetFileName)
+rem  
+rem if $(ConfigurationName) == Release (
+rem  
+rem start /D $(SolutionDir) /WAIT buildRelease.bat $(TargetDir) $(TargetFileName)
+rem  
+rem )
+
+rem Set variables here
+
 set MODNAME=SpeedUnitAnnex
 set LICENSE=SpeedUnitAnnex-License.txt
-set CHANGELOG=ChangeLog.txt
-REM set README=ReadMe.txt
-
-REM // copy dll and version to Rep/GameData
-REM // copy /Y "%1%2" "GameData\%MODNAME%"\Plugins
-REM // copy /Y %MODNAME%.version GameData\%MODNAME%
-REM copy /Y ..\MiniAVC.dll GameData\%MODNAME%
+set CHANGELOG=ChangeLog.md
 
 if "%LICENSE%" NEQ "" xcopy %LICENSE% GameData\%MODNAME% /Y /I
 if "%README%"  NEQ "" xcopy %README%  GameData\%MODNAME% /Y /I
@@ -44,3 +51,5 @@ echo Version:  %VERSION%
 set FILE="%RELEASESDIR%\%MODNAME%-v%VERSION%.zip"
 IF EXIST %FILE% del /F %FILE%
 %ZIP% a -tzip %FILE% GameData
+
+pause
