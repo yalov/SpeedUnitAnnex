@@ -62,6 +62,7 @@ namespace SpeedUnitAnnex
 
         string FinalName;
         SpeedUnitAnnexSettings settings;
+        SpeedUnitAnnexSettings2 settings2;
 
         public SpeedUnitAnnex()
         {
@@ -96,6 +97,7 @@ namespace SpeedUnitAnnex
             return Formatter.Distance_short(alt) + " ";
         }
 
+
         string CalcTargetDistance(ITargetable obj)
         {
             // from Docking Port Alignment Indicator
@@ -106,14 +108,13 @@ namespace SpeedUnitAnnex
             return Formatter.Distance_short(distance) + " ";
         }
 
-        
-
         // return signed angle in relation to normal's 2d plane
         // From NavyFish's docking alignment
         private static float AngleAroundNormal(Vector3 a, Vector3 b, Vector3 up)
         {
             return AngleSigned(Vector3.Cross(up, a), Vector3.Cross(up, b), up);
         }
+
 
         // -180 to 180 angle
         // From NavyFish's docking alignment
@@ -124,6 +125,7 @@ namespace SpeedUnitAnnex
             return Vector3.Angle(v1, v2);
         }
 
+
         Vector3 GetOrientationDeviation(ITargetable obj)
         {
             Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
@@ -132,48 +134,19 @@ namespace SpeedUnitAnnex
             Vector3 targetPortOutVector = targetTransform.forward.normalized;
             Vector3 targetPortRollReferenceVector = -targetTransform.up;
 
-            Vector3 orientationDeviation = new Vector3();
-            orientationDeviation.x = AngleAroundNormal(-targetPortOutVector, selfTransform.up, selfTransform.forward);
-            orientationDeviation.y = AngleAroundNormal(-targetPortOutVector, selfTransform.up, -selfTransform.right);
-            orientationDeviation.z = AngleAroundNormal(targetPortRollReferenceVector, selfTransform.forward, selfTransform.up);
+            Vector3 orientationDeviation = new Vector3
+            {
+                x = AngleAroundNormal(-targetPortOutVector, selfTransform.up, selfTransform.forward),
+                y = AngleAroundNormal(-targetPortOutVector, selfTransform.up, -selfTransform.right),
+                z = AngleAroundNormal(targetPortRollReferenceVector, selfTransform.forward, selfTransform.up)
+            };
 
-            orientationDeviation.x = (360 + orientationDeviation.x ) % 360;  // -90..270
-            orientationDeviation.y = (360 + orientationDeviation.y ) % 360;
+            orientationDeviation.x = (360 + orientationDeviation.x) % 360;  // -90..270
+            orientationDeviation.y = (360 + orientationDeviation.y) % 360;
             orientationDeviation.z = (360 - orientationDeviation.z) % 360;
             return orientationDeviation;
         }
 
-
-        void Closure(ITargetable obj)
-        {
-            float negativeOnBackHemisphere;
-            float xTranslationNegativeOnBackHemi;
-            float yTranslationNegativeOnBackHemi;
-            Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-            Transform targetTransform = obj.GetTransform();
-
-            Vector3 targetPortOutVector = targetTransform.forward.normalized;
-            Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
-
-            Vector2 translationDeviation = new Vector2();
-            translationDeviation.x = AngleAroundNormal(targetToOwnship, targetPortOutVector, selfTransform.forward);
-            translationDeviation.y = AngleAroundNormal(targetToOwnship, targetPortOutVector, -selfTransform.right);
-
-            if (Math.Abs(translationDeviation.x) >= 90) xTranslationNegativeOnBackHemi = -1;
-            else xTranslationNegativeOnBackHemi = 1;
-
-            if (Math.Abs(translationDeviation.y) >= 90) yTranslationNegativeOnBackHemi = -1;
-            else yTranslationNegativeOnBackHemi = 1;
-
-            if (xTranslationNegativeOnBackHemi < 0 || yTranslationNegativeOnBackHemi < 0) negativeOnBackHemisphere = -1;
-            else negativeOnBackHemisphere = 1;
-
-            float normalVelocity = Vector3.Dot(FlightGlobals.ship_tgtVelocity, targetPortOutVector);
-            float closureV = -normalVelocity * negativeOnBackHemisphere;
-            float closureD = Vector3.Dot(targetToOwnship, targetPortOutVector);
-
-        }
-        
 
         string GetTargetName(ITargetable obj)
         {
@@ -202,15 +175,13 @@ namespace SpeedUnitAnnex
                     break;
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:
-                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA && settings.orbit_EVA)
-                        FinalName = CutKerbalName(settings.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel, false);
+                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA && settings2.orbit_EVA)
+                        FinalName = CutKerbalName(settings2.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel, false);
                     break;
                 case FlightGlobals.SpeedDisplayModes.Target:
                     Target = null;
                     break;
             }
-            //Log("SetFinalName: " + FinalName);
-
         }
 
         private string CutKerbalName(string prefix, Vessel kerbal, bool cut_orange_names = true)
@@ -247,10 +218,11 @@ namespace SpeedUnitAnnex
                 {
                     name = name.Substring(0, name.Length - 1);
                 }
-                name += ".";
+                name = name.Trim() + ".";
             }
-            return name;
+            return name + " ";
         }
+
 
         void OnVesselChange(Vessel vessel)
         {
@@ -264,36 +236,33 @@ namespace SpeedUnitAnnex
             SetFinalName(mode);
         }
 
-        
-        public void OnGameSettingsApplied()
+        public void OnGameUnpause()
         {
-            Log("OnGameSettingsApplied");
+            //Log("OnGameUnpause");
             SetFinalName(FlightGlobals.speedDisplayMode);
-        }
-
-        public void OnGameSettingsWritten()
-        {
-            Log("OnGameSettingsWritten");
-            //SetFinalName(FlightGlobals.speedDisplayMode);
+            settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
         }
 
         public void OnDisable()
         {
             G﻿ameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onSetSpeedMode.Remove(OnSetSpeedMode);
-            G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsApplied);
-            G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
+            //G﻿ameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
+            //G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
+            G﻿ameEvents.onGameUnpause.Remove(OnGameUnpause);
         }
 
         public void Start()
         {
             G﻿ameEvents.onVesselChange.Add(OnVesselChange);
             G﻿ameEvents.onSetSpeedMode.Add(OnSetSpeedMode);
-            G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
-            G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
+            //G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
+            //G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
+            G﻿ameEvents.onGameUnpause.Add(OnGameUnpause);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
+            settings2 = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings2>();
 
             display.textSpeed.enableWordWrapping = false;
             display.textTitle.enableWordWrapping = false;
@@ -379,10 +348,10 @@ namespace SpeedUnitAnnex
                                         titleText = Surf3 + Formatter.Distance_short(radar) + "  "
                                             + (spd * knTOms).ToString("F1") + kn_s;
                                     else if (settings.aircraft == kmph)
-                                        titleText = Surf3 + Formatter.Distance_short(radar) + "  "
+                                        titleText = Surf3 + Formatter.Distance_short(radar) + " "
                                             + (spd * kmphTOms).ToString("F1") + kmph_s;
                                     else // settings.aircraft == mph
-                                        titleText = Surf3 + Formatter.Distance_short(radar) + "  "
+                                        titleText = Surf3 + Formatter.Distance_short(radar) + " "
                                             + (spd * mphTOms).ToString("F1") + mph_s;
                                 }
                                 else
@@ -444,9 +413,9 @@ namespace SpeedUnitAnnex
                 case FlightGlobals.SpeedDisplayModes.Orbit:
 
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
-                        && settings.orbit_EVA)
+                        && settings2.orbit_EVA)
                     {
-                        display.textTitle.text = (settings.orbit_time ? "" : Orb) + FinalName;
+                        display.textTitle.text = (settings2.orbit_time ? "" : Orb) + FinalName;
                     }
                     else
                     {
@@ -459,7 +428,7 @@ namespace SpeedUnitAnnex
                             Ap_ok ? "#00ff00ff" : "#00ff009f", Ap,
                             Pe_ok ? "#00ff00ff" : "#00ff009f", Pe);
 
-                        if (settings.orbit_time)
+                        if (settings2.orbit_time)
                         {
                             string TimeApsis;
                             bool Apsis_ok;
@@ -508,27 +477,34 @@ namespace SpeedUnitAnnex
                     string distanceToTarget = "";
                     string TargetAngle = "";
                     
-                    
-                    if (settings.targetAngle && obj is ModuleDockingNode)
+                    if (settings2.targetAngle && obj is ModuleDockingNode)
                     {
                         Vector3 angles = GetOrientationDeviation(obj);
-                        TargetAngle =  Formatter.Angle(angles.z);
+                        if (settings2.targetInteger)
+                            TargetAngle = Formatter.Angle(angles.z, true, 5);
+                        else
+                            TargetAngle = Formatter.Angle(angles.z);
                     }
 
-                    if (settings.targetDistance)
+                    if (settings2.targetDistance)
                         distanceToTarget = CalcTargetDistance(obj);
 
-                    bool TargetNameIsNeeded = !(settings.targetDistance && settings.targetAngle && obj is ModuleDockingNode);
-
-
-                    if (settings.targetAngles && obj is ModuleDockingNode)
+                    if (settings2.targetAngles && obj is ModuleDockingNode)
                     {
                         Vector3 angles = GetOrientationDeviation(obj);
 
-                        display.textTitle.text = Formatter.Angle(angles.x) + Formatter.Angle(angles.y) + Formatter.Angle(angles.z);
+                        if (settings2.targetInteger)
+                            display.textTitle.text = Trg + 
+                                Formatter.Angle(angles.x, true, 5) + 
+                                Formatter.Angle(angles.y, true, 5) + 
+                                Formatter.Angle(angles.z, true, 5);
+                        else
+                            display.textTitle.text = Formatter.Angle(angles.x) + Formatter.Angle(angles.y) + Formatter.Angle(angles.z);
+
                     }
                     else
                     {
+                        bool TargetNameIsNeeded = !(settings2.targetDistance && settings2.targetAngle && obj is ModuleDockingNode);
                         if (TargetNameIsNeeded)
                         {
                             if (Target != obj)
@@ -538,10 +514,11 @@ namespace SpeedUnitAnnex
                             }
 
                             display.textTitle.text = Trg + distanceToTarget + TargetName + TargetAngle;
-
                         }
                         else
+                        {
                             display.textTitle.text = Trg + distanceToTarget + TargetAngle;
+                        }
                     }
                         
                     if (FlightGlobals.ship_tgtSpeed < 0.195)

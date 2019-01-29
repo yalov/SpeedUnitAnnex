@@ -7,26 +7,23 @@ namespace SpeedUnitAnnex
 {
     static class Formatter
     {
-        private static string m = Localizer.Format("#SpeedUnitAnnex_meter");
-        private static string k = Localizer.Format("#SpeedUnitAnnex_kilo");
-        private static string M = Localizer.Format("#SpeedUnitAnnex_mega");
-        private static string G = Localizer.Format("#SpeedUnitAnnex_giga");
-        private static string T = Localizer.Format("#SpeedUnitAnnex_tera");
+        private static readonly string m = Localizer.Format("#SpeedUnitAnnex_meter");
+        private static readonly string k = Localizer.Format("#SpeedUnitAnnex_kilo");
+        private static readonly string M = Localizer.Format("#SpeedUnitAnnex_mega");
+        private static readonly string G = Localizer.Format("#SpeedUnitAnnex_giga");
+        private static readonly string T = Localizer.Format("#SpeedUnitAnnex_tera");
 
-        private static string[] SI = { m, k, M, G, T };
+        private static readonly string[] SI = { m, k, M, G, T };
 
-        private static string Mm = Localizer.Format("#SpeedUnitAnnex_mega") + Localizer.Format("#SpeedUnitAnnex_meter");
-        private static string Gm = Localizer.Format("#SpeedUnitAnnex_giga") + Localizer.Format("#SpeedUnitAnnex_meter");
+        private static readonly string Mm = Localizer.Format("#SpeedUnitAnnex_mega") + Localizer.Format("#SpeedUnitAnnex_meter");
+        private static readonly string Gm = Localizer.Format("#SpeedUnitAnnex_giga") + Localizer.Format("#SpeedUnitAnnex_meter");
 
-        private static string sec_str = Localizer.Format("#SpeedUnitAnnex_sec");
-        private static string min_str = Localizer.Format("#SpeedUnitAnnex_min");
-        private static string hour_str = Localizer.Format("#SpeedUnitAnnex_hour");
-        private static string day_str = Localizer.Format("#SpeedUnitAnnex_day");
-        private static string year_str = Localizer.Format("#SpeedUnitAnnex_year");
-
-        //private System.Globalization.CultureInfo culture =
-        //    System.Globalization.CultureInfo.CreateSpecificCulture(KSP.Localization.Localizer.CurrentLanguage);
-
+        private static readonly string sec_str = Localizer.Format("#SpeedUnitAnnex_sec");
+        private static readonly string min_str = Localizer.Format("#SpeedUnitAnnex_min");
+        private static readonly string hour_str = Localizer.Format("#SpeedUnitAnnex_hour");
+        private static readonly string day_str = Localizer.Format("#SpeedUnitAnnex_day");
+        private static readonly string year_str = Localizer.Format("#SpeedUnitAnnex_year");
+        
 
         /// <summary>
         /// decimal_digits >= 0, mode = C|F|N
@@ -36,6 +33,16 @@ namespace SpeedUnitAnnex
             double multiplier = Math.Pow(10, decimal_digits);
             return (Math.Truncate(multiplier * value) / multiplier).ToString(mode + decimal_digits);
         }
+
+        /// <summary>
+        /// decimal_digits >= 0, mode = C|F|N
+        /// </summary>
+        private static string Ceiling(double value, string mode = "F", int decimal_digits = 1)
+        {
+            double multiplier = Math.Pow(10, decimal_digits);
+            return (Math.Ceiling(multiplier * value) / multiplier).ToString(mode + decimal_digits);
+        }
+
 
         public static string Time(double seconds, string prefix = "T-")
         {
@@ -125,7 +132,7 @@ namespace SpeedUnitAnnex
             if (v < 1E3)          // 0.0 m - 999.9 m
                 str = Truncate(value, "N", 1) + " " + m;
 
-            else if (v < 1E8)          // 1,000 m - 99,999,999 m
+            else if (v < 1E8)     // 1,000 m - 99,999,999 m
                 str = Truncate(value, "N", 0) + " " + m;
 
             else if (v < 1E12)    // 100.0 Mm - 999,999.9 Mm
@@ -137,16 +144,18 @@ namespace SpeedUnitAnnex
             return str;
         }
 
-        public static string Angle(double value)
+        public static string Angle(double value, bool Integer = false, int totalWidth = 7)
         {
-            return String.Format("{0:F1}\u00B0 ", value).PadLeft(7, '\u2007');
-
-        }
-        public static string Angle_Short(double value)
-        {
-            return String.Format("{0:F1}\u00B0 ", value);
-            
+            if (Integer)
+            {
+                if (value > 359.5) value = 0.0;
+                return String.Format("{0:F0}\u00B0 ", value).PadLeft(totalWidth, '\u2007');
+            }
+            else
+            {
+                if (value > 359.95) value = 0.0;
+                return String.Format("{0:F1}\u00B0 ", value).PadLeft(totalWidth, '\u2007');
+            }
         }
     }
-
 }

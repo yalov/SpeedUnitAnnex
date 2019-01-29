@@ -32,29 +32,6 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_altimeter", toolTip = "#SpeedUnitAnnex_altimeter_toolTip")]
         public bool radar = true;
 
-
-        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_orbitMode", lines = 2)]
-        public string UIstring2 = "";
-
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
-        public bool orbit_EVA = true;
-
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitTime", toolTip = "#SpeedUnitAnnex_orbitTime_toolTip")]
-        public bool orbit_time = false;
-
-
-        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2)]
-        public string UIstring3 = "";
-
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDistance", toolTip = "#SpeedUnitAnnex_targetDistance_toolTip")]
-        public bool targetDistance = true;
-
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngle", toolTip = "#SpeedUnitAnnex_targetAngle_toolTip")]
-        public bool targetAngle = true;
-
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngles", toolTip = "#SpeedUnitAnnex_targetAngles_toolTip")]
-        public bool targetAngles = true;
-
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
             return true;
@@ -62,9 +39,6 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == "targetDistance" || member.Name == "targetAngle")
-                return !targetAngles;
-
             return true;
         }
 
@@ -96,6 +70,63 @@ namespace SpeedUnitAnnex
             {
                 return null;
             }
+        }
+    }
+
+    public class SpeedUnitAnnexSettings2 : GameParameters.CustomParameterNode
+    {
+        public override string Title { get { return Localizer.Format("#SpeedUnitAnnex_navball_info"); } }
+        public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
+        public override string Section { get { return "Speed Unit Annex"; } }
+        public override string DisplaySection { get { return "Speed Unit Annex"; } }
+        public override int SectionOrder { get { return 2; } }
+        public override bool HasPresets { get { return false; } }
+        
+
+        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_orbitMode", lines = 2)]
+        public string UIstring2 = "";
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
+        public bool orbit_EVA = true;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitTime", toolTip = "#SpeedUnitAnnex_orbitTime_toolTip")]
+        public bool orbit_time = false;
+
+
+        [GameParameters.CustomStringParameterUI("#SpeedUnitAnnex_targetMode", lines = 2)]
+        public string UIstring3 = "";
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDistance", toolTip = "#SpeedUnitAnnex_targetDistance_toolTip")]
+        public bool targetDistance = true;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngle", toolTip = "#SpeedUnitAnnex_targetAngle_toolTip")]
+        public bool targetAngle = true;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngles", toolTip = "#SpeedUnitAnnex_targetAngles_toolTip")]
+        public bool targetAngles = false;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAnglesInteger", toolTip = "#SpeedUnitAnnex_targetAnglesInteger_toolTip")]
+        public bool targetInteger = true;
+
+        public override bool Enabled(MemberInfo member, GameParameters parameters)
+        {
+            return true;
+        }
+
+        public override bool Interactible(MemberInfo member, GameParameters parameters)
+        {
+            if (member.Name == "targetAngle")
+                return !targetAngles;
+
+            if (member.Name == "targetInteger")
+                return targetAngles || targetAngle;
+
+            return true;
+        }
+
+        public override IList ValidValues(MemberInfo member)
+        {
+            return null;
         }
     }
 }

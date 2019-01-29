@@ -1,13 +1,15 @@
 ChangeLog:
 
-## Version 1.2.7
- * multiple choices for rover and plane speedometers settings
+## Version 1.3.2
+ * surface: multiple choices for rover and airplane speedometers settings
    * added km/h and mph for airplanes
- * relative Roll angle
- * relative angles
- * ?
+ * target: relative docking port angles
+   * only a roll angle
+   * yaw, pitch and roll angles
+   * integer or one decimal digit precision
  * recompile for ksp 1.6.1
- * fix targeting .NET version
+ * fix settings-esc bug
+ * fix targeting .NET version to 3.5
 
 ## Version 1.2.6
  * recompile for ksp 1.6.0

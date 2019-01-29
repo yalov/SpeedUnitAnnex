@@ -13,7 +13,7 @@ The main xx.x m/s line is still there, the mod adds (annex) some new speed unit 
  * Surface mode
    * Rover — km/h or mph
    * Boat/Submarine — knots 
-   * Plane — Mach number or knots
+   * Plane — Mach number, knots, km/h or mph
    * Kerbal (EVA) — Name
    * All, except Rovers and Boats — Above Ground Level
 
@@ -25,3 +25,4 @@ The main xx.x m/s line is still there, the mod adds (annex) some new speed unit 
  * target mode
    * Target vessel name
    * Distance to target
+   * Relavite docking port angles
