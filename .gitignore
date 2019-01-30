@@ -21,3 +21,5 @@
 temp/
 
 *.netkan
+/release_token.json
+__pycache__
