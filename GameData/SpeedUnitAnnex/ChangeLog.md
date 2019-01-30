@@ -7,6 +7,7 @@ ChangeLog:
    * only a roll angle
    * yaw, pitch and roll angles
    * integer or one decimal digit precision
+   * option for disabling target name
  * recompile for ksp 1.6.1
  * fix settings-esc bug
  * fix targeting .NET version to 3.5

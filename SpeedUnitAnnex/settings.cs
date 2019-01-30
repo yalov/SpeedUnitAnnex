@@ -99,6 +99,9 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDistance", toolTip = "#SpeedUnitAnnex_targetDistance_toolTip")]
         public bool targetDistance = true;
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetName", toolTip = "#SpeedUnitAnnex_targetName_toolTip")]
+        public bool targetName = true;
+
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngle", toolTip = "#SpeedUnitAnnex_targetAngle_toolTip")]
         public bool targetAngle = true;
 
@@ -120,6 +123,8 @@ namespace SpeedUnitAnnex
 
             if (member.Name == "targetInteger")
                 return targetAngles || targetAngle;
+
+
 
             return true;
         }

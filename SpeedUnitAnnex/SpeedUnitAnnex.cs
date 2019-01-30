@@ -27,13 +27,11 @@ namespace SpeedUnitAnnex
         readonly string kmph    = Localizer.Format("#SpeedUnitAnnex_kmph");
         readonly string mph     = Localizer.Format("#SpeedUnitAnnex_mph");
 
-
         readonly string kn_s    = " " + Localizer.Format("#SpeedUnitAnnex_kn");
         readonly string knots_s = " " + Localizer.Format("#SpeedUnitAnnex_knots");
         readonly string kmph_s  = " " + Localizer.Format("#SpeedUnitAnnex_kmph");
         readonly string mps_s   = " " + Localizer.Format("#SpeedUnitAnnex_mps");
         readonly string mph_s   = " " + Localizer.Format("#SpeedUnitAnnex_mph");
-        
 
         readonly string Surface = Localizer.Format("#autoLOC_7001218") + " ";
         
@@ -58,7 +56,6 @@ namespace SpeedUnitAnnex
 
         ITargetable Target = null;
         string TargetName;
-
 
         string FinalName;
         SpeedUnitAnnexSettings settings;
@@ -109,7 +106,7 @@ namespace SpeedUnitAnnex
         }
 
         // return signed angle in relation to normal's 2d plane
-        // From NavyFish's docking alignment
+        // from Docking Port Alignment Indicator
         private static float AngleAroundNormal(Vector3 a, Vector3 b, Vector3 up)
         {
             return AngleSigned(Vector3.Cross(up, a), Vector3.Cross(up, b), up);
@@ -117,7 +114,7 @@ namespace SpeedUnitAnnex
 
 
         // -180 to 180 angle
-        // From NavyFish's docking alignment
+        // from Docking Port Alignment Indicator
         private static float AngleSigned(Vector3 v1, Vector3 v2, Vector3 up)
         {
             if (Vector3.Dot(Vector3.Cross(v1, v2), up) < 0) //greater than 90 i.e v1 left of v2
@@ -457,46 +454,37 @@ namespace SpeedUnitAnnex
                     break;
 
                 case FlightGlobals.SpeedDisplayModes.Target:
-
+                    
                     #region all Target
-                    // 1.5.1
-                    // ITargetable ->  CelestialBody;
-                    //                 FlightCoMTracker;
-                    //                 ModuleDockingNode;
-                    //                 PositionTarget;
-                    //                 Vessel;
+                    // 1.6.0
+                    // ITargetable:
+                    //  * CelestialBody
+                    //  * FlightCoMTracker
+                    //  * ModuleDockingNode
+                    //  * PositionTarget:
+                    //    * DirectionTarget
+                    //  * Vessel
                     #endregion
 
                     ITargetable obj = FlightGlobals.fetch.VesselTarget;
+
                     if (obj == null)
                     {
                         display.textTitle.text = NoTrg;
                         return;
                     }
 
-                    string distanceToTarget = "";
-                    string TargetAngle = "";
+                    bool isMDN = obj is ModuleDockingNode;
                     
-                    if (settings2.targetAngle && obj is ModuleDockingNode)
-                    {
-                        Vector3 angles = GetOrientationDeviation(obj);
-                        if (settings2.targetInteger)
-                            TargetAngle = Formatter.Angle(angles.z, true, 5);
-                        else
-                            TargetAngle = Formatter.Angle(angles.z);
-                    }
 
-                    if (settings2.targetDistance)
-                        distanceToTarget = CalcTargetDistance(obj);
-
-                    if (settings2.targetAngles && obj is ModuleDockingNode)
+                    if (settings2.targetAngles && isMDN)
                     {
                         Vector3 angles = GetOrientationDeviation(obj);
 
                         if (settings2.targetInteger)
-                            display.textTitle.text = Trg + 
-                                Formatter.Angle(angles.x, true, 5) + 
-                                Formatter.Angle(angles.y, true, 5) + 
+                            display.textTitle.text = Trg +
+                                Formatter.Angle(angles.x, true, 5) +
+                                Formatter.Angle(angles.y, true, 5) +
                                 Formatter.Angle(angles.z, true, 5);
                         else
                             display.textTitle.text = Formatter.Angle(angles.x) + Formatter.Angle(angles.y) + Formatter.Angle(angles.z);
@@ -504,23 +492,36 @@ namespace SpeedUnitAnnex
                     }
                     else
                     {
-                        bool TargetNameIsNeeded = !(settings2.targetDistance && settings2.targetAngle && obj is ModuleDockingNode);
-                        if (TargetNameIsNeeded)
+                        string TargetAngle = "";
+                        string distanceToTarget = "";
+
+                        if (settings2.targetAngle && isMDN)
+                        {
+                            Vector3 angles = GetOrientationDeviation(obj);
+                            if (settings2.targetInteger)
+                                TargetAngle = Formatter.Angle(angles.z, true, 5);
+                            else
+                                TargetAngle = Formatter.Angle(angles.z);
+                        }
+
+                        if (settings2.targetDistance)
+                            distanceToTarget = CalcTargetDistance(obj);
+
+                        bool isAngleAndDistance = settings2.targetDistance && settings2.targetAngle && isMDN;
+
+                        if (settings2.targetName && !isAngleAndDistance)
                         {
                             if (Target != obj)
                             {
                                 TargetName = CutName(Trg + distanceToTarget + TargetAngle, GetTargetName(obj));
                                 Target = obj;
                             }
-
                             display.textTitle.text = Trg + distanceToTarget + TargetName + TargetAngle;
                         }
                         else
-                        {
-                            display.textTitle.text = Trg + distanceToTarget + TargetAngle;
-                        }
+                            display.textTitle.text = Trg + distanceToTarget +" " + TargetAngle; // 2 spaces
                     }
-                        
+
                     if (FlightGlobals.ship_tgtSpeed < 0.195)
                         display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps_s;
                     else
