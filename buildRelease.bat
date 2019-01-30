@@ -23,7 +23,7 @@ if "%README%"  NEQ "" xcopy %README%  GameData\%MODNAME% /Y /I
 if "%CHANGELOG%"  NEQ "" xcopy %CHANGELOG%  GameData\%MODNAME% /Y /I
 
 
-set RELEASESDIR=releases
+set RELEASESDIR=Releases
 set ZIP="c:\Program Files\7-zip\7z.exe"
 
 set VERSIONFILE=%MODNAME%.version
