@@ -1,4 +1,14 @@
-"""doc"""
+"""requirements: Python3, pip install PyGithub
+Script loads release-arhive to github and spacedock
+you need to set values in the release.json
+also you need to place github-token and spacedock login+pass
+into a new file: release_token.json (alongside release.json)
+{
+    "GITHUB_TOKEN": "your_github_token"
+    "SPACEDOCK_LOGIN": "your_spacedock_login"
+    "SPACEDOCK_PASS": "your_spacedock_password"
+}
+"""
 
 import sys
 import json
@@ -13,17 +23,6 @@ from github import GithubException
 from release_spacedock_utils import GetSpacedockKSPVersions
 from release_spacedock_utils import GetSpacedockModDetails
 from release_spacedock_utils import PublishToSpacedock
-
-# Python3, pip install PyGithub
-# Script loads arhive to github and spacedock 
-# you need to set values in the release.json
-# also you need to place github-token and spacedock login+pass
-# into a new file: release_token.json (alongside release.json)
-# {
-#     "GITHUB_TOKEN": "your_github_token"
-#     "SPACEDOCK_LOGIN": "your_spacedock_login"
-#     "SPACEDOCK_PASS": "your_spacedock_password"
-# }
 
 
 def zipdir(path, ziph):
@@ -68,50 +67,47 @@ def get_description(path):
     return desc
 
 
-def PublishToGithub(TOKEN, MODNAME, VERSION, LAST_CHANGE, DRAFT, PRERELEASE, ZIPFILE):
+def publish_to_github(token, mod_name, version, last_change, is_draft, is_prerelease, zip_file):
+    """create tag and publish a release"""
     sys.stdout.write(" * Github connection...")
-    g = None
+    github = None
     repo = None
-    u = None
+    user = None
 
     try:
-        g = Github(TOKEN)
-        u = g.get_user()
+        github = Github(token)
+        user = github.get_user()
     except Exception:
         print(" failed.")
         sys.exit(-1)
 
     try:
-        repo = u.get_repo(MODNAME)
-        print(" user: {}, repo: {}".format(u.login, repo.name))
+        repo = user.get_repo(mod_name)
+        print(" user: {}, repo: {}".format(user.login, repo.name))
     except Exception:
-        print(" failed to get {}".format(MODNAME))
+        print(" failed to get {}".format(mod_name))
         sys.exit(-1)
 
     tags = repo.get_tags()
     count = tags.totalCount
 
-    if count == 0 or (count > 0 and tags[0].name != VERSION):
+    if count == 0 or (count > 0 and tags[0].name != version):
         print(" * getting last commit sha...")
         sha = repo.get_commits()[0].sha
 
-        #print(" * creating git tag...")
-        #t = repo.create_git_tag(tag=VERSION, message="", object=sha, type="commit")
-
         try:
-            #repo.create_git_ref('refs/tags/{}'.format(t.tag), t.sha)
-            repo.create_git_ref('refs/tags/{}'.format(VERSION), sha)
+            repo.create_git_ref('refs/tags/{}'.format(version), sha)
         except GithubException:
             print("   * could not create tag on the repo.")
     else:
-        print(" * the tag "+VERSION+" is found, skiping...")
+        print(" * the tag "+version+" is found, skiping...")
 
-    rel = repo.create_git_release(tag=VERSION, name="Version " + VERSION,
-                                  message=LAST_CHANGE,
-                                  draft=DRAFT, prerelease=PRERELEASE)
+    rel = repo.create_git_release(tag=version, name="Version " + version,
+                                  message=last_change,
+                                  draft=is_draft, prerelease=is_prerelease)
 
     print(" * uploading asset...")
-    rel.upload_asset(path=ZIPFILE, content_type="application/zip")
+    rel.upload_asset(path=zip_file, content_type="application/zip")
     print(" * success.")
     print()
 
@@ -165,17 +161,20 @@ if __name__ == '__main__':
     print("= start of desc ============")
     print(LAST_CHANGE)
     print("= end of desc ==============")
+    print("")
 
     if os.path.exists(ZIPFILE):
         print(ZIPFILE + " already exists.")
         if input("Re-zip? [y/N]: ") == 'y':
             archive_to(ZIPFILE)
-
+    else:
+        print("Creating "+ ZIPFILE +" ...")
+        archive_to(ZIPFILE)
+    
+    print("")
     print("Create the tag, and publish a release with the asset?")
-    if input("[y/N]: ") != 'y':
-        sys.exit(0)
-
-    PublishToGithub(TOKEN, MODNAME, VERSION, LAST_CHANGE, DRAFT, PRERELEASE, ZIPFILE)
+    if input("[y/N]: ") == 'y':
+        publish_to_github(TOKEN, MODNAME, VERSION, LAST_CHANGE, DRAFT, PRERELEASE, ZIPFILE)
 
     # ======================================
 
@@ -197,16 +196,14 @@ if __name__ == '__main__':
     mod_details = GetSpacedockModDetails(SD_ID)
 
     print("Spacedock info:\nID: {}, NAME: {}\nLast Release {} (KSP {})".format(
-            SD_ID, mod_details['name'],
-            mod_details['versions'][0]['friendly_version'],
-            mod_details['versions'][0]['game_version']
-          ))
+        SD_ID, mod_details['name'],
+        mod_details['versions'][0]['friendly_version'],
+        mod_details['versions'][0]['game_version']
+        ))
 
     print("Publish {} (KSP {}) to the Spacedock?".format(VERSION, KSP_VER))
-    if input("[y/N]: ") != 'y':
-        sys.exit(0)
-
-    PublishToSpacedock(SD_ID, ZIPFILE, LAST_CHANGE, VERSION, KSP_VER, SD_LOGIN, SD_PASS)
+    if input("[y/N]: ") == 'y':
+        PublishToSpacedock(SD_ID, ZIPFILE, LAST_CHANGE, VERSION, KSP_VER, SD_LOGIN, SD_PASS)
 
     input("Press Enter to close")
     sys.exit(0)

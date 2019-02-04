@@ -1,3 +1,4 @@
+"""utils for accessing to the spacedock"""
 # Public domain license.
 # Based on: https://github.com/ihsoft/KSPDev_ReleaseBuilder
 # $version: 2
@@ -144,7 +145,7 @@ def _GetAuthorizedEndpoint(api_path, headers, login, password, **kwargs):
     return url, headers
 
 
-"""Utils: Provides helpers to deal with the multipart/form-data MIME types."""
+# Utils: Provides helpers to deal with the multipart/form-data MIME types.
 
 
 def EncodeFormData(fields):
