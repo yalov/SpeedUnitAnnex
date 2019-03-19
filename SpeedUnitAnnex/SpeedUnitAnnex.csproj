@@ -39,6 +39,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AssemblyVersion.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReflectionUtils.cs" />
     <Compile Include="settings.cs" />
     <Compile Include="SpeedUnitAnnex.cs" />
   </ItemGroup>
@@ -61,11 +62,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-start /D $(SolutionDir) /WAIT buildDeploy.bat  $(TargetDir) $(TargetFileName)
+    <PostBuildEvent>cd "$(SolutionDir)"
+
+call  "$(SolutionDir)\buildDeploy.bat" "$(TargetDir)" "$(TargetFileName)"
 
 if $(ConfigurationName) == Release (
-start /D $(SolutionDir) /WAIT buildRelease.bat $(TargetDir) $(TargetFileName)
+call "$(SolutionDir)\buildRelease.bat" "$(TargetDir)" "$(TargetFileName)"
 )
 </PostBuildEvent>
   </PropertyGroup>

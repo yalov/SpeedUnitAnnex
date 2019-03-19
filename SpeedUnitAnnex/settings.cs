@@ -26,11 +26,14 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_aircraft_speedometer", toolTip = "#SpeedUnitAnnex_aircraft_speedometer_toolTip")]
         public string aircraft = Localizer.Format("#SpeedUnitAnnex_machNumber");
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_altimeter", toolTip = "#SpeedUnitAnnex_altimeter_toolTip")]
+        public bool radar = true;
+
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_aircraft_ias", toolTip = "#SpeedUnitAnnex_aircraft_ias_toolTip")]
         public bool ias = false;
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_altimeter", toolTip = "#SpeedUnitAnnex_altimeter_toolTip")]
-        public bool radar = true;
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_override_FAR", toolTip = "#SpeedUnitAnnex_override_FAR_toolTip")]
+        public bool overrideFAR = true;
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {

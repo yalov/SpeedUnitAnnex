@@ -3,7 +3,8 @@ using UnityEngine;
 using KSP.UI.Screens.Flight;
 using KSP.Localization;
 using static SpeedUnitAnnex.Logging;
-
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace SpeedUnitAnnex
 {
@@ -61,9 +62,53 @@ namespace SpeedUnitAnnex
         SpeedUnitAnnexSettings settings;
         SpeedUnitAnnexSettings2 settings2;
 
+        bool isLoadedFAR = false;
+        //bool isDisabledFARDisplay = false;
+
+        private delegate bool FAR_ToggleAirspeedDisplayDelegate(bool? enabled=null, Vessel v=null);
+        private static FAR_ToggleAirspeedDisplayDelegate FAR_ToggleAirspeedDisplay;
+
+
+        private void CreateFARReflection()
+        {
+            isLoadedFAR = ReflectionUtils.IsAssemblyLoaded("FerramAerospaceResearch");
+
+            if (isLoadedFAR)
+            {
+                
+
+                var FAR_ToggleAirspeedDisplayMethodInfo = ReflectionUtils.GetMethodByReflection(
+                    "FerramAerospaceResearch",
+                    "FerramAerospaceResearch.FARAPI",
+                    "ToggleAirspeedDisplay",
+                    BindingFlags.Public | BindingFlags.Static,
+                    new Type[] { typeof(bool?), typeof(Vessel) }
+                );
+                if (FAR_ToggleAirspeedDisplayMethodInfo == null)
+                {
+                    Log("FAR loaded, but FerramAerospaceResearch.FARAPI has no ToggleAirspeedDisplay method, disabling FAR-support");
+                    isLoadedFAR = false;
+                }
+                else
+                {
+                    FAR_ToggleAirspeedDisplay = (FAR_ToggleAirspeedDisplayDelegate)Delegate.CreateDelegate(
+                        typeof(FAR_ToggleAirspeedDisplayDelegate), FAR_ToggleAirspeedDisplayMethodInfo);
+                }
+            }
+        }
+
+        private void ToggleFARDisplay()
+        {
+            if (isLoadedFAR)
+            {
+                bool success = FAR_ToggleAirspeedDisplay(!settings.overrideFAR);
+                //Log("{0}FARDisplay : {1}", settings.overrideFAR ? "Disable" : "Enable", success);
+            }
+        }
+
         public SpeedUnitAnnex()
         {
-            // Nothing to be done here
+            
         }
 
         double AGL()
@@ -179,7 +224,11 @@ namespace SpeedUnitAnnex
                     Target = null;
                     break;
             }
+
+            
+     
         }
+
 
         private string CutKerbalName(string prefix, Vessel kerbal, bool cut_orange_names = true)
         {
@@ -203,6 +252,7 @@ namespace SpeedUnitAnnex
 
             return CutName(prefix, name);
         }
+        
 
         private string CutName(string prefix, string name)
         {
@@ -219,7 +269,7 @@ namespace SpeedUnitAnnex
             }
             return name + " ";
         }
-
+        
 
         void OnVesselChange(Vessel vessel)
         {
@@ -227,18 +277,22 @@ namespace SpeedUnitAnnex
             SetFinalName(FlightGlobals.speedDisplayMode);
         }
 
+
         void OnSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
         {
             //Log("onSetSpeedMode: " + mode.displayDescription());
             SetFinalName(mode);
         }
 
+
         public void OnGameUnpause()
         {
             //Log("OnGameUnpause");
             SetFinalName(FlightGlobals.speedDisplayMode);
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
+            ToggleFARDisplay();
         }
+
 
         public void OnDisable()
         {
@@ -248,6 +302,7 @@ namespace SpeedUnitAnnex
             //G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
             G﻿ameEvents.onGameUnpause.Remove(OnGameUnpause);
         }
+
 
         public void Start()
         {
@@ -261,12 +316,17 @@ namespace SpeedUnitAnnex
             settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
             settings2 = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings2>();
 
+            if (settings.overrideFAR)
+                CreateFARReflection();
+
             display.textSpeed.enableWordWrapping = false;
             display.textTitle.enableWordWrapping = false;
 
             display.textTitle.fontSize = display.textTitle.fontSize / 1.15f;
 
             SetFinalName(FlightGlobals.speedDisplayMode);
+
+            ToggleFARDisplay();
 
             //Log("Font: "+display.textSpeed.font);
             // NotoSans-Regular SDF
@@ -277,7 +337,13 @@ namespace SpeedUnitAnnex
             if (display == null) return;
             if (FlightGlobals.ActiveVessel == null) return;
             if (settings == null) settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
-            //Log(settings.orbit_time);
+
+            //if (settings.overrideFAR && isLoadedFAR && !isDisabledFARDisplay)
+            //{
+            //    isDisabledFARDisplay = FAR_ToggleAirspeedDisplay(FlightGlobals.ActiveVessel, false);
+            //    Log("FARDisplayDisabled: " + isDisabledFARDisplay);
+            //}
+
 
             FlightGlobals.SpeedDisplayModes mode = FlightGlobals.speedDisplayMode;
 
