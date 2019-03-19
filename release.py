@@ -161,7 +161,7 @@ if __name__ == '__main__':
           .format(VERSION, KSP_VER, KSP_MIN, KSP_MAX))
     print("parsing "+ CHANGELOG +" ...")   
     LAST_CHANGE = get_description(CHANGELOG)
-	print("= start of desc ============")
+    print("= start of desc ============")
     print(LAST_CHANGE)
     print("= end of desc ==============")
     print("")
