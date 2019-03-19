@@ -34,14 +34,13 @@ namespace SpeedUnitAnnex
         readonly string mps_s   = " " + Localizer.Format("#SpeedUnitAnnex_mps");
         readonly string mph_s   = " " + Localizer.Format("#SpeedUnitAnnex_mph");
 
-        readonly string Surface = Localizer.Format("#autoLOC_7001218") + " ";
-        
-        readonly string Orb = Localizer.Format("#SpeedUnitAnnex_Orb") + " ";
-        readonly string Surf3 = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
-        readonly string Surf5 = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
-        
-        readonly string Trg = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
-        readonly string NoTrg = Localizer.Format("#autoLOC_339139");  // No Target
+        readonly string Orb     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Orb"));
+        readonly string Surf3   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf3"));
+        readonly string Surf5   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf5"));
+        readonly string Surface = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#autoLOC_7001218"));
+        readonly string Trg     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Trg"));
+        readonly string NoTrg   = String.Format("<color={0}>{1}</color>" , "#ffffffff", Localizer.Format("#autoLOC_339139")); // No Target
+
 
         readonly string Ap_str = Localizer.Format("#autoLOC_6003115") + " ";
         readonly string Pe_str = Localizer.Format("#autoLOC_6003116") + " ";
@@ -75,8 +74,6 @@ namespace SpeedUnitAnnex
 
             if (isLoadedFAR)
             {
-                
-
                 var FAR_ToggleAirspeedDisplayMethodInfo = ReflectionUtils.GetMethodByReflection(
                     "FerramAerospaceResearch",
                     "FerramAerospaceResearch.FARAPI",
@@ -86,7 +83,8 @@ namespace SpeedUnitAnnex
                 );
                 if (FAR_ToggleAirspeedDisplayMethodInfo == null)
                 {
-                    Log("FAR loaded, but FerramAerospaceResearch.FARAPI has no ToggleAirspeedDisplay method, disabling FAR-support");
+                    Log("FAR loaded, but FAR API has no ToggleAirspeedDisplay method. "+
+                        "Do you have FAR later than v0.15.9.7? Disabling FAR-support.");
                     isLoadedFAR = false;
                 }
                 else
@@ -317,7 +315,10 @@ namespace SpeedUnitAnnex
             settings2 = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings2>();
 
             if (settings.overrideFAR)
+            {
                 CreateFARReflection();
+                ToggleFARDisplay();
+            }
 
             display.textSpeed.enableWordWrapping = false;
             display.textTitle.enableWordWrapping = false;
@@ -326,7 +327,7 @@ namespace SpeedUnitAnnex
 
             SetFinalName(FlightGlobals.speedDisplayMode);
 
-            ToggleFARDisplay();
+            
 
             //Log("Font: "+display.textSpeed.font);
             // NotoSans-Regular SDF

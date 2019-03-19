@@ -1,7 +1,8 @@
 ChangeLog:
 
-## Version 1.3.3
+## Version 1.3.4 
  * fix FAR compatibility
+ * White speedmode names
 
 ## Version 1.3.2
  * surface: multiple choices for rover and airplane speedometers settings
