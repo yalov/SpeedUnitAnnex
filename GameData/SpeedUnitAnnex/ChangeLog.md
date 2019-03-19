@@ -1,5 +1,9 @@
 ChangeLog:
 
+## Version 1.3.3
+ * fix FAR compatibility
+
+
 ## Version 1.3.2
  * surface: multiple choices for rover and airplane speedometers settings
    * added km/h and mph for airplanes
