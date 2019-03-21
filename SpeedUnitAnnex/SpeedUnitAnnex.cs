@@ -34,13 +34,19 @@ namespace SpeedUnitAnnex
         readonly string mps_s   = " " + Localizer.Format("#SpeedUnitAnnex_mps");
         readonly string mph_s   = " " + Localizer.Format("#SpeedUnitAnnex_mph");
 
-        readonly string Orb     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Orb"));
-        readonly string Surf3   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf3"));
-        readonly string Surf5   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf5"));
-        readonly string Surface = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#autoLOC_7001218"));
-        readonly string Trg     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Trg"));
-        readonly string NoTrg   = String.Format("<color={0}>{1}</color>" , "#ffffffff", Localizer.Format("#autoLOC_339139")); // No Target
+        // readonly string Orb     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Orb"));
+        // readonly string Surf3   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf3"));
+        // readonly string Surf5   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf5"));
+        // readonly string Surface = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#autoLOC_7001218"));
+        // readonly string Trg     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Trg"));
+        // readonly string NoTrg   = String.Format("<color={0}>{1}</color>", "#ffffffff", Localizer.Format("#autoLOC_339139")); // No Target
 
+        readonly string Orb     = Localizer.Format("#SpeedUnitAnnex_Orb") +" ";
+        readonly string Surf3   = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
+        readonly string Surf5   = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
+        readonly string Surface = Localizer.Format("#autoLOC_7001218") + " ";
+        readonly string Trg     = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
+        readonly string NoTrg   = Localizer.Format("#autoLOC_339139"); // No Target
 
         readonly string Ap_str = Localizer.Format("#autoLOC_6003115") + " ";
         readonly string Pe_str = Localizer.Format("#autoLOC_6003116") + " ";
@@ -67,23 +73,33 @@ namespace SpeedUnitAnnex
         private delegate bool FAR_ToggleAirspeedDisplayDelegate(bool? enabled=null, Vessel v=null);
         private static FAR_ToggleAirspeedDisplayDelegate FAR_ToggleAirspeedDisplay;
 
+        private delegate double FAR_ActiveVesselIASDelegate();
+        private static FAR_ActiveVesselIASDelegate FAR_ActiveVesselIAS;
+        // FAR_EAS also available
 
-        private void CreateFARReflection()
+        private void CreateFARReflections()
         {
             isLoadedFAR = ReflectionUtils.IsAssemblyLoaded("FerramAerospaceResearch");
 
             if (isLoadedFAR)
             {
                 var FAR_ToggleAirspeedDisplayMethodInfo = ReflectionUtils.GetMethodByReflection(
-                    "FerramAerospaceResearch",
-                    "FerramAerospaceResearch.FARAPI",
+                    "FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI",
                     "ToggleAirspeedDisplay",
                     BindingFlags.Public | BindingFlags.Static,
                     new Type[] { typeof(bool?), typeof(Vessel) }
                 );
+
+                var FAR_ActiveVesselIASMethodInfo = ReflectionUtils.GetMethodByReflection(
+                    "FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI",
+                    "ActiveVesselIAS",
+                    BindingFlags.Public | BindingFlags.Static,
+                    new Type[] { }
+                );
+
                 if (FAR_ToggleAirspeedDisplayMethodInfo == null)
                 {
-                    Log("FAR loaded, but FAR API has no ToggleAirspeedDisplay method. "+
+                    Log("FAR loaded, but FAR API has no ToggleAirspeedDisplay method. " +
                         "Do you have FAR later than v0.15.9.7? Disabling FAR-support.");
                     isLoadedFAR = false;
                 }
@@ -91,6 +107,19 @@ namespace SpeedUnitAnnex
                 {
                     FAR_ToggleAirspeedDisplay = (FAR_ToggleAirspeedDisplayDelegate)Delegate.CreateDelegate(
                         typeof(FAR_ToggleAirspeedDisplayDelegate), FAR_ToggleAirspeedDisplayMethodInfo);
+                }
+                
+
+                if (FAR_ActiveVesselIASMethodInfo == null)
+                {
+                    Log("FAR loaded, but FAR API has no ActiveVesselIAS method. " +
+                        "Do you have FAR later than v0.15.9.7? Disabling FAR-support.");
+                    isLoadedFAR = false;
+                }
+                else
+                {
+                    FAR_ActiveVesselIAS = (FAR_ActiveVesselIASDelegate)Delegate.CreateDelegate(
+                        typeof(FAR_ActiveVesselIASDelegate), FAR_ActiveVesselIASMethodInfo);
                 }
             }
         }
@@ -316,7 +345,7 @@ namespace SpeedUnitAnnex
 
             if (settings.overrideFAR)
             {
-                CreateFARReflection();
+                CreateFARReflections();
                 ToggleFARDisplay();
             }
 
@@ -394,7 +423,7 @@ namespace SpeedUnitAnnex
                                 situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                             {
                                 bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
-                                double speedIAS = FlightGlobals.ActiveVessel.indicatedAirSpeed;
+                                //double speedIAS = FlightGlobals.ActiveVessel.indicatedAirSpeed;
 
                                 if (settings.radar)
                                 {
@@ -434,8 +463,17 @@ namespace SpeedUnitAnnex
                                         titleText = Surf5 + (spd * mphTOms).ToString("F1") + mph_s;
                                 }
 
-                                if (settings.ias && speedIAS > 0)
-                                    srfSpeedText += " " + speedIAS.ToString("F1");
+                                if (settings.ias)
+                                {
+                                    double speedIAS = 0;
+
+                                    if (isLoadedFAR) speedIAS = FAR_ActiveVesselIAS();
+                                    else             speedIAS = FlightGlobals.ActiveVessel.indicatedAirSpeed;
+
+                                    if (speedIAS > 0)
+                                        srfSpeedText += " " + speedIAS.ToString("F1");
+                                }
+                                    
                             }
                             // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
                             else

@@ -2,7 +2,7 @@
 @echo off
 echo BUILDDEPLOY.BAT
 
-rem v2.0
+rem v2
 rem instruction in the BUILDRELEASE.BAT
 
 rem Set variables here

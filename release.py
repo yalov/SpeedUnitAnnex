@@ -1,7 +1,7 @@
 """requirements: 
 Python3, pip install PyGithub, release_spacedock_utils.py
 Public domain license.
-author: flart, version: 3
+author: flart, version: 4
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
 Script loads release-arhive to github and spacedock
 you need to set values in the release.json
