@@ -1,7 +1,7 @@
 """requirements: 
 Python3, pip install PyGithub, release_spacedock_utils.py
 Public domain license.
-author: flart, version: 4
+author: flart, version: 5
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
 Script loads release-arhive to github and spacedock
 you need to set values in the release.json
@@ -64,7 +64,7 @@ def get_version(version_file, obj="VERSION"):
 
 def get_description(path):
     """ Get description of the last version in the changelog """
-    version = r"(#+ )?(Version )?\d\.\d\.\d(\.\d)?(/\d\.\d\.\d(\.\d)?)?"
+    version = r"(#+ )?(Version )?\d\.\d\.\d(\.\d)?(/\d\.\d\.\d(\.\d)?)?( [(\"\')][^\n]*[)\"\')])?"
     changelog = open(path).read()
     pattern = r"\n\s*\n{0}\n(?P<last>.+?)\n({0}|\n\Z|\Z)".format(version)
     desc = re.search(pattern, changelog, re.DOTALL).group('last')
@@ -159,6 +159,7 @@ if __name__ == '__main__':
 
     print("version: {}\nksp_ver: {}\nksp_min: {}\nksp_max: {}\n"
           .format(VERSION, KSP_VER, KSP_MIN, KSP_MAX))
+    print("draft: {}\nprerelease: {}\n".format(DRAFT, PRERELEASE))
     print("parsing "+ CHANGELOG +" ...")   
     LAST_CHANGE = get_description(CHANGELOG)
     print("= start of desc ============")
