@@ -1,8 +1,14 @@
 ChangeLog:
 
-## Version 1.3.4 
- * fix FAR compatibility
- * White speedmode names
+## Version 1.3.4 (Dev)
+ * fix FAR compatibility: take IAS from the FAR
+   Also you need to update FAR to the next version after the v0.15.9.7 "Lumley"
+   Or if it doesn't released yet, download manually the last FerramAerospaceResearch.dll
+
+## Version 1.3.3
+ * FAR compatibility
+   Also you need to update FAR to the next version after the v0.15.9.7 "Lumley"
+   Or if it doesn't released yet, download manually the last FerramAerospaceResearch.dll
 
 ## Version 1.3.2
  * surface: multiple choices for rover and airplane speedometers settings

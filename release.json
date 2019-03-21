@@ -4,7 +4,7 @@
 	"VERSIONFILE": "auto",
 	"RELEASESDIR": "Releases",
 	"CHANGELOG": "ChangeLog.md",
-	"DRAFT": true,
+	"DRAFT": false,
 	"PRERELEASE": false,
 	"SPACEDOCK_ID": "1662"
 }
