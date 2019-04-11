@@ -1,7 +1,7 @@
 @echo off
 echo BUILDRELEASE.BAT
 
-rem v3
+rem v4
 rem Put the following text into the Post-build event command line:
 rem without the "REM":
 
@@ -16,7 +16,7 @@ REM )
 rem Set variables here
 
 set MODNAME=SpeedUnitAnnex
-set LICENSE=SpeedUnitAnnex-License.txt
+set LICENSE=%MODNAME%-License.txt
 set CHANGELOG=ChangeLog.md
 set VERSIONFILE=%MODNAME%.version
 set RELEASESDIR=Releases

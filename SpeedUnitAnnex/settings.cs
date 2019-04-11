@@ -92,6 +92,9 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
         public bool orbit_EVA = true;
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitApPe", toolTip = "#SpeedUnitAnnex_orbitApPe_toolTip")]
+        public bool orbit_ApPe = true;
+
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitTime", toolTip = "#SpeedUnitAnnex_orbitTime_toolTip")]
         public bool orbit_time = false;
 
@@ -121,13 +124,15 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
+
+            if (member.Name == "orbit_time")
+                return orbit_ApPe;
+
             if (member.Name == "targetAngle")
                 return !targetAngles;
 
             if (member.Name == "targetInteger")
                 return targetAngles || targetAngle;
-
-
 
             return true;
         }

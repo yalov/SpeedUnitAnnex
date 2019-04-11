@@ -44,7 +44,7 @@ namespace SpeedUnitAnnex
 
             if (assemblyName == "")
             {
-                Log("[MechJeb] ReflectionUtils: could not find assembly " + assemblyString);
+                Log("ReflectionUtils: could not find assembly " + assemblyString);
                 return null;
             }
 
@@ -52,7 +52,7 @@ namespace SpeedUnitAnnex
 
             if (type == null)
             {
-                Log("[MechJeb] ReflectionUtils: could not find type  " + className + ", " + assemblyName);
+                Log("ReflectionUtils: could not find type  " + className + ", " + assemblyName);
                 return null;
             }
 

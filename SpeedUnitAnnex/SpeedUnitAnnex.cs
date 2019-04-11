@@ -41,17 +41,18 @@ namespace SpeedUnitAnnex
         // readonly string Trg     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Trg"));
         // readonly string NoTrg   = String.Format("<color={0}>{1}</color>", "#ffffffff", Localizer.Format("#autoLOC_339139")); // No Target
 
-        readonly string Orb     = Localizer.Format("#SpeedUnitAnnex_Orb") +" ";
-        readonly string Surf3   = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
-        readonly string Surf5   = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
-        readonly string Surface = Localizer.Format("#autoLOC_7001218") + " ";
-        readonly string Trg     = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
-        readonly string NoTrg   = Localizer.Format("#autoLOC_339139"); // No Target
+        readonly string Orb       = Localizer.Format("#SpeedUnitAnnex_Orb") +" ";
+        readonly string Orb_full  = Localizer.Format("#autoLOC_7001217");
+        readonly string Surf3     = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
+        readonly string Surf5     = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
+        readonly string Surf_full = Localizer.Format("#autoLOC_7001218");
+        readonly string Trg       = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
+        readonly string NoTrg     = Localizer.Format("#autoLOC_339139"); // No Target
 
         readonly string Ap_str = Localizer.Format("#autoLOC_6003115") + " ";
         readonly string Pe_str = Localizer.Format("#autoLOC_6003116") + " ";
-        readonly string Ap_pre = Localizer.Format("#SpeedUnitAnnex_ApoapsisTime_prefix");
-        readonly string Pe_pre = Localizer.Format("#SpeedUnitAnnex_PeriapsisTime_prefix");
+        readonly string Ap_prefix = Localizer.Format("#SpeedUnitAnnex_ApoapsisTime_prefix");
+        readonly string Pe_prefix = Localizer.Format("#SpeedUnitAnnex_PeriapsisTime_prefix");
 
         readonly string Jeb_full  = Localizer.Format("#autoLOC_20803");
         readonly string Val_full = Localizer.Format("#autoLOC_20827");
@@ -145,12 +146,19 @@ namespace SpeedUnitAnnex
 
         double RadarAltitude()
         {
-            if (FlightGlobals.ActiveVessel.terrainAltitude < 0.0
-                && FlightGlobals.ActiveVessel.altitude > BoatSubmarineBorderAlt
-                && FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
-                return FlightGlobals.ActiveVessel.radarAltitude;
+            // FlightGlobals.ActiveVessel.pqsAltitude;
+            //&& FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
+
+            if (FlightGlobals.ActiveVessel.terrainAltitude < 0.0) // on/over/under/water
+            {
+                if (FlightGlobals.ActiveVessel.altitude > BoatSubmarineBorderAlt)
+                    return FlightGlobals.ship_altitude;
+                else
+                    return FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude;
+            }
             else
                 return FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude;
+
         }
 
 
@@ -453,7 +461,7 @@ namespace SpeedUnitAnnex
                                     {
                                         if (isATM)
                                             titleText = Surf5 + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
-                                        else titleText = Surface;
+                                        else titleText = Surf_full;
                                     }
                                     else if (settings.aircraft == knots)
                                         titleText = Surf5 + (spd * knTOms).ToString("F1") + knots_s;
@@ -503,7 +511,7 @@ namespace SpeedUnitAnnex
                             if (settings.radar)
                                 titleText = Surf5 + Formatter.Distance_long(RadarAltitude());
                             else
-                                titleText = Surface;
+                                titleText = Surf_full;
                             break;
                     }
 
@@ -517,9 +525,9 @@ namespace SpeedUnitAnnex
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
                         && settings2.orbit_EVA)
                     {
-                        display.textTitle.text = (settings2.orbit_time ? "" : Orb) + FinalName;
+                        display.textTitle.text = (settings2.orbit_ApPe && settings2.orbit_time ? "" : Orb) + FinalName;
                     }
-                    else
+                    else if (settings2.orbit_ApPe)
                     {
                         double SOI_MASL = FlightGlobals.getMainBody().sphereOfInfluence - FlightGlobals.getMainBody().Radius;
                         bool Ap_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.ApA && FlightGlobals.ship_orbit.ApA < SOI_MASL;
@@ -538,12 +546,12 @@ namespace SpeedUnitAnnex
                             if (FlightGlobals.ship_orbit.timeToAp < FlightGlobals.ship_orbit.timeToPe)
                             {
                                 Apsis_ok = Ap_ok;
-                                TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToAp, Ap_pre);
+                                TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToAp, Ap_prefix);
                             }
                             else
                             {
                                 Apsis_ok = Pe_ok;
-                                TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToPe, Pe_pre);
+                                TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToPe, Pe_prefix);
                             }
 
                             display.textTitle.text = String.Format("{0} <color={1}>{2}</color>",
@@ -553,6 +561,10 @@ namespace SpeedUnitAnnex
                         {
                             display.textTitle.text = Orb + Apsises;
                         }
+                    }
+                    else
+                    {
+                        display.textTitle.text = Orb_full;
                     }
 
                     display.textSpeed.text = FlightGlobals.ship_obtSpeed.ToString("F1") + mps_s;

@@ -1,8 +1,10 @@
 """requirements: 
 Python3, pip install PyGithub, release_spacedock_utils.py
+
 Public domain license.
-author: flart, version: 5
+author: flart, version: 9
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
+
 Script loads release-arhive to github and spacedock
 you need to set values in the release.json
 also you need to place github-token and spacedock login+pass
@@ -55,6 +57,8 @@ def archive_to(file):
 def get_version(version_file, obj="VERSION"):
     """ get version from the version_file """
     data = json.load(open(version_file))
+    if obj not in data:
+        return "NO"
     ver = data[obj]
     version = "{}.{}.{}".format(ver["MAJOR"], ver["MINOR"], ver["PATCH"])
     if "BUILD" in ver and ver["BUILD"] != 0:
@@ -113,7 +117,6 @@ def publish_to_github(token, mod_name, version, last_change, is_draft, is_prerel
     print(" * uploading asset...")
     rel.upload_asset(path=zip_file, content_type="application/zip")
     print(" * success.")
-    print()
 
 
 if __name__ == '__main__':
@@ -140,7 +143,8 @@ if __name__ == '__main__':
         if (len(onlyversionfiles) == 1 and parent == os.path.splitext(onlyversionfiles[0])[0]):
             MODNAME = parent
         else:
-            print("You need to set up MODNAME in the release.json manually. Aborted.")
+            print("Failed. You need to set up MODNAME in the release.json manually.")
+            input("Press Enter to exit")
             sys.exit(-1)
 
     if MODFOLDER == "auto":
@@ -157,14 +161,15 @@ if __name__ == '__main__':
     KSP_MIN = get_version(VERSIONFILE, "KSP_VERSION_MIN")
     KSP_MAX = get_version(VERSIONFILE, "KSP_VERSION_MAX")
 
+    print("name: {}".format(MODNAME))
     print("version: {}\nksp_ver: {}\nksp_min: {}\nksp_max: {}\n"
           .format(VERSION, KSP_VER, KSP_MIN, KSP_MAX))
     print("draft: {}\nprerelease: {}\n".format(DRAFT, PRERELEASE))
     print("parsing "+ CHANGELOG +" ...")   
     LAST_CHANGE = get_description(CHANGELOG)
-    print("= start of desc ============")
+    print("- start of desc ------------")
     print(LAST_CHANGE)
-    print("= end of desc ==============")
+    print("- end of desc --------------")
     print("")
 
     ZIPFILE = os.path.join(RELEASESDIR, MODNAME + "-v" + VERSION + ".zip")
@@ -175,31 +180,46 @@ if __name__ == '__main__':
     else:
         print("Creating "+ ZIPFILE +" ...")
         archive_to(ZIPFILE)
-    
+
+ 
     print("")
+    print("GITHUB:")   
     print("You already push your changes to a remote repo, don't you?")
-    print("Create the tag, and publish a release with the asset?")
+    print("Create the tag, and publish a {}{} with the asset?".format("DRAFT " if DRAFT else "","PRERELEASE" if PRERELEASE else "RELEASE" ))
     if input("[y/N]: ") == 'y':
         publish_to_github(TOKEN, MODNAME, VERSION, LAST_CHANGE, DRAFT, PRERELEASE, ZIPFILE)
 
     # ======================================
+    
+    print("")    
+    print("SPACEDOCK:")
+    if not SD_ID:
+        print("Spacedock number is not found in the json.")
+        input("Press Enter to exit")
+        sys.exit(-1)
 
     print("Accessing to Spacedock...")
     all_versions = [v['name'] for v in GetSpacedockKSPVersions()]
 
     if not all_versions:
-        print("Could not access to Spacedock.")
+        print("Failed. Could not access to Spacedock.")
+        input("Press Enter to exit")
         sys.exit(-1)
 
     if KSP_VER not in all_versions:
         print("KSP {} is not supported by Spacedock,\nlast supported version is KSP {}"
               .format(KSP_VER, all_versions[0]))
-        print("Aborted.")
+        input("Press Enter to exit")
         sys.exit(-1)
 
     print("KSP {} is supported by Spacedock.".format(KSP_VER))
 
     mod_details = GetSpacedockModDetails(SD_ID)
+
+    if not mod_details or 'error' in mod_details:
+        print("The mod #{} isn't found.".format(SD_ID))
+        input("Press Enter to exit")
+        sys.exit(-1)
 
     print("Spacedock info:\nID: {}, NAME: {}\nLast Release {} (KSP {})".format(
         SD_ID, mod_details['name'],
@@ -211,5 +231,5 @@ if __name__ == '__main__':
     if input("[y/N]: ") == 'y':
         PublishToSpacedock(SD_ID, ZIPFILE, LAST_CHANGE, VERSION, KSP_VER, SD_LOGIN, SD_PASS)
 
-    input("Press Enter to close")
+    input("Press Enter to exit")
     sys.exit(0)

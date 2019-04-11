@@ -5,16 +5,17 @@ namespace SpeedUnitAnnex
 {
     public static class Logging
     {
-        private static readonly string PREFIX = "<color=green>[SpeedUnitAnnex]</color> " ;
+        private static readonly string PREFIX = "<color=green>[SpeedUnitAnnex]</color> ";
+		private static readonly bool time = false;
 
-        public static void Log<T>(T msg)
+        public static void Log<T>(T msg, params object[] args)
         {
-            Debug.Log(PREFIX + DateTime.Now.ToString("HH:mm:ss.f ") + msg.ToString());
+			Debug.Log(PREFIX + 
+                (time ? DateTime.Now.ToString("HH:mm:ss.f ") : "") + 
+                String.Format(msg.ToString(), args)
+                );
         }
 
-        public static void Log(string msg, params object[] arg)
-        {
-            Debug.Log(PREFIX + DateTime.Now.ToString("HH:mm:ss.f ") + String.Format(msg, arg));
-        }
+        
     }
 }

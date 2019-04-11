@@ -1,14 +1,21 @@
 ChangeLog:
 
+## Version 1.3.5 
+ * Merge FAR compatibility (supports at least FAR v0.15.10.0 "Lundgren")
+ * [White SpeedMode tag?]
+ * Option fore disable Orbit Ap/Pe/Time readouts
+ * Recompile for 1.7
+ * [Fix Radar Altimeter: landed on a splashed vessel]
+ * [lowest part of vessel]
+
 ## Version 1.3.4 (Dev)
  * fix FAR compatibility: take IAS from the FAR
-   Also you need to update FAR to the next version after the v0.15.9.7 "Lumley"
-   Or if it doesn't released yet, download manually the last FerramAerospaceResearch.dll
+   (supports at least FAR v0.15.10.0 "Lundgren")
+   
 
-## Version 1.3.3
+## Version 1.3.3 (Dev)
  * FAR compatibility
-   Also you need to update FAR to the next version after the v0.15.9.7 "Lumley"
-   Or if it doesn't released yet, download manually the last FerramAerospaceResearch.dll
+   (supports at least FAR v0.15.10.0 "Lundgren")
 
 ## Version 1.3.2
  * surface: multiple choices for rover and airplane speedometers settings
