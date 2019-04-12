@@ -1,18 +1,16 @@
 ChangeLog:
 
-## Version 1.3.5 
+## Version 1.3.5
  * Merge FAR compatibility (supports at least FAR v0.15.10.0 "Lundgren")
  * Options for disable Orbit Ap/Pe or Time readouts separately
  * Recompile for 1.7
  * Fix Radar Altimeter: landed on a splashed vessel
  * Added all missing SI prefixes, which KSP has: 
-   peta-, exa-, zetta-, yotta-. 
- 
+   peta-, exa-, zetta-, yotta-.
 
 ## Version 1.3.4 (Dev)
  * fix FAR compatibility: take IAS from the FAR
    (supports at least FAR v0.15.10.0 "Lundgren")
-   
 
 ## Version 1.3.3 (Dev)
  * FAR compatibility
