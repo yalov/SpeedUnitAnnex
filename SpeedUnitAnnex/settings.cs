@@ -124,10 +124,6 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-
-            if (member.Name == "orbit_time")
-                return orbit_ApPe;
-
             if (member.Name == "targetAngle")
                 return !targetAngles;
 

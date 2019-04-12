@@ -49,10 +49,12 @@ namespace SpeedUnitAnnex
         readonly string Trg       = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
         readonly string NoTrg     = Localizer.Format("#autoLOC_339139"); // No Target
 
-        readonly string Ap_str = Localizer.Format("#autoLOC_6003115") + " ";
-        readonly string Pe_str = Localizer.Format("#autoLOC_6003116") + " ";
-        readonly string Ap_prefix = Localizer.Format("#SpeedUnitAnnex_ApoapsisTime_prefix");
-        readonly string Pe_prefix = Localizer.Format("#SpeedUnitAnnex_PeriapsisTime_prefix");
+        
+        readonly string A_prefix = Localizer.Format("#SpeedUnitAnnex_ApoapsisTime_prefix");
+        readonly string P_prefix = Localizer.Format("#SpeedUnitAnnex_PeriapsisTime_prefix");
+
+        readonly string ApT_prefix = Localizer.Format("#autoLOC_6003115") + Localizer.Format("#SpeedUnitAnnex_Time_prefix");
+        readonly string PeT_prefix = Localizer.Format("#autoLOC_6003116") + Localizer.Format("#SpeedUnitAnnex_Time_prefix");
 
         readonly string Jeb_full  = Localizer.Format("#autoLOC_20803");
         readonly string Val_full = Localizer.Format("#autoLOC_20827");
@@ -147,7 +149,7 @@ namespace SpeedUnitAnnex
         double RadarAltitude()
         {
             // FlightGlobals.ActiveVessel.pqsAltitude;
-            //&& FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
+            
 
             if (FlightGlobals.ActiveVessel.terrainAltitude < 0.0) // on/over/under/water
             {
@@ -376,12 +378,10 @@ namespace SpeedUnitAnnex
             if (FlightGlobals.ActiveVessel == null) return;
             if (settings == null) settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
 
-            //if (settings.overrideFAR && isLoadedFAR && !isDisabledFARDisplay)
-            //{
-            //    isDisabledFARDisplay = FAR_ToggleAirspeedDisplay(FlightGlobals.ActiveVessel, false);
-            //    Log("FARDisplayDisabled: " + isDisabledFARDisplay);
-            //}
-
+            //Log("{0:F1}, {1:F1}={2:F1}, {3:F1}, {4:F1}={5:F1}",
+            //    FlightGlobals.ActiveVessel.heightFromTerrain == FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude, 
+            //    FlightGlobals.ActiveVessel.heightFromTerrain, FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude,
+            //    FlightGlobals.ship_altitude == FlightGlobals.ActiveVessel.altitude, FlightGlobals.ship_altitude, FlightGlobals.ActiveVessel.altitude);
 
             FlightGlobals.SpeedDisplayModes mode = FlightGlobals.speedDisplayMode;
 
@@ -527,18 +527,45 @@ namespace SpeedUnitAnnex
                     {
                         display.textTitle.text = (settings2.orbit_ApPe && settings2.orbit_time ? "" : Orb) + FinalName;
                     }
-                    else if (settings2.orbit_ApPe)
+                    else if (settings2.orbit_ApPe || settings2.orbit_time)
                     {
                         double SOI_MASL = FlightGlobals.getMainBody().sphereOfInfluence - FlightGlobals.getMainBody().Radius;
                         bool Ap_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.ApA && FlightGlobals.ship_orbit.ApA < SOI_MASL;
                         bool Pe_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.PeA && FlightGlobals.ship_orbit.PeA < SOI_MASL;
-                        string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
-                        string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
-                        string Apsises = String.Format("<color={0}>{1}</color> <color={2}>{3}</color>",
-                            Ap_ok ? "#00ff00ff" : "#00ff009f", Ap,
-                            Pe_ok ? "#00ff00ff" : "#00ff009f", Pe);
+                        
 
-                        if (settings2.orbit_time)
+                        if (settings2.orbit_ApPe)
+                        {
+                            string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
+                            string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
+                            string Apsises = String.Format("<color={0}>{1}</color> <color={2}>{3}</color>",
+                                Ap_ok ? "#00ff00ff" : "#00ff009f", Ap,
+                                Pe_ok ? "#00ff00ff" : "#00ff009f", Pe);
+
+                            string TimeApsis;
+                            bool Apsis_ok;
+
+                            if (settings2.orbit_time)
+                            {
+                                if (FlightGlobals.ship_orbit.timeToAp < FlightGlobals.ship_orbit.timeToPe)
+                                {
+                                    Apsis_ok = Ap_ok;
+                                    TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToAp, A_prefix);
+                                }
+                                else
+                                {
+                                    Apsis_ok = Pe_ok;
+                                    TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToPe, P_prefix);
+                                }
+                                display.textTitle.text = String.Format("{0} <color={1}>{2}</color>",
+                                Apsises, Apsis_ok ? "#ffffffff" : "#ffffff9f", TimeApsis);
+                            }
+                            else
+                                display.textTitle.text = Orb + Apsises;
+
+
+                        }
+                        else if (settings2.orbit_time)
                         {
                             string TimeApsis;
                             bool Apsis_ok;
@@ -546,22 +573,18 @@ namespace SpeedUnitAnnex
                             if (FlightGlobals.ship_orbit.timeToAp < FlightGlobals.ship_orbit.timeToPe)
                             {
                                 Apsis_ok = Ap_ok;
-                                TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToAp, Ap_prefix);
+                                TimeApsis = Formatter.TimeLong(FlightGlobals.ship_orbit.timeToAp, ApT_prefix);
                             }
                             else
                             {
                                 Apsis_ok = Pe_ok;
-                                TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToPe, Pe_prefix);
+                                TimeApsis = Formatter.TimeLong(FlightGlobals.ship_orbit.timeToPe, PeT_prefix);
                             }
-
-                            display.textTitle.text = String.Format("{0} <color={1}>{2}</color>",
-                                Apsises, Apsis_ok ? "#ffffffff" : "#ffffff9f", TimeApsis);
-                        }
-                        else
-                        {
-                            display.textTitle.text = Orb + Apsises;
+                            display.textTitle.text = String.Format("<color={0}>{1}</color>",
+                            Apsis_ok ? "#00ff00ff" : "#00ff009f", TimeApsis);
                         }
                     }
+                    
                     else
                     {
                         display.textTitle.text = Orb_full;
