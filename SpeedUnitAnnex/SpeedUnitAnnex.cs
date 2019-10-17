@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 using KSP.UI.Screens.Flight;
 using KSP.Localization;
 using static SpeedUnitAnnex.Logging;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 
 namespace SpeedUnitAnnex
 {
-
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class SpeedUnitAnnex : MonoBehaviour
     {
@@ -103,7 +103,7 @@ namespace SpeedUnitAnnex
                 if (FAR_ToggleAirspeedDisplayMethodInfo == null)
                 {
                     Log("FAR loaded, but FAR API has no ToggleAirspeedDisplay method. " +
-                        "Do you have FAR later than v0.15.9.7? Disabling FAR-support.");
+                        "Do you have FAR at least v0.15.10.0? Disabling FAR-support.");
                     isLoadedFAR = false;
                 }
                 else

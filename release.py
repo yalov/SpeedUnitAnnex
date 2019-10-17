@@ -1,8 +1,10 @@
 """requirements: 
-Python3, pip install PyGithub, release_spacedock_utils.py
+Python3 
+pip install GitPython PyGithub
+./release_spacedock_utils.py
 
 Public domain license.
-author: flart, version: 9
+author: flart, version: 12
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
 
 Script loads release-arhive to github and spacedock
@@ -22,7 +24,9 @@ import os.path
 import re
 from shutil import copy
 import zipfile
+from tkinter import Tk
 
+from git import Repo
 from github import Github
 from github import GithubException
 
@@ -66,9 +70,17 @@ def get_version(version_file, obj="VERSION"):
     return version
 
 
+def copy_to_clipboard(text):
+    r = Tk()
+    r.withdraw()
+    r.clipboard_clear()
+    r.clipboard_append(text)
+    r.update() # now it stays on the clipboard after the window is closed
+    r.destroy()
+
 def get_description(path):
     """ Get description of the last version in the changelog """
-    version = r"(#+ )?(Version )?\d\.\d\.\d(\.\d)?(/\d\.\d\.\d(\.\d)?)?( [(\"\')][^\n]*[)\"\')])?"
+    version = r"(#+ )?(Version )?\d(\d)?\.\d(\d)?\.\d(\d)?(\.\d)?(/\d(\d)?\.\d(\d)?\.\d(\d)?(\.\d)?)?( [(\"\')][^\n]*[)\"\')])?"
     changelog = open(path).read()
     pattern = r"\n\s*\n{0}\n(?P<last>.+?)\n({0}|\n\Z|\Z)".format(version)
     desc = re.search(pattern, changelog, re.DOTALL).group('last')
@@ -100,7 +112,7 @@ def publish_to_github(token, mod_name, version, last_change, is_draft, is_prerel
     count = tags.totalCount
 
     if count == 0 or (count > 0 and tags[0].name != version):
-        print(" * getting last commit sha...")
+        print(" * getting last commit sha ...")
         sha = repo.get_commits()[0].sha
 
         try:
@@ -108,14 +120,17 @@ def publish_to_github(token, mod_name, version, last_change, is_draft, is_prerel
         except GithubException:
             print("   * could not create tag on the repo.")
     else:
-        print(" * the tag "+version+" is found, skiping...")
+        print(" * the tag "+version+" is found, skiping ...")
 
     rel = repo.create_git_release(tag=version, name="Version " + version,
                                   message=last_change,
                                   draft=is_draft, prerelease=is_prerelease)
 
-    print(" * uploading asset...")
+    print(" * uploading asset ...")
     rel.upload_asset(path=zip_file, content_type="application/zip")
+    print(" * git fetch origin ...")
+    gitrepo = Repo(os.getcwd())
+    gitrepo.remotes.origin.fetch()
     print(" * success.")
 
 
@@ -138,7 +153,8 @@ if __name__ == '__main__':
     SD_PASS = tkn["SPACEDOCK_PASS"]
 
     if MODNAME == "auto":
-        parent = os.path.basename([x for x in sys.path if x][0])
+        # parent = os.path.basename([x for x in sys.path if x][0])
+        parent = os.path.basename(os.getcwd())
         onlyversionfiles = [f for f in os.listdir() if os.path.splitext(f)[1] == ".version"]
         if (len(onlyversionfiles) == 1 and parent == os.path.splitext(onlyversionfiles[0])[0]):
             MODNAME = parent
@@ -167,10 +183,12 @@ if __name__ == '__main__':
     print("draft: {}\nprerelease: {}\n".format(DRAFT, PRERELEASE))
     print("parsing "+ CHANGELOG +" ...")   
     LAST_CHANGE = get_description(CHANGELOG)
+    copy_to_clipboard(LAST_CHANGE)
     print("- start of desc ------------")
     print(LAST_CHANGE)
     print("- end of desc --------------")
     print("")
+
 
     ZIPFILE = os.path.join(RELEASESDIR, MODNAME + "-v" + VERSION + ".zip")
     if os.path.exists(ZIPFILE):
