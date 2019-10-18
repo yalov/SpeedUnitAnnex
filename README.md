@@ -13,15 +13,18 @@ The main xx.x m/s line is still there, the mod adds (annex) some new speed unit 
    * Rover — km/h or mph
    * Boat/Submarine — knots 
    * Plane — Mach number, knots, km/h or mph
+   * Airplane — IAS (disabled by default)
    * Kerbal (EVA) — trait and name
    * All, except Rovers and Boats — Above Ground Level
 
  * orbit mode
    * Kerbal (EVA) — trait and name
    * Ap and Pe (a little transparent for `Apsis ∉ (0, R_soi)`)
-   * Time to the next Ap/Pe (`А-4.5d` — four and a half days until Apoapsis)
+   * Time to the next Ap/Pe (disabled by default)
 
  * target mode
-   * Target vessel name
-   * Distance to target
-   * Relavite docking port angles
+   * A distance to a target
+   * A target vessel/celestial body name
+   * A target docking port Roll
+   * Target docking port angles (yaw, pitch and roll — disabled by default)
+   * Two decimal digit for low target speed
