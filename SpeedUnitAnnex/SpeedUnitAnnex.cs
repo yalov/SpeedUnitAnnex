@@ -83,7 +83,6 @@ namespace SpeedUnitAnnex
         private void CreateFARReflections()
         {
             isLoadedFAR = ReflectionUtils.IsAssemblyLoaded("FerramAerospaceResearch");
-
             if (isLoadedFAR)
             {
                 var FAR_ToggleAirspeedDisplayMethodInfo = ReflectionUtils.GetMethodByReflection(
@@ -116,7 +115,7 @@ namespace SpeedUnitAnnex
                 if (FAR_ActiveVesselIASMethodInfo == null)
                 {
                     Log("FAR loaded, but FAR API has no ActiveVesselIAS method. " +
-                        "Do you have FAR later than v0.15.9.7? Disabling FAR-support.");
+                        "Do you have FAR at least v0.15.10.0? Disabling FAR-support.");
                     isLoadedFAR = false;
                 }
                 else
@@ -335,8 +334,6 @@ namespace SpeedUnitAnnex
         {
             G﻿ameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onSetSpeedMode.Remove(OnSetSpeedMode);
-            //G﻿ameEvents.OnGameSettingsApplied.Remove(OnGameSettingsApplied);
-            //G﻿ameEvents.OnGameSettingsWritten.Remove(OnGameSettingsWritten);
             G﻿ameEvents.onGameUnpause.Remove(OnGameUnpause);
         }
 
@@ -345,8 +342,6 @@ namespace SpeedUnitAnnex
         {
             G﻿ameEvents.onVesselChange.Add(OnVesselChange);
             G﻿ameEvents.onSetSpeedMode.Add(OnSetSpeedMode);
-            //G﻿ameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
-            //G﻿ameEvents.OnGameSettingsWritten.Add(OnGameSettingsWritten);
             G﻿ameEvents.onGameUnpause.Add(OnGameUnpause);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
@@ -361,12 +356,9 @@ namespace SpeedUnitAnnex
 
             display.textSpeed.enableWordWrapping = false;
             display.textTitle.enableWordWrapping = false;
-
             display.textTitle.fontSize = display.textTitle.fontSize / 1.15f;
 
             SetFinalName(FlightGlobals.speedDisplayMode);
-
-            
 
             //Log("Font: "+display.textSpeed.font);
             // NotoSans-Regular SDF
