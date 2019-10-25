@@ -1,8 +1,4 @@
-* White SpeedMode tag/Advanced Color Scheme
-* SirDiazo's Landing Height. Check Productivity.
-* yaw pitch roll switcher
-* 1.7.1 - remove kerbal names because in 1.7.1 they in the stock?
-
-
-SUA SetFinalName() nullref
-Start()
+ * White SpeedMode tag/Advanced Color Scheme
+ * SirDiazo's Landing Height. Check Productivity.
+ * 1.7.1 - kerbal names appeared in the stock
+ * Start():SetFinalName() nullref

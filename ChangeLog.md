@@ -1,5 +1,9 @@
 ChangeLog:
 
+## Version 1.3.7 (Unreleased)
+ * Updated Russian localization (Sooll3)
+ * Fixed nullref
+
 ## Version 1.3.6
  * recompiled for ksp 1.8.0
  * targeted .NET 4.7.2

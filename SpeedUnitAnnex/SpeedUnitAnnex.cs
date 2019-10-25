@@ -260,15 +260,12 @@ namespace SpeedUnitAnnex
                     Target = null;
                     break;
             }
-
-            
-     
         }
 
 
         private string CutKerbalName(string prefix, Vessel kerbal, bool cut_orange_names = true)
         {
-            if (FlightGlobals.ActiveVessel.vesselType != VesselType.EVA) return "";
+            if (kerbal == null || kerbal.vesselType != VesselType.EVA) return "";
 
             string trait = kerbal.GetVesselCrew()[0].GetLocalizedTrait();
             string full_name = kerbal.GetDisplayName();
@@ -292,9 +289,6 @@ namespace SpeedUnitAnnex
 
         private string CutName(string prefix, string name)
         {
-            //Log("CutName: {0}, {1:F1}", prefix + name, display.textTitle.GetPreferredValues(prefix + name).x);
-            //display.textTitle.ForceMeshUpdate(true);
-
             if (display.textTitle.GetPreferredValues(prefix + name).x > 108)
             { 
                 while (display.textTitle.GetPreferredValues(prefix + name).x > 108 && name.Length>0)

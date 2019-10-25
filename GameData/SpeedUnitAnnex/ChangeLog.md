@@ -1,7 +1,12 @@
 ChangeLog:
 
+## Version 1.3.7 (Unreleased)
+ * Updated Russian localization
+ * Fixed nullref
+
 ## Version 1.3.6
- * Recompile for 1.8
+ * recompiled for ksp 1.8.0
+ * targeted .NET 4.7.2
 
 ## Version 1.3.5
  * Merge FAR compatibility (supports at least FAR v0.15.10.0 "Lundgren")
