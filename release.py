@@ -2,9 +2,11 @@
 Python3 
 pip install GitPython PyGithub
 ./release_spacedock_utils.py
+make sure, that ssh is set up
+    copy private key to ~/.ssh/
 
 Public domain license.
-author: flart, version: 12
+author: flart, version: 14
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
 
 Script loads release-arhive to github and spacedock
@@ -130,8 +132,12 @@ def publish_to_github(token, mod_name, version, last_change, is_draft, is_prerel
     rel.upload_asset(path=zip_file, content_type="application/zip")
     print(" * git fetch origin ...")
     gitrepo = Repo(os.getcwd())
-    gitrepo.remotes.origin.fetch()
-    print(" * success.")
+    try:
+        gitrepo.remotes.origin.fetch()
+	except:
+        print(" * fetch() failed, check ssh from the cmd")
+    else:
+        print(" * success.")
 
 
 if __name__ == '__main__':

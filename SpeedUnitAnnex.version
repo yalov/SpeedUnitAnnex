@@ -2,6 +2,10 @@
     "NAME": "SpeedUnitAnnex",
     "URL": "https://raw.githubusercontent.com/yalov/SpeedUnitAnnex/master/SpeedUnitAnnex.version",
     "DOWNLOAD": "https://github.com/yalov/SpeedUnitAnnex/releases",
+    "GITHUB": {
+        "USERNAME": "yalov",
+        "REPOSITORY": "SpeedUnitAnnex"
+    },
     "VERSION":{
         "MAJOR": 1,
         "MINOR": 3,
