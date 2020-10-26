@@ -2,6 +2,10 @@
     "NAME": "SpeedUnitAnnex",
     "URL": "https://raw.githubusercontent.com/yalov/SpeedUnitAnnex/master/SpeedUnitAnnex.version",
     "DOWNLOAD": "https://github.com/yalov/SpeedUnitAnnex/releases",
+    "GITHUB": {
+        "USERNAME": "yalov",
+        "REPOSITORY": "SpeedUnitAnnex"
+    },
     "VERSION":{
         "MAJOR": 1,
         "MINOR": 3,
@@ -10,8 +14,8 @@
     },
     "KSP_VERSION": {
         "MAJOR": 1,
-        "MINOR": 8,
-        "PATCH": 0
+        "MINOR": 10,
+        "PATCH": 1
     },
     "KSP_VERSION_MIN": {
         "MAJOR": 1,
@@ -20,7 +24,7 @@
     },
     "KSP_VERSION_MAX": {
         "MAJOR": 1,
-        "MINOR": 8,
+        "MINOR": 11,
         "PATCH": 9
     }
 }

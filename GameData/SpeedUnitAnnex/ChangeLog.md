@@ -1,7 +1,7 @@
 ChangeLog:
 
-## Version 1.3.7 (Unreleased)
- * Updated Russian localization
+## Version 1.3.7
+ * Updated Russian localization (Sooll3)
  * Fixed nullref
 
 ## Version 1.3.6
