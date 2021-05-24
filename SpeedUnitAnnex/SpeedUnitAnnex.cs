@@ -23,7 +23,7 @@ namespace SpeedUnitAnnex
 
         readonly double BoatSubmarineBorderAlt = -20;
 
-        readonly double epsilon = 0.001;
+        readonly double epsilon = 0.01;
 
         readonly string MachNum = Localizer.Format("#SpeedUnitAnnex_machNumber");
         readonly string knots   = Localizer.Format("#SpeedUnitAnnex_knots");
@@ -419,7 +419,6 @@ namespace SpeedUnitAnnex
                                 situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                             {
                                 bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
-                                //double speedIAS = FlightGlobals.ActiveVessel.indicatedAirSpeed;
 
                                 if (settings.radar)
                                 {
@@ -470,7 +469,7 @@ namespace SpeedUnitAnnex
                                         srfSpeedText += " " + speedIAS.ToString("F1");
                                 }
                             }
-                            // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
+                            // Rover (and LANDED Plane)
                             else
                             {
                                 if (settings.rover == kmph)
@@ -479,9 +478,6 @@ namespace SpeedUnitAnnex
                                     titleText = Surf5 + (spd * mphTOms).ToString("F1") + mph_s;
                             }
 
-                            // All mistake at ksp detecting vessel type can be fixed by 
-                            // some additional checking (ex. altitude for rover-carrier)
-                            // but it make unclear to user, which values is showed up.
                             break;
 
                         case VesselType.EVA:
