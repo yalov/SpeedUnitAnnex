@@ -2,7 +2,6 @@
 # Public domain license.
 # Based on: https://github.com/ihsoft/KSPDev_ReleaseBuilder
 # $version: 3
-# -*- coding: utf-8 -*-
 
 import json
 import urllib.request
