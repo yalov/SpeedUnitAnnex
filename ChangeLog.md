@@ -1,5 +1,9 @@
 ChangeLog:
 
+## Version 1.3.8
+ * new option: in the Surface mode, while descending the color of speed become red.
+   (idea from the Vertikal Speed Indicator)
+
 ## Version 1.3.7
  * Updated Russian localization (Sooll3)
  * Fixed nullref

@@ -6,7 +6,7 @@ rem v2
 rem instruction in the BUILDRELEASE.BAT
 
 rem Set variables here
-set GAMEPATH=c:\Users\User\Games\Kerbal Space Program 1.8.0
+set GAMEPATH=c:\Users\User\Games\Kerbal Space Program 1.11.2
 set MODNAME=SpeedUnitAnnex
 
 REM copy dll and .version to Repository/GameData

@@ -23,6 +23,8 @@ namespace SpeedUnitAnnex
 
         readonly double BoatSubmarineBorderAlt = -20;
 
+        readonly double epsilon = 0.001;
+
         readonly string MachNum = Localizer.Format("#SpeedUnitAnnex_machNumber");
         readonly string knots   = Localizer.Format("#SpeedUnitAnnex_knots");
         readonly string kmph    = Localizer.Format("#SpeedUnitAnnex_kmph");
@@ -467,7 +469,6 @@ namespace SpeedUnitAnnex
                                     if (speedIAS > 0)
                                         srfSpeedText += " " + speedIAS.ToString("F1");
                                 }
-                                    
                             }
                             // Rover (and LANDED Plane)  // and rover-carrier if ksp detect them as rover
                             else
@@ -503,7 +504,14 @@ namespace SpeedUnitAnnex
 
                     display.textTitle.text = titleText;
                     display.textSpeed.text = srfSpeedText;
-
+                    if (settings.vertical_indicator)
+                    {
+                        if (FlightGlobals.ship_verticalSpeed < -epsilon)
+                            display.textSpeed.color = Color.red;
+                        else
+                            display.textSpeed.color = Color.green;
+                    }
+                    Log(FlightGlobals.ship_verticalSpeed);
                     break;
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:
