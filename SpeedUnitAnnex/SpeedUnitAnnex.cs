@@ -498,16 +498,27 @@ namespace SpeedUnitAnnex
                             break;
                     }
 
-                    display.textTitle.text = titleText;
-                    display.textSpeed.text = srfSpeedText;
-                    if (settings.vertical_indicator)
+
+
+                    if (settings.color_vertical)
                     {
                         if (FlightGlobals.ship_verticalSpeed < -epsilon)
                             display.textSpeed.color = Color.red;
                         else
                             display.textSpeed.color = Color.green;
                     }
-                    Log(FlightGlobals.ship_verticalSpeed);
+
+                    if (settings.split_vertical)
+                    {
+                        srfSpeedText = String.Format("{0:F1} {1} {2:F1}", FlightGlobals.ActiveVessel.horizontalSrfSpeed,
+                            mps_s,
+                            FlightGlobals.ship_verticalSpeed
+                        );
+                    }
+
+                    display.textTitle.text = titleText;
+                    display.textSpeed.text = srfSpeedText;
+
                     break;
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:

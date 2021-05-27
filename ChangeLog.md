@@ -1,5 +1,9 @@
 ChangeLog:
 
+## Version 1.3.9
+ * fix log spam
+ * Options for split surface speed to horizontal and vertical components
+
 ## Version 1.3.8
  * new option: in the Surface mode, while descending the color of speed become red.
    (idea from the Vertikal Speed Indicator)

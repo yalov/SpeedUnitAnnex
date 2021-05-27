@@ -29,14 +29,19 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_altimeter", toolTip = "#SpeedUnitAnnex_altimeter_toolTip")]
         public bool radar = true;
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_vertical_indicator", toolTip = "#SpeedUnitAnnex_vertical_indicator_toolTip")]
-        public bool vertical_indicator = false;
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_color_vertical", toolTip = "#SpeedUnitAnnex_color_vertical_toolTip")]
+        public bool color_vertical = false;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_split_vertical", toolTip = "#SpeedUnitAnnex_split_vertical_toolTip")]
+        public bool split_vertical = false;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_aircraft_ias", toolTip = "#SpeedUnitAnnex_aircraft_ias_toolTip")]
         public bool ias = false;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_override_FAR", toolTip = "#SpeedUnitAnnex_override_FAR_toolTip")]
         public bool overrideFAR = true;
+
+
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
@@ -45,6 +50,8 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
+            if (member.Name == "ias")
+                return !split_vertical;
             return true;
         }
 
