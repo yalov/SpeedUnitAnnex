@@ -7,7 +7,7 @@ make sure, that ssh is set up
 
 Public domain license.
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
-version: 19
+version: 21
 
 Script loads release-arhive to github and spacedock
 you need to set values in the release.json
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     print("parsing "+ CHANGELOG +" ...")
     LAST_CHANGE = get_description(CHANGELOG)
     import pyperclip
-    pyperclip.copy(LAST_CHANGE)
+    pyperclip.copy("Version " + VERSION + "\n" + LAST_CHANGE)
     print("- start of desc ------------")
     print(LAST_CHANGE)
     print("- end of desc --------------")
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     print("Publish {} (KSP {}) to the Spacedock?".format(VERSION, KSP_VER))
     if input("[y/N]: ") == 'y':
         resp = PublishToSpacedock(SD_ID, ZIPFILE, LAST_CHANGE, VERSION, KSP_VER, SD_LOGIN, SD_PASS)
-        if not resp[0]["error"]:
+        if not 'error' in resp:
             is_published=True
 
     if FORUM_ID and 'is_published' in locals():

@@ -12,6 +12,31 @@ namespace SpeedUnitAnnex
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class SpeedUnitAnnex : MonoBehaviour
     {
+        enum RoverSpeed
+        {
+            kmph,
+            mph
+        }
+
+        enum AircraftSpeed
+        {
+            machNumber,
+            knots,
+            kmph,
+            mph
+        }
+
+        enum TargetAngles
+        {
+            No,
+            Roll,
+            YawPitchRoll
+        }
+
+        RoverSpeed roverSpeed;
+        AircraftSpeed aircraftSpeed;
+        TargetAngles targetAngles;
+
         SpeedDisplay display;
 
         readonly float mphTOms = 2.23694f;
@@ -28,7 +53,7 @@ namespace SpeedUnitAnnex
         readonly string MachNum = Localizer.Format("#SpeedUnitAnnex_machNumber");
         readonly string knots   = Localizer.Format("#SpeedUnitAnnex_knots");
         readonly string kmph    = Localizer.Format("#SpeedUnitAnnex_kmph");
-        readonly string mph     = Localizer.Format("#SpeedUnitAnnex_mph");
+        readonly string mps     = Localizer.Format("#SpeedUnitAnnex_mps");
 
         readonly string kn_s    = " " + Localizer.Format("#SpeedUnitAnnex_kn");
         readonly string knots_s = " " + Localizer.Format("#SpeedUnitAnnex_knots");
@@ -36,18 +61,10 @@ namespace SpeedUnitAnnex
         readonly string mps_s   = " " + Localizer.Format("#SpeedUnitAnnex_mps");
         readonly string mph_s   = " " + Localizer.Format("#SpeedUnitAnnex_mph");
 
-        // readonly string Orb     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Orb"));
-        // readonly string Surf3   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf3"));
-        // readonly string Surf5   = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Surf5"));
-        // readonly string Surface = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#autoLOC_7001218"));
-        // readonly string Trg     = String.Format("<color={0}>{1}</color> ", "#ffffffff", Localizer.Format("#SpeedUnitAnnex_Trg"));
-        // readonly string NoTrg   = String.Format("<color={0}>{1}</color>", "#ffffffff", Localizer.Format("#autoLOC_339139")); // No Target
-
         readonly string Orb       = Localizer.Format("#SpeedUnitAnnex_Orb") +" ";
         readonly string Orb_full  = Localizer.Format("#autoLOC_7001217");
         readonly string Surf3     = Localizer.Format("#SpeedUnitAnnex_Surf3") + " ";
         readonly string Surf5     = Localizer.Format("#SpeedUnitAnnex_Surf5") + " ";
-        readonly string Surf_full = Localizer.Format("#autoLOC_7001218");
         readonly string Trg       = Localizer.Format("#SpeedUnitAnnex_Trg") + " ";
         readonly string NoTrg     = Localizer.Format("#autoLOC_339139"); // No Target
 
@@ -63,14 +80,20 @@ namespace SpeedUnitAnnex
         readonly string Jeb_short = Localizer.Format("#SpeedUnitAnnex_JebShort");
         readonly string Val_short = Localizer.Format("#SpeedUnitAnnex_ValShort");
 
+        readonly Color orange = new Color(1f, 0.33f, 0f);
+        readonly Color green = Color.green;
+
+
+
         readonly char[] delimiterChars = Localizer.Format("#SpeedUnitAnnex_DelimiterChars").ToCharArray();
 
         ITargetable Target = null;
         string TargetName;
 
         string FinalName;
-        SpeedUnitAnnexSettings settings;
-        SpeedUnitAnnexSettings2 settings2;
+        SUASettingsSurface settingsSurf;
+        SUASettingsOrbit settingsOrb;
+        SUASettingsTarget settingsTgt;
 
         bool isLoadedFAR = false;
         //bool isDisabledFARDisplay = false;
@@ -132,7 +155,7 @@ namespace SpeedUnitAnnex
         {
             if (isLoadedFAR)
             {
-                bool success = FAR_ToggleAirspeedDisplay(!settings.overrideFAR);
+                bool success = FAR_ToggleAirspeedDisplay(!settingsSurf.overrideFAR);
                 //Log("{0}FARDisplay : {1}", settings.overrideFAR ? "Disable" : "Enable", success);
             }
         }
@@ -190,10 +213,9 @@ namespace SpeedUnitAnnex
 
         // return signed angle in relation to normal's 2d plane
         // from Docking Port Alignment Indicator
-        private static float AngleAroundNormal(Vector3 a, Vector3 b, Vector3 up)
-        {
-            return AngleSigned(Vector3.Cross(up, a), Vector3.Cross(up, b), up);
-        }
+        private static float AngleAroundNormal(Vector3 a, Vector3 b, Vector3 up) 
+            => AngleSigned(Vector3.Cross(up, a), Vector3.Cross(up, b), up);
+        
 
 
         // -180 to 180 angle
@@ -204,7 +226,6 @@ namespace SpeedUnitAnnex
                 return -Vector3.Angle(v1, v2);
             return Vector3.Angle(v1, v2);
         }
-
 
         Vector3 GetOrientationDeviation(ITargetable obj)
         {
@@ -248,15 +269,15 @@ namespace SpeedUnitAnnex
             {
                 case FlightGlobals.SpeedDisplayModes.Surface:
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA)
-                        FinalName = CutKerbalName(Surf3 + (settings.radar ? RadarAltitudeEVA_str() : ""), FlightGlobals.ActiveVessel);
+                        FinalName = CutKerbalName(Surf3 + (settingsSurf.radar ? RadarAltitudeEVA_str() : ""), FlightGlobals.ActiveVessel);
 
                     else if (FlightGlobals.ActiveVessel.vesselType == VesselType.Flag)
                         FinalName = CutName(Surf3, FlightGlobals.ActiveVessel.GetDisplayName());
                     break;
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:
-                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA && settings2.orbit_EVA)
-                        FinalName = CutKerbalName(settings2.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel, false);
+                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA && settingsOrb.orbit_EVA)
+                        FinalName = CutKerbalName(settingsOrb.orbit_time ? "" : Orb, FlightGlobals.ActiveVessel, false);
                     break;
                 case FlightGlobals.SpeedDisplayModes.Target:
                     Target = null;
@@ -314,6 +335,24 @@ namespace SpeedUnitAnnex
         {
             //Log("onSetSpeedMode: " + mode.displayDescription());
             SetFinalName(mode);
+
+            switch (mode)
+            {
+                case FlightGlobals.SpeedDisplayModes.Orbit:
+                    if (settingsSurf.color_vertical || settingsTgt.targetColor)
+                        display.textSpeed.color = Color.green;
+                    break;
+                case FlightGlobals.SpeedDisplayModes.Surface:
+                    if (!settingsSurf.color_vertical && settingsTgt.targetColor)
+                        display.textSpeed.color = Color.green;
+                    break;
+                case FlightGlobals.SpeedDisplayModes.Target:
+                    if (settingsSurf.color_vertical && !settingsTgt.targetColor)
+                        display.textSpeed.color = Color.green;
+                    break;
+                default:
+                    break;
+            }
         }
 
 
@@ -321,8 +360,35 @@ namespace SpeedUnitAnnex
         {
             //Log("OnGameUnpause");
             SetFinalName(FlightGlobals.speedDisplayMode);
-            settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
+            settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
             ToggleFARDisplay();
+            setSettingsEnums();
+        }
+
+        public void setSettingsEnums()
+        {
+            if (settingsSurf.rover == kmph)
+                roverSpeed = RoverSpeed.kmph;
+            else // if (settings.rover == mph)
+                roverSpeed = RoverSpeed.mph;
+
+
+            if (settingsSurf.aircraft == kmph)
+                aircraftSpeed = AircraftSpeed.kmph;
+            else if (settingsSurf.aircraft == knots)
+                aircraftSpeed = AircraftSpeed.knots;
+            else if (settingsSurf.aircraft == MachNum)
+                aircraftSpeed = AircraftSpeed.machNumber;
+            else //if (settings.aircraft == mph)
+                aircraftSpeed = AircraftSpeed.mph;
+
+
+            if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetNo"))
+                targetAngles = TargetAngles.No;
+            else if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetRoll"))
+                targetAngles = TargetAngles.Roll; 
+            else //if (settingsTgt.targetAngles == Localizer.Format("#SpeedUnitAnnex_targetYawPitchRoll")
+                targetAngles = TargetAngles.YawPitchRoll;
         }
 
 
@@ -341,10 +407,11 @@ namespace SpeedUnitAnnex
             G﻿ameEvents.onGameUnpause.Add(OnGameUnpause);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
-            settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
-            settings2 = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings2>();
+            settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
+            settingsOrb = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsOrbit>();
+            settingsTgt = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsTarget>();
 
-            if (settings.overrideFAR)
+            if (settingsSurf.overrideFAR)
             {
                 CreateFARReflections();
                 ToggleFARDisplay();
@@ -355,6 +422,7 @@ namespace SpeedUnitAnnex
             display.textTitle.fontSize = display.textTitle.fontSize / 1.15f;
 
             SetFinalName(FlightGlobals.speedDisplayMode);
+            setSettingsEnums();
 
             //Log("Font: "+display.textSpeed.font);
             // NotoSans-Regular SDF
@@ -364,12 +432,7 @@ namespace SpeedUnitAnnex
         {
             if (display == null) return;
             if (FlightGlobals.ActiveVessel == null) return;
-            if (settings == null) settings = HighLogic.CurrentGame.Parameters.CustomParams<SpeedUnitAnnexSettings>();
-
-            //Log("{0:F1}, {1:F1}={2:F1}, {3:F1}, {4:F1}={5:F1}",
-            //    FlightGlobals.ActiveVessel.heightFromTerrain == FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude, 
-            //    FlightGlobals.ActiveVessel.heightFromTerrain, FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude,
-            //    FlightGlobals.ship_altitude == FlightGlobals.ActiveVessel.altitude, FlightGlobals.ship_altitude, FlightGlobals.ActiveVessel.altitude);
+            if (settingsSurf == null) settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
 
             FlightGlobals.SpeedDisplayModes mode = FlightGlobals.speedDisplayMode;
 
@@ -387,6 +450,10 @@ namespace SpeedUnitAnnex
             //VesselType.SpaceObject
             //VesselType.Station
             //VesselType.Unknown
+            //VesselType.DeployedGroundPart
+            //VesselType.DeployedScienceController
+            //VesselType.DeployedSciencePart
+            //VesselType.DroppedPart
             #endregion
 
             switch (mode)
@@ -407,7 +474,7 @@ namespace SpeedUnitAnnex
                             if (situation == Vessel.Situations.SPLASHED)
                             {
                                 // Submarine
-                                if (FlightGlobals.ActiveVessel.altitude < BoatSubmarineBorderAlt && settings.radar)
+                                if (FlightGlobals.ActiveVessel.altitude < BoatSubmarineBorderAlt && settingsSurf.radar)
                                     titleText = Surf3 + Formatter.Distance_short(AGL())
                                         + "  " + (spd * knTOms).ToString("F1") + kn_s;
                                 // Boat
@@ -418,47 +485,61 @@ namespace SpeedUnitAnnex
                             else if (vesselType == VesselType.Plane &&
                                 situation != Vessel.Situations.LANDED && situation != Vessel.Situations.PRELAUNCH)
                             {
-                                bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
+                                
 
-                                if (settings.radar)
+                                if (settingsSurf.radar)
                                 {
                                     double radar = FlightGlobals.ActiveVessel.radarAltitude;
 
-                                    if (settings.aircraft == MachNum)
+                                    switch (aircraftSpeed)
                                     {
-                                        if (isATM)
-                                            titleText = Surf3 + Formatter.Distance_short(radar) + "  "
-                                                + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
-
-                                        else titleText = Surf5 + Formatter.Distance_long(radar);
+                                        case AircraftSpeed.machNumber:
+                                            bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
+                                            if (isATM)
+                                                titleText = Surf3 + Formatter.Distance_short(radar) + "  "
+                                                    + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
+                                            else 
+                                                titleText = Surf5 + Formatter.Distance_long(radar);
+                                            break;
+                                        case AircraftSpeed.knots:
+                                            titleText = Surf3 + Formatter.Distance_short(radar) + "  " + (spd * knTOms).ToString("F1") + kn_s;
+                                            break;
+                                        case AircraftSpeed.kmph:
+                                            titleText = Surf3 + Formatter.Distance_short(radar) + "  " + (spd * kmphTOms).ToString("F1") + kmph_s;
+                                            break;
+                                        case AircraftSpeed.mph:
+                                            titleText = Surf3 + Formatter.Distance_short(radar) + "  " + (spd * mphTOms).ToString("F1") + mph_s;
+                                            break;
+                                        default:
+                                            titleText = Surf3;
+                                            break;
                                     }
-                                    else if (settings.aircraft == knots)
-                                        titleText = Surf3 + Formatter.Distance_short(radar) + "  "
-                                            + (spd * knTOms).ToString("F1") + kn_s;
-                                    else if (settings.aircraft == kmph)
-                                        titleText = Surf3 + Formatter.Distance_short(radar) + " "
-                                            + (spd * kmphTOms).ToString("F1") + kmph_s;
-                                    else // settings.aircraft == mph
-                                        titleText = Surf3 + Formatter.Distance_short(radar) + " "
-                                            + (spd * mphTOms).ToString("F1") + mph_s;
                                 }
                                 else
                                 {
-                                    if (settings.aircraft == MachNum)
+                                    switch (aircraftSpeed)
                                     {
-                                        if (isATM)
-                                            titleText = Surf5 + Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));
-                                        else titleText = Surf_full;
+                                        case AircraftSpeed.machNumber:
+                                            bool isATM = FlightGlobals.ActiveVessel.atmDensity > 0.0;
+                                            titleText = Surf5;
+                                            if (isATM) titleText += Localizer.Format("#SpeedUnitAnnex_mach", FlightGlobals.ActiveVessel.mach.ToString("F1"));       
+                                            break;
+                                        case AircraftSpeed.knots:
+                                            titleText = Surf5 + (spd * knTOms).ToString("F1") + knots_s;
+                                            break;
+                                        case AircraftSpeed.kmph:
+                                            titleText = Surf5 + (spd * kmphTOms).ToString("F1") + kmph_s;
+                                            break;
+                                        case AircraftSpeed.mph:
+                                            titleText = Surf5 + (spd * mphTOms).ToString("F1") + mph_s;
+                                            break;
+                                        default:
+                                            titleText = Surf5;
+                                            break;
                                     }
-                                    else if (settings.aircraft == knots)
-                                        titleText = Surf5 + (spd * knTOms).ToString("F1") + knots_s;
-                                    else if (settings.aircraft == kmph)
-                                        titleText = Surf5 + (spd * kmphTOms).ToString("F1") + kmph_s;
-                                    else // settings.aircraft == mph
-                                        titleText = Surf5 + (spd * mphTOms).ToString("F1") + mph_s;
                                 }
 
-                                if (settings.ias)
+                                if (settingsSurf.ias)
                                 {
                                     double speedIAS = 0;
 
@@ -472,16 +553,25 @@ namespace SpeedUnitAnnex
                             // Rover (and LANDED Plane)
                             else
                             {
-                                if (settings.rover == kmph)
-                                    titleText = Surf5 + (spd * kmphTOms).ToString("F1") + kmph_s;
-                                else // settings.rover == mph
-                                    titleText = Surf5 + (spd * mphTOms).ToString("F1") + mph_s;
+                                switch (roverSpeed)
+                                {
+                                    case RoverSpeed.kmph:
+                                        titleText = Surf5 + (spd * kmphTOms).ToString("F1") + kmph_s;
+                                        break;
+                                    case RoverSpeed.mph:
+                                        titleText = Surf5 + (spd * mphTOms).ToString("F1") + mph_s;
+                                        break;
+                                    default:
+                                        titleText = Surf5;
+                                        break;
+                                }
+
                             }
 
                             break;
 
                         case VesselType.EVA:
-                            titleText = Surf3 + (settings.radar ? RadarAltitudeEVA_str() : "") + FinalName;
+                            titleText = Surf3 + (settingsSurf.radar ? RadarAltitudeEVA_str() : "") + FinalName;
                             break;
 
                         case VesselType.Flag:
@@ -490,28 +580,29 @@ namespace SpeedUnitAnnex
 
                         // Other: Rocket, Lander, Base etc 
                         default:
+                            titleText = Surf5;
 
-                            if (settings.radar)
-                                titleText = Surf5 + Formatter.Distance_long(RadarAltitude());
-                            else
-                                titleText = Surf_full;
+                            if (settingsSurf.radar)
+                                titleText += Formatter.Distance_long(RadarAltitude());
+                            
                             break;
                     }
 
 
 
-                    if (settings.color_vertical)
+                    if (settingsSurf.color_vertical)
                     {
                         if (FlightGlobals.ship_verticalSpeed < -epsilon)
-                            display.textSpeed.color = Color.red;
+                            display.textSpeed.color = orange;
                         else
-                            display.textSpeed.color = Color.green;
+                            display.textSpeed.color = green;
                     }
 
-                    if (settings.split_vertical)
+                    if (settingsSurf.split_vertical)
                     {
-                        srfSpeedText = String.Format("{0:F1} {1} {2:F1}", FlightGlobals.ActiveVessel.horizontalSrfSpeed,
-                            mps_s,
+                        srfSpeedText = String.Format("{0:F1} {1} {2:F1}", 
+                            FlightGlobals.ActiveVessel.horizontalSrfSpeed,
+                            mps,
                             FlightGlobals.ship_verticalSpeed
                         );
                     }
@@ -524,18 +615,18 @@ namespace SpeedUnitAnnex
                 case FlightGlobals.SpeedDisplayModes.Orbit:
 
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
-                        && settings2.orbit_EVA)
+                        && settingsOrb.orbit_EVA)
                     {
-                        display.textTitle.text = (settings2.orbit_ApPe && settings2.orbit_time ? "" : Orb) + FinalName;
+                        display.textTitle.text = (settingsOrb.orbit_ApPe && settingsOrb.orbit_time ? "" : Orb) + FinalName;
                     }
-                    else if (settings2.orbit_ApPe || settings2.orbit_time)
+                    else if (settingsOrb.orbit_ApPe || settingsOrb.orbit_time)
                     {
                         double SOI_MASL = FlightGlobals.getMainBody().sphereOfInfluence - FlightGlobals.getMainBody().Radius;
                         bool Ap_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.ApA && FlightGlobals.ship_orbit.ApA < SOI_MASL;
                         bool Pe_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.PeA && FlightGlobals.ship_orbit.PeA < SOI_MASL;
                         
 
-                        if (settings2.orbit_ApPe)
+                        if (settingsOrb.orbit_ApPe)
                         {
                             string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
                             string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
@@ -546,7 +637,7 @@ namespace SpeedUnitAnnex
                             string TimeApsis;
                             bool Apsis_ok;
 
-                            if (settings2.orbit_time)
+                            if (settingsOrb.orbit_time)
                             {
                                 if (FlightGlobals.ship_orbit.timeToAp < FlightGlobals.ship_orbit.timeToPe)
                                 {
@@ -566,7 +657,7 @@ namespace SpeedUnitAnnex
 
 
                         }
-                        else if (settings2.orbit_time)
+                        else if (settingsOrb.orbit_time)
                         {
                             string TimeApsis;
                             bool Apsis_ok;
@@ -618,11 +709,11 @@ namespace SpeedUnitAnnex
                     bool isMDN = obj is ModuleDockingNode;
                     
 
-                    if (settings2.targetAngles && isMDN)
+                    if (targetAngles == TargetAngles.YawPitchRoll && isMDN)
                     {
                         Vector3 angles = GetOrientationDeviation(obj);
 
-                        if (settings2.targetInteger)
+                        if (settingsTgt.targetAngleInteger)
                             display.textTitle.text = Trg +
                                 Formatter.Angle(angles.x, true, 5) +
                                 Formatter.Angle(angles.y, true, 5) +
@@ -636,21 +727,21 @@ namespace SpeedUnitAnnex
                         string TargetAngle = "";
                         string distanceToTarget = "";
 
-                        if (settings2.targetAngle && isMDN)
+                        if (targetAngles == TargetAngles.Roll && isMDN)
                         {
                             Vector3 angles = GetOrientationDeviation(obj);
-                            if (settings2.targetInteger)
+                            if (settingsTgt.targetAngleInteger)
                                 TargetAngle = Formatter.Angle(angles.z, true, 5);
                             else
                                 TargetAngle = Formatter.Angle(angles.z);
                         }
 
-                        if (settings2.targetDistance)
+                        if (settingsTgt.targetDistance)
                             distanceToTarget = CalcTargetDistance(obj);
 
-                        bool isAngleAndDistance = settings2.targetDistance && settings2.targetAngle && isMDN;
+                        bool isAngleAndDistance = settingsTgt.targetDistance && targetAngles == TargetAngles.Roll && isMDN;
 
-                        if (settings2.targetName && !isAngleAndDistance)
+                        if (settingsTgt.targetName && !isAngleAndDistance)
                         {
                             if (Target != obj)
                             {
@@ -663,10 +754,45 @@ namespace SpeedUnitAnnex
                             display.textTitle.text = Trg + distanceToTarget +" " + TargetAngle; // 2 spaces
                     }
 
-                    if (FlightGlobals.ship_tgtSpeed < 0.195)
-                        display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps_s;
+
+
+                    if (settingsTgt.targetColor || settingsTgt.targetSpeedSplit)
+                    {
+                        Vector3 v = FlightGlobals.ship_tgtVelocity;
+                        Vector3 vessel_pos = FlightGlobals.ActiveVessel.ReferenceTransform.position;
+                        Vector3 tgt_pos = FlightGlobals.fetch.VesselTarget.GetTransform().position;
+                        Vector3 diff = tgt_pos - vessel_pos;
+
+                        Vector3 v_project = Vector3.Project(v, diff.normalized);
+                        float s = v_project.magnitude * Math.Sign(Vector3.Dot(diff, v_project));
+
+
+                        if (settingsTgt.targetColor)
+                        {
+                            if (s < 0) display.textSpeed.color = orange;
+                            else display.textSpeed.color = green;
+                        }
+
+                        if (settingsTgt.targetSpeedSplit)
+                        {
+                            Vector3 v_nonproj = v - v_project;
+                            display.textSpeed.text = String.Format("{0:F2} {1} {2:F2}", s, mps, v_nonproj.magnitude);
+                        }
+                        else 
+                        {
+                            if (FlightGlobals.ship_tgtSpeed < 0.195)
+                                display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps_s;
+                            else
+                                display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps_s;
+                        }
+                    }
                     else
-                        display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps_s;
+                    {
+                        if (FlightGlobals.ship_tgtSpeed < 0.195)
+                            display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps_s;
+                        else
+                            display.textSpeed.text = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps_s;
+                    }
                     break;
             }
 
