@@ -216,17 +216,18 @@ namespace SpeedUnitAnnex
             return str;
         }
 
-        public static string Angle(double value, bool Integer = false, int totalWidth = 7)
+        public static string Angle(double value, bool Integer = true)
         {
             if (Integer)
             {
                 if (value > 359.5) value = 0.0;
-                return String.Format("{0:F0}\u00B0 ", value).PadLeft(totalWidth, '\u2007');
+                return String.Format("{0:F0}\u00B0 ", value).PadLeft(5, '\u2007'); 
+                // \u00B0 Degree Sign, \u2007 Figure Space
             }
             else
             {
                 if (value > 359.95) value = 0.0;
-                return String.Format("{0:F1}\u00B0 ", value).PadLeft(totalWidth, '\u2007');
+                return String.Format("{0:F1}\u00B0 ", value).PadLeft(7, '\u2007');
             }
         }
     }

@@ -124,19 +124,22 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDockportAngles", toolTip = "#SpeedUnitAnnex_targetDockportAngles_toolTip")]
         public string targetDockportAngles = Localizer.Format("#SpeedUnitAnnex_targetRoll");
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAnglesInteger", toolTip = "#SpeedUnitAnnex_targetAnglesInteger_toolTip")]
-        public bool targetAngleInteger = true;
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngles1Decimal", toolTip = "#SpeedUnitAnnex_targetAngles1Decimal_toolTip")]
+        public bool targetAngle1Decimal = false;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetColor", toolTip = "#SpeedUnitAnnex_targetColor_toolTip")]
         public bool targetColor = false;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetSpeedSplit", toolTip = "#SpeedUnitAnnex_targetSpeedSplit_toolTip")]
-        public bool targetSpeedSplit = false;
+        public string targetSpeedSplit = Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitNo");
+
+        //[GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetSpeedSplit", toolTip = "#SpeedUnitAnnex_targetSpeedSplit_toolTip")]
+        //public bool targetSpeedSplit = false;
 
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == "targetInteger")
+            if (member.Name == "targetAngle1Decimal")
                 return targetDockportAngles != Localizer.Format("#SpeedUnitAnnex_targetNo");
 
             return true;
@@ -148,11 +151,21 @@ namespace SpeedUnitAnnex
             {
                 List<string> myList = new List<string>
                 {
-                    Localizer.Format("#SpeedUnitAnnex_targetNo"),
-                    Localizer.Format("#SpeedUnitAnnex_targetRoll"),
-                    Localizer.Format("#SpeedUnitAnnex_targetYawPitchRoll")
+                    Localizer.Format("#SpeedUnitAnnex_targetAnglesNo"),
+                    Localizer.Format("#SpeedUnitAnnex_targetAnglesRoll"),
+                    Localizer.Format("#SpeedUnitAnnex_targetAnglesYawPitchRoll")
                 };
 
+                return myList;
+            }
+            else if (member.Name == "targetSpeedSplit")
+            {
+                List<string> myList = new List<string>
+                {
+                    Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitNo"),
+                    Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitRCS"),
+                    Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitAlways")
+                };
                 return myList;
             }
             else

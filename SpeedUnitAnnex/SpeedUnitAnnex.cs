@@ -33,9 +33,17 @@ namespace SpeedUnitAnnex
             YawPitchRoll
         }
 
+        enum TargetSpeedSplit
+        {
+            No,
+            RCS,
+            Always
+        }
+
         RoverSpeed roverSpeed;
         AircraftSpeed aircraftSpeed;
         TargetAngles targetAngles;
+        TargetSpeedSplit targetSpeedSplit;
 
         SpeedDisplay display;
 
@@ -382,13 +390,21 @@ namespace SpeedUnitAnnex
             else //if (settings.aircraft == mph)
                 aircraftSpeed = AircraftSpeed.mph;
 
-
-            if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetNo"))
-                targetAngles = TargetAngles.No;
-            else if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetRoll"))
-                targetAngles = TargetAngles.Roll; 
-            else //if (settingsTgt.targetAngles == Localizer.Format("#SpeedUnitAnnex_targetYawPitchRoll")
+            if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetAnglesYawPitchRoll"))
                 targetAngles = TargetAngles.YawPitchRoll;
+            else if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetAnglesRoll"))
+                targetAngles = TargetAngles.Roll;
+            else // if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetAnglesNo"))
+                targetAngles = TargetAngles.No;
+
+
+            if (settingsTgt.targetSpeedSplit == Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitAlways"))
+                targetSpeedSplit = TargetSpeedSplit.Always; 
+            else if (settingsTgt.targetSpeedSplit == Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitRCS"))
+                targetSpeedSplit = TargetSpeedSplit.RCS;
+            else //if (settingsTgt.targetSpeedSplit == Localizer.Format("#SpeedUnitAnnex_targetSpeedSplitNo"))
+                targetSpeedSplit = TargetSpeedSplit.No;
+
         }
 
 
@@ -713,14 +729,20 @@ namespace SpeedUnitAnnex
                     {
                         Vector3 angles = GetOrientationDeviation(obj);
 
-                        if (settingsTgt.targetAngleInteger)
-                            display.textTitle.text = Trg +
-                                Formatter.Angle(angles.x, true, 5) +
-                                Formatter.Angle(angles.y, true, 5) +
-                                Formatter.Angle(angles.z, true, 5);
+                        if (settingsTgt.targetAngle1Decimal)
+                        {
+                            display.textTitle.text = 
+                                Formatter.Angle(angles.x, false) + 
+                                Formatter.Angle(angles.y, false) + 
+                                Formatter.Angle(angles.z, false);
+                        }
                         else
-                            display.textTitle.text = Formatter.Angle(angles.x) + Formatter.Angle(angles.y) + Formatter.Angle(angles.z);
-
+                        {
+                            display.textTitle.text = Trg +
+                                Formatter.Angle(angles.x) +
+                                Formatter.Angle(angles.y) +
+                                Formatter.Angle(angles.z);
+                        }
                     }
                     else
                     {
@@ -730,10 +752,11 @@ namespace SpeedUnitAnnex
                         if (targetAngles == TargetAngles.Roll && isMDN)
                         {
                             Vector3 angles = GetOrientationDeviation(obj);
-                            if (settingsTgt.targetAngleInteger)
-                                TargetAngle = Formatter.Angle(angles.z, true, 5);
+                            if (settingsTgt.targetAngle1Decimal)
+                                TargetAngle = Formatter.Angle(angles.z, false);
                             else
                                 TargetAngle = Formatter.Angle(angles.z);
+                                
                         }
 
                         if (settingsTgt.targetDistance)
@@ -755,8 +778,13 @@ namespace SpeedUnitAnnex
                     }
 
 
+                    
+                    bool isRCS = !FlightInputHandler.RCSLock;
 
-                    if (settingsTgt.targetColor || settingsTgt.targetSpeedSplit)
+                    bool isSpeedSplit = targetSpeedSplit == TargetSpeedSplit.Always
+                        || targetSpeedSplit == TargetSpeedSplit.RCS && isRCS;
+
+                    if (settingsTgt.targetColor || isSpeedSplit)
                     {
                         Vector3 v = FlightGlobals.ship_tgtVelocity;
                         Vector3 vessel_pos = FlightGlobals.ActiveVessel.ReferenceTransform.position;
@@ -766,14 +794,13 @@ namespace SpeedUnitAnnex
                         Vector3 v_project = Vector3.Project(v, diff.normalized);
                         float s = v_project.magnitude * Math.Sign(Vector3.Dot(diff, v_project));
 
-
                         if (settingsTgt.targetColor)
                         {
                             if (s < 0) display.textSpeed.color = orange;
                             else display.textSpeed.color = green;
                         }
 
-                        if (settingsTgt.targetSpeedSplit)
+                        if (isSpeedSplit)
                         {
                             Vector3 v_nonproj = v - v_project;
                             display.textSpeed.text = String.Format("{0:F2} {1} {2:F2}", s, mps, v_nonproj.magnitude);

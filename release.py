@@ -2,6 +2,7 @@
 Python3.9
 pip install pyperclip GitPython PyGithub
 ./release_spacedock_utils.py
+./release_github.py
 make sure, that ssh is set up
     copy private key to ~/.ssh/
 

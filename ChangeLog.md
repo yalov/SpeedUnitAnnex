@@ -1,5 +1,8 @@
 ## ChangeLog:
 
+### Version 1.4.1
+ * new option: in the Target mode, split speed into 2 components only if RCS is enabled
+
 ### Version 1.4.0
  * new option: in the Target mode, while retrograde to target, the color of speed become red.
  * new option: in the Target mode, split speed into 2 components: 
