@@ -778,8 +778,7 @@ namespace SpeedUnitAnnex
                     }
 
 
-                    
-                    bool isRCS = !FlightInputHandler.RCSLock;
+                    bool isRCS = FlightGlobals.ActiveVessel.ActionGroups[KSPActionGroup.RCS];
 
                     bool isSpeedSplit = targetSpeedSplit == TargetSpeedSplit.Always
                         || targetSpeedSplit == TargetSpeedSplit.RCS && isRCS;

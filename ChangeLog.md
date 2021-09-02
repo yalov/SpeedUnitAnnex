@@ -1,5 +1,8 @@
 ## ChangeLog:
 
+### Version 1.4.1.1
+ * fix new option added in v1.4.1
+
 ### Version 1.4.1
  * new option: in the Target mode, split speed into 2 components only if RCS is enabled
 
