@@ -47,7 +47,7 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == "ias")
+            if (member.Name == nameof(ias))
                 return !split_vertical;
             return true;
         }
@@ -96,11 +96,21 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
         public bool orbit_EVA = true;
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVAProp", toolTip = "#SpeedUnitAnnex_orbitEVAProp_toolTip")]
+        public bool orbit_EVAProp = false;
+
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitApPe", toolTip = "#SpeedUnitAnnex_orbitApPe_toolTip")]
         public bool orbit_ApPe = true;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitTime", toolTip = "#SpeedUnitAnnex_orbitTime_toolTip")]
         public bool orbit_time = false;
+
+        public override bool Interactible(MemberInfo member, GameParameters parameters)
+        {
+            if (member.Name == nameof(orbit_EVAProp))
+                return orbit_EVA;
+            return true;
+        }
 
     }
 
@@ -122,7 +132,7 @@ namespace SpeedUnitAnnex
         public bool targetName = true;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetDockportAngles", toolTip = "#SpeedUnitAnnex_targetDockportAngles_toolTip")]
-        public string targetDockportAngles = Localizer.Format("#SpeedUnitAnnex_targetRoll");
+        public string targetDockportAngles = Localizer.Format("#SpeedUnitAnnex_targetAnglesRoll");
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_targetAngles1Decimal", toolTip = "#SpeedUnitAnnex_targetAngles1Decimal_toolTip")]
         public bool targetAngle1Decimal = false;
@@ -139,7 +149,7 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == "targetAngle1Decimal")
+            if (member.Name == nameof(targetAngle1Decimal))
                 return targetDockportAngles != Localizer.Format("#SpeedUnitAnnex_targetNo");
 
             return true;
