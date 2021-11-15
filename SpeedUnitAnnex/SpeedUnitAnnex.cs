@@ -103,70 +103,7 @@ namespace SpeedUnitAnnex
         SUASettingsOrbit settingsOrb;
         SUASettingsTarget settingsTgt;
 
-        bool isLoadedFAR = false;
-        //bool isDisabledFARDisplay = false;
-
-        private delegate bool FAR_ToggleAirspeedDisplayDelegate(bool? enabled=null, Vessel v=null);
-        private static FAR_ToggleAirspeedDisplayDelegate FAR_ToggleAirspeedDisplay;
-
-        private delegate double FAR_ActiveVesselIASDelegate();
-        private static FAR_ActiveVesselIASDelegate FAR_ActiveVesselIAS;
-        // FAR_EAS also available
-
-        private void CreateFARReflections()
-        {
-            isLoadedFAR = ReflectionUtils.IsAssemblyLoaded("FerramAerospaceResearch");
-            if (isLoadedFAR)
-            {
-                var FAR_ToggleAirspeedDisplayMethodInfo = ReflectionUtils.GetMethodByReflection(
-                    "FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI",
-                    "ToggleAirspeedDisplay",
-                    BindingFlags.Public | BindingFlags.Static,
-                    new Type[] { typeof(bool?), typeof(Vessel) }
-                );
-
-                var FAR_ActiveVesselIASMethodInfo = ReflectionUtils.GetMethodByReflection(
-                    "FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI",
-                    "ActiveVesselIAS",
-                    BindingFlags.Public | BindingFlags.Static,
-                    new Type[] { }
-                );
-
-                if (FAR_ToggleAirspeedDisplayMethodInfo == null)
-                {
-                    Log("FAR loaded, but FAR API has no ToggleAirspeedDisplay method. " +
-                        "Do you have FAR at least v0.15.10.0? Disabling FAR-support.");
-                    isLoadedFAR = false;
-                }
-                else
-                {
-                    FAR_ToggleAirspeedDisplay = (FAR_ToggleAirspeedDisplayDelegate)Delegate.CreateDelegate(
-                        typeof(FAR_ToggleAirspeedDisplayDelegate), FAR_ToggleAirspeedDisplayMethodInfo);
-                }
-                
-
-                if (FAR_ActiveVesselIASMethodInfo == null)
-                {
-                    Log("FAR loaded, but FAR API has no ActiveVesselIAS method. " +
-                        "Do you have FAR at least v0.15.10.0? Disabling FAR-support.");
-                    isLoadedFAR = false;
-                }
-                else
-                {
-                    FAR_ActiveVesselIAS = (FAR_ActiveVesselIASDelegate)Delegate.CreateDelegate(
-                        typeof(FAR_ActiveVesselIASDelegate), FAR_ActiveVesselIASMethodInfo);
-                }
-            }
-        }
-
-        private void ToggleFARDisplay()
-        {
-            if (isLoadedFAR)
-            {
-                bool success = FAR_ToggleAirspeedDisplay(!settingsSurf.overrideFAR);
-                //Log("{0}FARDisplay : {1}", settings.overrideFAR ? "Disable" : "Enable", success);
-            }
-        }
+        FARReflections Reflections;
 
         public SpeedUnitAnnex()
         {
@@ -369,7 +306,7 @@ namespace SpeedUnitAnnex
             //Log("OnGameUnpause");
             SetFinalName(FlightGlobals.speedDisplayMode);
             settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
-            ToggleFARDisplay();
+            Reflections.ToggleFARDisplay(!settingsSurf.overrideFAR);
             setSettingsEnums();
         }
 
@@ -429,8 +366,9 @@ namespace SpeedUnitAnnex
 
             if (settingsSurf.overrideFAR)
             {
-                CreateFARReflections();
-                ToggleFARDisplay();
+                Reflections = new FARReflections();
+                
+                Reflections.ToggleFARDisplay(!settingsSurf.overrideFAR);
             }
 
             display.textSpeed.enableWordWrapping = false;
