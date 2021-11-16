@@ -1,5 +1,8 @@
 ## ChangeLog:
 
+### Version 1.4.2
+ * new option: Display EVA Propellant (instead of Kerbal Name)
+
 ### Version 1.4.1.1
  * fix new option added in v1.4.1
 
