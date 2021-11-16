@@ -1,7 +1,10 @@
 ## ChangeLog:
 
+### Version 1.4.3
+ * new option: in the Surface mode, Display Rover speedometer for all "other" types: Ship, Lander, Probe, Relay, Base, etc
+
 ### Version 1.4.2
- * new option: Display EVA Propellant (instead of Kerbal Name)
+ * new option: Display EVA Propellant instead of Kerbal Name (Surface and Orbit mode)
 
 ### Version 1.4.1.1
  * fix new option added in v1.4.1

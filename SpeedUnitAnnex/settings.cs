@@ -38,7 +38,8 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_split_vertical", toolTip = "#SpeedUnitAnnex_split_vertical_toolTip")]
         public bool split_vertical = false;
 
-
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_rover_for_all", toolTip = "#SpeedUnitAnnex_rover_for_all_toolTip")]
+        public bool rover_for_all = false;
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
