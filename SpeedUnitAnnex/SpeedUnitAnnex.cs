@@ -313,7 +313,10 @@ namespace SpeedUnitAnnex
             //Log("OnGameUnpause");
             SetFinalName(FlightGlobals.speedDisplayMode);
             settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
-            Reflections.ToggleFARDisplay(!settingsSurf.overrideFAR);
+            if (settingsSurf.overrideFAR)
+            {
+                Reflections?.ToggleFARDisplay(!settingsSurf.overrideFAR);
+            }
             setSettingsEnums();
         }
 
@@ -370,8 +373,6 @@ namespace SpeedUnitAnnex
             settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
             settingsOrb = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsOrbit>();
             settingsTgt = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsTarget>();
-
-            
 
             if (settingsSurf.overrideFAR)
             {
@@ -484,7 +485,7 @@ namespace SpeedUnitAnnex
                                     {
                                         double speedIAS = 0;
 
-                                        if (Reflections.isLoadedFAR)
+                                        if (Reflections?.isLoadedFAR ?? false)
                                             speedIAS = Reflections.FAR_ActiveVesselIAS();
                                         else
                                             speedIAS = FlightGlobals.ActiveVessel.indicatedAirSpeed;

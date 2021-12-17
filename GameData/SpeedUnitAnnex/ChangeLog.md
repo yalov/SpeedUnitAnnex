@@ -1,5 +1,8 @@
 ## ChangeLog:
 
+### Version 1.4.4
+ * fix nulref
+
 ### Version 1.4.3
  * new option: in the Surface mode, Display Rover speedometer for all "other" types: Ship, Lander, Probe, Relay, Base, etc
 
