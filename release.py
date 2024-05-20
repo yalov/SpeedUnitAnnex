@@ -10,7 +10,7 @@ make sure, that ssh is set up
 
 Public domain license.
 https://github.com/yalov/SpeedUnitAnnex/blob/master/release.py
-version: 22
+version: 24
 
 Script loads release-arhive to github and spacedock
 you need to set values in the release.json
@@ -107,6 +107,8 @@ if __name__ == '__main__':
     TOKEN = tkn["GITHUB_TOKEN"]
     SD_LOGIN = tkn["SPACEDOCK_LOGIN"]
     SD_PASS = tkn["SPACEDOCK_PASS"]
+    
+    is_published = False
 
     if MODNAME == "auto":
         # parent = os.path.basename([x for x in sys.path if x][0])
@@ -164,7 +166,7 @@ if __name__ == '__main__':
     if input("[y/N]: ") == 'y':
         resp = PublishToGithub(TOKEN, MODNAME, VERSION, LAST_CHANGE, DRAFT, PRERELEASE, ZIPFILE)
         if resp == 1:
-            is_published=True
+            is_published = True
 
     # ======================================
 
@@ -191,8 +193,12 @@ if __name__ == '__main__':
         if KSP_VER not in all_versions:
             print("KSP {} is not supported by Spacedock,\nlast supported version is KSP {}"
                 .format(KSP_VER, all_versions[0]))
-            input("Press Enter to exit")
-            sys.exit(-1)
+            print("Release with the last supported by Spacedock {} tag?".format(all_versions[0]))
+            if input("[y/N]: ") == 'y':
+                KSP_VER = all_versions[0]
+            else:
+                input("Press Enter to exit")
+                sys.exit(-1)
 
     print("KSP {} is supported by Spacedock.".format(KSP_VER))
 
@@ -213,9 +219,9 @@ if __name__ == '__main__':
     if input("[y/N]: ") == 'y':
         resp = PublishToSpacedock(SD_ID, ZIPFILE, LAST_CHANGE, VERSION, KSP_VER, SD_LOGIN, SD_PASS)
         if not 'error' in resp:
-            is_published=True
+            is_published = True
 
-    if FORUM_ID and 'is_published' in locals():
+    if FORUM_ID and is_published:
         import webbrowser
         webbrowser.open(f"https://forum.kerbalspaceprogram.com/index.php?/topic/{FORUM_ID}-*", new=2, autoraise=False)
         print("The forum page is opened.")

@@ -106,10 +106,25 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitTime", toolTip = "#SpeedUnitAnnex_orbitTime_toolTip")]
         public bool orbit_time = false;
 
+
+
+        [GameParameters.CustomStringParameterUI("Empty", autoPersistance = true, lines = 3, title = "")]
+        public string StringEmpty = "";
+        [GameParameters.CustomStringParameterUI("Common",  autoPersistance = true, lines = 1, title = "#SpeedUnitAnnex_common")]
+        public string StringCommon = "";
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_lightSpeed", toolTip = "#SpeedUnitAnnex_lightSpeed_toolTip")]
+        public bool lightSpeed = false;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_lightSpeedKerbal", toolTip = "#SpeedUnitAnnex_lightSpeedKerbal_toolTip")]
+        public bool lightSpeedKerbal = false;
+
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
             if (member.Name == nameof(orbit_EVAProp))
                 return orbit_EVA;
+            if (member.Name == nameof(lightSpeedKerbal))
+                return lightSpeed;
             return true;
         }
 

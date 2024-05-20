@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using KSP.Localization;
-using UnityEngine;
 
 namespace SpeedUnitAnnex
 {
@@ -230,5 +228,8 @@ namespace SpeedUnitAnnex
                 return String.Format("{0:F1}\u00B0 ", value).PadLeft(7, '\u2007');
             }
         }
+
+
+
     }
 }

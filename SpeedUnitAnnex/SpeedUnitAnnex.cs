@@ -1,11 +1,9 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.UIElements;
 using KSP.UI.Screens.Flight;
 using KSP.Localization;
 using static SpeedUnitAnnex.Logging;
-using System.Reflection;
-using System.Collections.Generic;
+
 
 namespace SpeedUnitAnnex
 {
@@ -63,6 +61,7 @@ namespace SpeedUnitAnnex
         readonly string kmph    = Localizer.Format("#SpeedUnitAnnex_kmph");
         readonly string mps     = Localizer.Format("#SpeedUnitAnnex_mps");
 
+        readonly string c_s = " " + Localizer.Format("#SpeedUnitAnnex_c");
         readonly string kn_s    = " " + Localizer.Format("#SpeedUnitAnnex_kn");
         readonly string knots_s = " " + Localizer.Format("#SpeedUnitAnnex_knots");
         readonly string kmph_s  = " " + Localizer.Format("#SpeedUnitAnnex_kmph");
@@ -274,14 +273,97 @@ namespace SpeedUnitAnnex
             }
             return name + " ";
         }
-        
+
+
+        public string SpeedConverter(double speed, bool enableF2 = false)
+        {
+            if (enableF2 && Math.Abs(speed) < 0.195)
+                return speed.ToString("F2") + mps_s;
+            else if (settingsOrb.lightSpeed)
+            {
+                double SoL = 299792458;
+                if (settingsOrb.lightSpeedKerbal) SoL = 29979245;
+
+                if (Math.Abs(speed) > 0.01 * SoL) {
+                    if (Math.Abs(speed) > SoL)
+                        return (speed / SoL).ToString("F1") + c_s;
+                    else
+                        return (speed / SoL).ToString("F3") + c_s;
+                }
+                else
+                    return speed.ToString("F1") + mps_s;
+            }
+            else
+                return speed.ToString("F1") + mps_s;
+        }
+
+        public string SpeedConverter(double speed1, double speed2, bool enableF2 = false)
+        {
+            string s;
+            bool is_first_mps = true;
+
+            if (enableF2 && Math.Abs(speed1) < 0.195)
+                s = speed1.ToString("F2") + mps_s;
+
+            else if (Math.Abs(speed1) < 100000 && Math.Abs(speed2) < 100000)
+                s = speed1.ToString("F1") + mps_s;
+
+            else if (settingsOrb.lightSpeed)
+            {
+                double SoL = 299792458;
+                if (settingsOrb.lightSpeedKerbal) SoL = 29979245;
+
+                if (Math.Abs(speed1) > 0.01 * SoL)
+                {
+                    is_first_mps = false;
+                    if (Math.Abs(speed1) > SoL)
+                        s = (speed1 / SoL).ToString("F1") + c_s;
+                    else
+                        s = (speed1 / SoL).ToString("F3") + c_s;
+                }
+                else
+                    s = speed1.ToString("F0") + mps_s;
+            }
+            else
+                s = speed1.ToString("F0") + mps_s;
+            
+
+
+
+            if (enableF2 && Math.Abs(speed2) < 0.195)
+                s += " " + speed2.ToString("F2") + (is_first_mps ? "" : mps_s);
+
+            else if (Math.Abs(speed1) < 100000 && Math.Abs(speed2) < 100000)
+                s += " " + speed2.ToString("F1") + (is_first_mps ? "" : mps_s);
+
+            else if (settingsOrb.lightSpeed)
+            {
+                double SoL = 299792458;
+                if (settingsOrb.lightSpeedKerbal) SoL = 29979245;
+
+                if (Math.Abs(speed2) > 0.01 * SoL)
+                {
+                    if (Math.Abs(speed2) > SoL)
+                        s += " " + (speed2 / SoL).ToString("F1") + (is_first_mps ? c_s : "");
+                    else
+                        s += " " + (speed2 / SoL).ToString("F3") + (is_first_mps ? c_s : "");
+                }
+                else
+                    s += " " + speed2.ToString("F0") + (is_first_mps ? "" : mps_s);
+            }
+            else
+                s += " " + speed2.ToString("F0") + (is_first_mps ? "" : mps_s);
+
+            return s;
+        }
+
 
         void OnVesselChange(Vessel vessel)
         {
             //Log("onVesselChange: " + vessel.GetDisplayName());
             SetFinalName(FlightGlobals.speedDisplayMode);
         }
-
+        
 
         void OnSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
         {
@@ -317,10 +399,10 @@ namespace SpeedUnitAnnex
             {
                 Reflections?.ToggleFARDisplay(!settingsSurf.overrideFAR);
             }
-            setSettingsEnums();
+            SetSettingsEnums();
         }
 
-        public void setSettingsEnums()
+        public void SetSettingsEnums()
         {
             if (settingsSurf.rover == kmph)
                 roverSpeed = RoverSpeed.kmph;
@@ -383,10 +465,10 @@ namespace SpeedUnitAnnex
 
             display.textSpeed.enableWordWrapping = false;
             display.textTitle.enableWordWrapping = false;
-            display.textTitle.fontSize = display.textTitle.fontSize / 1.15f;
+            display.textTitle.fontSize /= 1.15f;
 
             SetFinalName(FlightGlobals.speedDisplayMode);
-            setSettingsEnums();
+            SetSettingsEnums();
 
             //Log("Font: "+display.textSpeed.font);
             // NotoSans-Regular SDF
@@ -429,7 +511,7 @@ namespace SpeedUnitAnnex
                         Vessel.Situations situation = FlightGlobals.ActiveVessel.situation;
 
                         double spd = FlightGlobals.ship_srfSpeed;
-                        string speedText = spd.ToString("F1") + mps_s;
+                        string speedText = SpeedConverter(spd);
 
                         switch (vesselType)
                         {
@@ -574,11 +656,9 @@ namespace SpeedUnitAnnex
 
                         if (settingsSurf.split_vertical)
                         {
-                            speedText = String.Format("{0:F1} {1} {2:F1}",
+                            speedText = SpeedConverter(
                                 FlightGlobals.ActiveVessel.horizontalSrfSpeed,
-                                mps,
-                                FlightGlobals.ship_verticalSpeed
-                            );
+                                FlightGlobals.ship_verticalSpeed);
                         }
 
                         display.textTitle.text = titleText;
@@ -674,7 +754,9 @@ namespace SpeedUnitAnnex
                         }
 
                         display.textTitle.text = titleText;
-                        display.textSpeed.text = FlightGlobals.ship_obtSpeed.ToString("F1") + mps_s;
+
+                        display.textSpeed.text = SpeedConverter(FlightGlobals.ship_obtSpeed);
+
                         break;
                     }
 
@@ -698,7 +780,7 @@ namespace SpeedUnitAnnex
 
                         if (obj == null)
                         {
-                            titleText = NoTrg;
+                            display.textTitle.text = NoTrg;
                             return;
                         }
 
@@ -761,7 +843,7 @@ namespace SpeedUnitAnnex
                         bool isRCS = FlightGlobals.ActiveVessel.ActionGroups[KSPActionGroup.RCS];
 
                         bool isSpeedSplit = targetSpeedSplit == TargetSpeedSplit.Always
-                            || targetSpeedSplit == TargetSpeedSplit.RCS && isRCS;
+                            || (targetSpeedSplit == TargetSpeedSplit.RCS && isRCS);
 
                         if (settingsTgt.targetColor || isSpeedSplit)
                         {
@@ -771,33 +853,27 @@ namespace SpeedUnitAnnex
                             Vector3 diff = tgt_pos - vessel_pos;
 
                             Vector3 v_project = Vector3.Project(v, diff.normalized);
-                            float s = v_project.magnitude * Math.Sign(Vector3.Dot(diff, v_project));
+                            float proj = v_project.magnitude * Math.Sign(Vector3.Dot(diff, v_project));
 
                             if (settingsTgt.targetColor)
                             {
-                                if (s < 0) display.textSpeed.color = orange;
+                                if (proj < 0) display.textSpeed.color = orange;
                                 else display.textSpeed.color = green;
                             }
 
                             if (isSpeedSplit)
                             {
                                 Vector3 v_nonproj = v - v_project;
-                                speedText = String.Format("{0:F2} {1} {2:F2}", s, mps, v_nonproj.magnitude);
+                                speedText = SpeedConverter(proj, v_nonproj.magnitude, true);
                             }
                             else
                             {
-                                if (FlightGlobals.ship_tgtSpeed < 0.195)
-                                    speedText = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps_s;
-                                else
-                                    speedText = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps_s;
+                                speedText = SpeedConverter(FlightGlobals.ship_tgtSpeed, true);
                             }
                         }
                         else
                         {
-                            if (FlightGlobals.ship_tgtSpeed < 0.195)
-                                speedText = FlightGlobals.ship_tgtSpeed.ToString("F2") + mps_s;
-                            else
-                                speedText = FlightGlobals.ship_tgtSpeed.ToString("F1") + mps_s;
+                            speedText = SpeedConverter(FlightGlobals.ship_tgtSpeed, true);
                         }
                         display.textTitle.text = titleText;
                         display.textSpeed.text = speedText;

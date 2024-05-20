@@ -1,5 +1,9 @@
 ## ChangeLog:
 
+### Version 1.5.0
+ * added option to show a speed as speed of light (after 1% of c)
+ * added option to toggle a speed of light to the Kerbilized version (one tenth of c)
+
 ### Version 1.4.4
  * fix nulref
 
