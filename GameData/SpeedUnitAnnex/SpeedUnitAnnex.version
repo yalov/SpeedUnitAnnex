@@ -1,7 +1,7 @@
 {
     "NAME": "SpeedUnitAnnex",
     "URL": "https://raw.githubusercontent.com/yalov/SpeedUnitAnnex/master/SpeedUnitAnnex.version",
-	"CHANGE_LOG_URL": "https://raw.githubusercontent.com/yalov/SpeedUnitAnnex/master/ChangeLog.md",
+    "CHANGE_LOG_URL": "https://raw.githubusercontent.com/yalov/SpeedUnitAnnex/master/ChangeLog.md",
     "DOWNLOAD": "https://github.com/yalov/SpeedUnitAnnex/releases",
     "GITHUB": {
         "USERNAME": "yalov",
@@ -10,7 +10,7 @@
     "VERSION":{
         "MAJOR": 1,
         "MINOR": 5,
-        "PATCH": 0,
+        "PATCH": 1,
         "BUILD": 0
     },
     "KSP_VERSION": {

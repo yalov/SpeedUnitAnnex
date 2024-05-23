@@ -9,7 +9,6 @@ namespace SpeedUnitAnnex
 {
     public static class ReflectionUtils
     {
-
         public static bool IsAssemblyLoaded(string assemblyName)
         {
             foreach (AssemblyLoader.LoadedAssembly assembly in AssemblyLoader.loadedAssemblies)

@@ -87,7 +87,10 @@ namespace SpeedUnitAnnex
         readonly string Val_short = Localizer.Format("#SpeedUnitAnnex_ValShort");
 
         readonly Color orange = new Color(1f, 0.33f, 0f);
-        readonly Color green = Color.green;
+        Color color_title_default;
+        Color color_speed_default;
+        String html_title_default;
+        String html_title_default_twice_alpha;
 
         readonly char[] delimiterChars = Localizer.Format("#SpeedUnitAnnex_DelimiterChars").ToCharArray();
 
@@ -374,15 +377,15 @@ namespace SpeedUnitAnnex
             {
                 case FlightGlobals.SpeedDisplayModes.Orbit:
                     if (settingsSurf.color_vertical || settingsTgt.targetColor)
-                        display.textSpeed.color = Color.green;
+                        display.textSpeed.color = color_speed_default ;
                     break;
                 case FlightGlobals.SpeedDisplayModes.Surface:
                     if (!settingsSurf.color_vertical && settingsTgt.targetColor)
-                        display.textSpeed.color = Color.green;
+                        display.textSpeed.color = color_speed_default;
                     break;
                 case FlightGlobals.SpeedDisplayModes.Target:
                     if (settingsSurf.color_vertical && !settingsTgt.targetColor)
-                        display.textSpeed.color = Color.green;
+                        display.textSpeed.color = color_speed_default;
                     break;
                 default:
                     break;
@@ -444,7 +447,6 @@ namespace SpeedUnitAnnex
             G﻿ameEvents.onGameUnpause.Remove(OnGameUnpause);
         }
 
-
         public void Start()
         {
             G﻿ameEvents.onVesselChange.Add(OnVesselChange);
@@ -455,6 +457,14 @@ namespace SpeedUnitAnnex
             settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
             settingsOrb = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsOrbit>();
             settingsTgt = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsTarget>();
+
+            color_title_default = display.textTitle.color;
+            color_speed_default = display.textSpeed.color;
+
+            html_title_default = "#" + ColorUtility.ToHtmlStringRGBA(color_title_default);
+            color_title_default.a /= 2;
+            html_title_default_twice_alpha = "#" + ColorUtility.ToHtmlStringRGBA(color_title_default);
+
 
             if (settingsSurf.overrideFAR)
             {
@@ -651,7 +661,7 @@ namespace SpeedUnitAnnex
                             if (FlightGlobals.ship_verticalSpeed < -epsilon)
                                 display.textSpeed.color = orange;
                             else
-                                display.textSpeed.color = green;
+                                display.textSpeed.color = color_speed_default;
                         }
 
                         if (settingsSurf.split_vertical)
@@ -698,8 +708,8 @@ namespace SpeedUnitAnnex
                                 string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
                                 string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
                                 string Apsises = String.Format("<color={0}>{1}</color> <color={2}>{3}</color>",
-                                    Ap_ok ? "#00ff00ff" : "#00ff009f", Ap,
-                                    Pe_ok ? "#00ff00ff" : "#00ff009f", Pe);
+                                    Ap_ok ? html_title_default: html_title_default_twice_alpha, Ap,   // "#00ff00ff" // "#00ff009f"
+                                    Pe_ok ? html_title_default: html_title_default_twice_alpha, Pe);  // "#00ff00ff" : "#00ff009f"
 
                                 string TimeApsis;
                                 bool Apsis_ok;
@@ -740,13 +750,12 @@ namespace SpeedUnitAnnex
                                     TimeApsis = Formatter.TimeLong(FlightGlobals.ship_orbit.timeToPe, PeT_prefix);
                                 }
                                 titleText = String.Format("<color={0}>{1}</color>",
-                                Apsis_ok ? "#00ff00ff" : "#00ff009f", TimeApsis);
+                                Apsis_ok ? html_title_default : html_title_default_twice_alpha, TimeApsis); // "#00ff00ff" : "#00ff009f" 
                             }
                             else
                             {
                                 titleText = Orb_full;
                             }
-
                         }
                         else
                         {
@@ -754,7 +763,6 @@ namespace SpeedUnitAnnex
                         }
 
                         display.textTitle.text = titleText;
-
                         display.textSpeed.text = SpeedConverter(FlightGlobals.ship_obtSpeed);
 
                         break;
@@ -858,7 +866,7 @@ namespace SpeedUnitAnnex
                             if (settingsTgt.targetColor)
                             {
                                 if (proj < 0) display.textSpeed.color = orange;
-                                else display.textSpeed.color = green;
+                                else display.textSpeed.color = color_speed_default;
                             }
 
                             if (isSpeedSplit)
