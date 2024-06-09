@@ -1,5 +1,11 @@
 ## ChangeLog:
 
+### Version 1.6.0
+* Added support for HUDReplacer (ZTheme):
+  more data fit into wider panel of ZTheme
+* center alighment of top line
+* optimization
+
 ### Version 1.5.1
 * Added support for HUDReplacer:
   a color of a theme is not replaced by SUA

@@ -277,10 +277,10 @@ namespace SpeedUnitAnnex
                 distanceToTarget = Formatter.Distance_short(9990) + " ";
 
             TargetName = CutName(Trg + distanceToTarget + TargetAngle, full_tgt_name);
-            Log("SetTargetName: " + Trg + distanceToTarget + TargetAngle);
+            //Log("SetTargetName: " + Trg + distanceToTarget + TargetAngle);
 
-            Log("SetTargetName1: " + (targetAngles == TargetAngles.Roll && isTargetDockingPort));
-            Log("SetTargetName2: " + (settingsTgt.targetDistance));
+            //Log("SetTargetName1: " + (targetAngles == TargetAngles.Roll && isTargetDockingPort));
+            //Log("SetTargetName2: " + (settingsTgt.targetDistance));
 
         }
 
@@ -532,7 +532,7 @@ namespace SpeedUnitAnnex
 
             if (ZTheme_installed)
             {
-                Log("ZTheme installed");
+                Log("ZTheme detected");
                 PanelMaxWidthTitleLine = PanelMaxWidthTitleLineZTheme;
 
             }
