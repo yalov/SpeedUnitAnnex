@@ -3,6 +3,8 @@ using UnityEngine;
 using KSP.UI.Screens.Flight;
 using KSP.Localization;
 using static SpeedUnitAnnex.Logging;
+using System.IO;
+using System.Linq;
 
 
 namespace SpeedUnitAnnex
@@ -56,6 +58,9 @@ namespace SpeedUnitAnnex
 
         readonly double epsilon = 0.01;
 
+        readonly int PanelMaxWidthTitleLineDefault = 108;
+        readonly int PanelMaxWidthTitleLineZTheme = 133;
+
         readonly string MachNum = Localizer.Format("#SpeedUnitAnnex_machNumber");
         readonly string knots   = Localizer.Format("#SpeedUnitAnnex_knots");
         readonly string kmph    = Localizer.Format("#SpeedUnitAnnex_kmph");
@@ -86,27 +91,30 @@ namespace SpeedUnitAnnex
         readonly string Jeb_short = Localizer.Format("#SpeedUnitAnnex_JebShort");
         readonly string Val_short = Localizer.Format("#SpeedUnitAnnex_ValShort");
 
+
+
         readonly Color orange = new Color(1f, 0.33f, 0f);
-        Color color_title_default;
         Color color_speed_default;
         String html_title_default;
-        String html_title_default_twice_alpha;
+        String html_title_2a;
+        bool ZTheme_installed;
 
         readonly char[] delimiterChars = Localizer.Format("#SpeedUnitAnnex_DelimiterChars").ToCharArray();
 
-        ITargetable Target = null;
+        bool isTargetDockingPort = false;
         string TargetName;
-
         string FinalName;
+
+        int PanelMaxWidthTitleLine;
+
         SUASettingsSurface settingsSurf;
         SUASettingsOrbit settingsOrb;
         SUASettingsTarget settingsTgt;
 
-        FARReflections Reflections;
+        ReflectionFAR Reflections;
 
         public SpeedUnitAnnex()
         {
-            
         }
 
         double AGL()
@@ -116,9 +124,6 @@ namespace SpeedUnitAnnex
 
         double RadarAltitude()
         {
-            // FlightGlobals.ActiveVessel.pqsAltitude;
-            
-
             if (FlightGlobals.ActiveVessel.terrainAltitude < 0.0) // on/over/under/water
             {
                 if (FlightGlobals.ActiveVessel.altitude > BoatSubmarineBorderAlt)
@@ -128,7 +133,6 @@ namespace SpeedUnitAnnex
             }
             else
                 return FlightGlobals.ship_altitude - FlightGlobals.ActiveVessel.terrainAltitude;
-
         }
 
 
@@ -198,27 +202,37 @@ namespace SpeedUnitAnnex
 
         string GetTargetName(ITargetable obj)
         {
+            if (obj == null) return "";
+
             string name;
             if (obj is ModuleDockingNode)
                 name = Localizer.Format("#SpeedUnitAnnex_targetDP", obj.GetVessel().GetDisplayName());
             else if (obj is Vessel && obj.GetVessel().vesselType == VesselType.EVA)
-                name = obj.GetDisplayName().Split(' ')[0];
+                name = GetKerbalName(obj as Vessel);
+            else if (obj.GetDisplayName().EndsWith(Localizer.Format("#autoLOC_6002484"))) // asteroid, Center of Mass
+                name = obj.GetDisplayName().Replace(Localizer.Format("#autoLOC_6002484"), "CoM");
             else
                 name = obj.GetDisplayName();
 
             return Localizer.Format("<<1>>", name);
+
         }
 
 
-        private void SetFinalName(FlightGlobals.SpeedDisplayModes mode)
+        private void SetActiveVesselName(FlightGlobals.SpeedDisplayModes mode)
         {
             switch (mode)
             {
                 case FlightGlobals.SpeedDisplayModes.Surface:
-                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA 
-                        && !settingsOrb.orbit_EVAProp)
+                    if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA)
                     {
                         var prefix = Srf + (settingsSurf.radar ? RadarAltitudeEVA_str() : "");
+
+                        if (settingsOrb.EVAProp)
+                            if (FlightGlobals.ActiveVessel.evaController.HasJetpack)
+                                prefix += " " + Localizer.Format("#SpeedUnitAnnex_evaProp",
+                                    FlightGlobals.ActiveVessel.evaController.FuelCapacity.ToString("F2"));
+
                         FinalName = CutKerbalName(prefix, FlightGlobals.ActiveVessel);
                     }
                     else if (FlightGlobals.ActiveVessel.vesselType == VesselType.Flag)
@@ -227,20 +241,53 @@ namespace SpeedUnitAnnex
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:
                     if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA 
-                        && settingsOrb.orbit_EVA && !settingsOrb.orbit_EVAProp)
+                        && settingsOrb.EVAName)
                     {
-                        var prefix = settingsOrb.orbit_time ? "" : Orb;
-                        FinalName = CutKerbalName(prefix, FlightGlobals.ActiveVessel, false);
+                        var prefix = Orb;
+
+                        if (settingsOrb.EVAProp)
+                        {
+                            if (FlightGlobals.ActiveVessel.evaController.HasJetpack)
+                                prefix += Localizer.Format("#SpeedUnitAnnex_evaProp",
+                                    FlightGlobals.ActiveVessel.evaController.FuelCapacity.ToString("F2"));
+                        }
+                        
+                        FinalName = CutKerbalName(prefix, FlightGlobals.ActiveVessel);
                     }
                     break;
-                case FlightGlobals.SpeedDisplayModes.Target:
-                    Target = null;
+                default:
                     break;
             }
         }
 
+        private void SetTargetName()
+        {
+            ITargetable obj = FlightGlobals.fetch.VesselTarget;
+            isTargetDockingPort = obj is ModuleDockingNode;
 
-        private string CutKerbalName(string prefix, Vessel kerbal, bool cut_orange_names = true)
+            string full_tgt_name = GetTargetName(obj);
+
+            string TargetAngle = "";
+            string distanceToTarget = "";
+
+            if (targetAngles == TargetAngles.Roll && isTargetDockingPort)
+                TargetAngle = Formatter.Angle(200, !settingsTgt.targetAngle1Decimal);
+
+            if (settingsTgt.targetDistance)
+                distanceToTarget = Formatter.Distance_short(9990) + " ";
+
+            TargetName = CutName(Trg + distanceToTarget + TargetAngle, full_tgt_name);
+            Log("SetTargetName: " + Trg + distanceToTarget + TargetAngle);
+
+            Log("SetTargetName1: " + (targetAngles == TargetAngles.Roll && isTargetDockingPort));
+            Log("SetTargetName2: " + (settingsTgt.targetDistance));
+
+        }
+
+
+
+
+        private string GetKerbalName(Vessel kerbal, bool cut_orange_names = true)
         {
             if (kerbal == null || kerbal.vesselType != VesselType.EVA) return "";
 
@@ -258,29 +305,33 @@ namespace SpeedUnitAnnex
             else
                 first_name = full_name.Split(delimiterChars)[0];
 
-            string name = trait[0] + ". " + first_name;
+            return trait[0] + ". " + first_name;
+        }
 
+        private string CutKerbalName(string prefix, Vessel kerbal, bool cut_orange_names = true)
+        {
+            string name = GetKerbalName(kerbal, cut_orange_names);
             return CutName(prefix, name);
         }
         
 
         private string CutName(string prefix, string name)
         {
-            if (display.textTitle.GetPreferredValues(prefix + name).x > 108)
+            if (display.textTitle.GetPreferredValues(prefix + name).x > PanelMaxWidthTitleLine)
             { 
-                while (display.textTitle.GetPreferredValues(prefix + name).x > 108 && name.Length>0)
+                while (display.textTitle.GetPreferredValues(prefix + name).x > PanelMaxWidthTitleLine && name.Length>0)
                 {
                     name = name.Substring(0, name.Length - 1);
                 }
                 name = name.Trim() + ".";
             }
-            return name + " ";
+            return name;
         }
 
 
-        public string SpeedConverter(double speed, bool enableF2 = false)
+        public string SpeedConverter(double speed, bool allowF2 = false)
         {
-            if (enableF2 && Math.Abs(speed) < 0.195)
+            if (allowF2 && Math.Abs(speed) < 0.195)
                 return speed.ToString("F2") + mps_s;
             else if (settingsOrb.lightSpeed)
             {
@@ -300,12 +351,12 @@ namespace SpeedUnitAnnex
                 return speed.ToString("F1") + mps_s;
         }
 
-        public string SpeedConverter(double speed1, double speed2, bool enableF2 = false)
+        public string SpeedConverter(double speed1, double speed2, bool allowF2 = false)
         {
             string s;
             bool is_first_mps = true;
 
-            if (enableF2 && Math.Abs(speed1) < 0.195)
+            if (allowF2 && Math.Abs(speed1) < 0.195)
                 s = speed1.ToString("F2") + mps_s;
 
             else if (Math.Abs(speed1) < 100000 && Math.Abs(speed2) < 100000)
@@ -333,7 +384,7 @@ namespace SpeedUnitAnnex
 
 
 
-            if (enableF2 && Math.Abs(speed2) < 0.195)
+            if (allowF2 && Math.Abs(speed2) < 0.195)
                 s += " " + speed2.ToString("F2") + (is_first_mps ? "" : mps_s);
 
             else if (Math.Abs(speed1) < 100000 && Math.Abs(speed2) < 100000)
@@ -364,14 +415,19 @@ namespace SpeedUnitAnnex
         void OnVesselChange(Vessel vessel)
         {
             //Log("onVesselChange: " + vessel.GetDisplayName());
-            SetFinalName(FlightGlobals.speedDisplayMode);
+            SetActiveVesselName(FlightGlobals.speedDisplayMode);
         }
-        
+
+        private void OnTargetObjectChanged(MapObject data)
+        {
+            SetTargetName();
+        }
+
 
         void OnSetSpeedMode(FlightGlobals.SpeedDisplayModes mode)
         {
             //Log("onSetSpeedMode: " + mode.displayDescription());
-            SetFinalName(mode);
+            SetActiveVesselName(mode);
 
             switch (mode)
             {
@@ -395,15 +451,21 @@ namespace SpeedUnitAnnex
 
         public void OnGameUnpause()
         {
-            //Log("OnGameUnpause");
-            SetFinalName(FlightGlobals.speedDisplayMode);
+            SetSettingsEnums();
+
             settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
             if (settingsSurf.overrideFAR)
-            {
                 Reflections?.ToggleFARDisplay(!settingsSurf.overrideFAR);
-            }
-            SetSettingsEnums();
+
+            SetActiveVesselName(FlightGlobals.speedDisplayMode);
+            SetTargetName();
+
+            //Log("Font: " + display.textSpeed.font);
+            //Log("Font: " + display.textTitle.font);
+            // NotoSans-Regular SDF
         }
+
+
 
         public void SetSettingsEnums()
         {
@@ -445,30 +507,54 @@ namespace SpeedUnitAnnex
             G﻿ameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onSetSpeedMode.Remove(OnSetSpeedMode);
             G﻿ameEvents.onGameUnpause.Remove(OnGameUnpause);
+            G﻿ameEvents.OnTargetObjectChanged.Remove(OnTargetObjectChanged);
         }
+
+
+
 
         public void Start()
         {
             G﻿ameEvents.onVesselChange.Add(OnVesselChange);
             G﻿ameEvents.onSetSpeedMode.Add(OnSetSpeedMode);
             G﻿ameEvents.onGameUnpause.Add(OnGameUnpause);
+            G﻿ameEvents.OnTargetObjectChanged.Add(OnTargetObjectChanged);
 
             display = GameObject.FindObjectOfType<SpeedDisplay>();
             settingsSurf = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsSurface>();
             settingsOrb = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsOrbit>();
             settingsTgt = HighLogic.CurrentGame.Parameters.CustomParams<SUASettingsTarget>();
 
-            color_title_default = display.textTitle.color;
+            var mod_name = "ZTheme";
+            //var path = Path.GetDirectoryName(KSPUtil.ApplicationRootPath + "/GameData/" + mod_name);
+
+            ZTheme_installed = GameDatabase.Instance.root.AllDirectories.Any(d => d.name == mod_name);
+
+            if (ZTheme_installed)
+            {
+                Log("ZTheme installed");
+                PanelMaxWidthTitleLine = PanelMaxWidthTitleLineZTheme;
+
+            }
+            else
+            {
+                PanelMaxWidthTitleLine = PanelMaxWidthTitleLineDefault;
+            }
+            //else
+            //    Log("ZTheme NOT installed");
+
+            Color color_title_default = display.textTitle.color;
             color_speed_default = display.textSpeed.color;
+
 
             html_title_default = "#" + ColorUtility.ToHtmlStringRGBA(color_title_default);
             color_title_default.a /= 2;
-            html_title_default_twice_alpha = "#" + ColorUtility.ToHtmlStringRGBA(color_title_default);
+            html_title_2a = "#" + ColorUtility.ToHtmlStringRGBA(color_title_default);
 
 
             if (settingsSurf.overrideFAR)
             {
-                Reflections = new FARReflections();
+                Reflections = new ReflectionFAR();
                 
                 Reflections.ToggleFARDisplay(!settingsSurf.overrideFAR);
             }
@@ -477,14 +563,15 @@ namespace SpeedUnitAnnex
             display.textTitle.enableWordWrapping = false;
             display.textTitle.fontSize /= 1.15f;
 
-            SetFinalName(FlightGlobals.speedDisplayMode);
+            SetActiveVesselName(FlightGlobals.speedDisplayMode);
             SetSettingsEnums();
 
-            //Log("Font: "+display.textSpeed.font);
+            
+            
             // NotoSans-Regular SDF
         }
 
-
+      
 
         public void LateUpdate()
         {
@@ -521,7 +608,10 @@ namespace SpeedUnitAnnex
                         Vessel.Situations situation = FlightGlobals.ActiveVessel.situation;
 
                         double spd = FlightGlobals.ship_srfSpeed;
-                        string speedText = SpeedConverter(spd);
+                        string speedText = "";
+
+                        if (!settingsSurf.split_vertical)
+                            speedText = SpeedConverter(spd);
 
                         switch (vesselType)
                         {
@@ -573,7 +663,7 @@ namespace SpeedUnitAnnex
                                             break;
                                     }
 
-                                    if (settingsSurf.ias)
+                                    if (settingsSurf.ias && !settingsSurf.split_vertical)
                                     {
                                         double speedIAS = 0;
 
@@ -591,15 +681,9 @@ namespace SpeedUnitAnnex
                                 {
                                     switch (roverSpeed)
                                     {
-                                        case RoverSpeed.kmph:
-                                            titleText = Srf + (spd * kmphTOms).ToString("F1") + kmph_s;
-                                            break;
-                                        case RoverSpeed.mph:
-                                            titleText = Srf + (spd * mphTOms).ToString("F1") + mph_s;
-                                            break;
-                                        default:
-                                            titleText = Srf;
-                                            break;
+                                        case RoverSpeed.kmph: titleText = Srf + (spd * kmphTOms).ToString("F1") + kmph_s; break;
+                                        case RoverSpeed.mph:  titleText = Srf + (spd * mphTOms).ToString("F1") + mph_s; break;
+                                        default:              titleText = Srf; break;
                                     }
 
                                 }
@@ -609,18 +693,17 @@ namespace SpeedUnitAnnex
                             case VesselType.EVA:
                                 titleText = Srf + (settingsSurf.radar ? RadarAltitudeEVA_str() : "");
 
-                                if (settingsOrb.orbit_EVAProp)
+                                if (settingsOrb.EVAProp)
                                 {
-                                    // FlightGlobals.ActiveVessel.evaController.FuelCapacity != 0
+                                    //,FlightGlobals.ActiveVessel.evaController.FuelCapacity
                                     if (FlightGlobals.ActiveVessel.evaController.HasJetpack)
-                                        titleText += Localizer.Format("#SpeedUnitAnnex_evaProp",
-                                            FlightGlobals.ActiveVessel.evaController.Fuel.ToString("F2")
-                                            //,FlightGlobals.ActiveVessel.evaController.FuelCapacity
-                                            );
+                                        titleText += " " +Localizer.Format("#SpeedUnitAnnex_evaProp",
+                                            FlightGlobals.ActiveVessel.evaController.Fuel.ToString("F2"));
                                 }
-                                else
+                         
+                                if (!settingsOrb.EVAProp || ZTheme_installed)
                                 {
-                                    titleText += FinalName;
+                                    titleText += " " + FinalName;
                                 }
 
                                 break;
@@ -635,22 +718,16 @@ namespace SpeedUnitAnnex
 
                                 if (settingsSurf.radar)
                                 {
-                                    if (settingsSurf.rover_for_all)
-                                        titleText += Formatter.Distance_short(RadarAltitude()) + " ";
-                                    else
-                                        titleText += Formatter.Distance_long(RadarAltitude()) + " ";
+                                    if (settingsSurf.rover_for_all) titleText += Formatter.Distance_short(RadarAltitude()) + " ";
+                                    else                            titleText += Formatter.Distance_long(RadarAltitude()) + " ";
                                 }
         
                                 if (settingsSurf.rover_for_all)
                                 {
                                     switch (roverSpeed)
                                     {
-                                        case RoverSpeed.kmph:
-                                            titleText += (spd * kmphTOms).ToString("F1") + kmph_s;
-                                            break;
-                                        case RoverSpeed.mph:
-                                            titleText += (spd * mphTOms).ToString("F1") + mph_s;
-                                            break;
+                                        case RoverSpeed.kmph: titleText += (spd * kmphTOms).ToString("F1") + kmph_s;  break;
+                                        case RoverSpeed.mph:  titleText += (spd * mphTOms).ToString("F1") + mph_s; break;
                                     }
                                 }
                                 break;
@@ -670,6 +747,7 @@ namespace SpeedUnitAnnex
                                 FlightGlobals.ActiveVessel.horizontalSrfSpeed,
                                 FlightGlobals.ship_verticalSpeed);
                         }
+                        
 
                         display.textTitle.text = titleText;
                         display.textSpeed.text = speedText;
@@ -679,37 +757,37 @@ namespace SpeedUnitAnnex
 
                 case FlightGlobals.SpeedDisplayModes.Orbit:
                     {
-                        string titleText;
-                        if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
-                            && settingsOrb.orbit_EVA)
-                        {
-                            titleText = (settingsOrb.orbit_ApPe && settingsOrb.orbit_time ? "" : Orb);
+                        string titleText = "";
 
-                            if (settingsOrb.orbit_EVAProp)
+                        if (FlightGlobals.ActiveVessel.vesselType == VesselType.EVA
+                            && settingsOrb.EVAName)
+                        {
+                            titleText = Orb;
+
+                            if (settingsOrb.EVAProp)
                             {
                                 if (FlightGlobals.ActiveVessel.evaController.HasJetpack)
                                     titleText += Localizer.Format("#SpeedUnitAnnex_evaProp",
                                         FlightGlobals.ActiveVessel.evaController.Fuel.ToString("F2"));
                             }
-                            else
-                            {
-                                titleText += FinalName;
-                            }
+
+                            titleText += " " + FinalName;
                         }
                         else if (settingsOrb.orbit_ApPe || settingsOrb.orbit_time)
                         {
+                            titleText = (!ZTheme_installed && settingsOrb.orbit_ApPe && settingsOrb.orbit_time ? "" : Orb);
+
                             double SOI_MASL = FlightGlobals.getMainBody().sphereOfInfluence - FlightGlobals.getMainBody().Radius;
                             bool Ap_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.ApA && FlightGlobals.ship_orbit.ApA < SOI_MASL;
                             bool Pe_ok = FlightGlobals.getMainBody().atmosphereDepth < FlightGlobals.ship_orbit.PeA && FlightGlobals.ship_orbit.PeA < SOI_MASL;
-
 
                             if (settingsOrb.orbit_ApPe)
                             {
                                 string Ap = Formatter.Distance_k(FlightGlobals.ship_orbit.ApA);
                                 string Pe = Formatter.Distance_k(FlightGlobals.ship_orbit.PeA);
                                 string Apsises = String.Format("<color={0}>{1}</color> <color={2}>{3}</color>",
-                                    Ap_ok ? html_title_default: html_title_default_twice_alpha, Ap,   // "#00ff00ff" // "#00ff009f"
-                                    Pe_ok ? html_title_default: html_title_default_twice_alpha, Pe);  // "#00ff00ff" : "#00ff009f"
+                                    Ap_ok ? html_title_default: html_title_2a, Ap,   // "#00ff00ff" // "#00ff009f"
+                                    Pe_ok ? html_title_default: html_title_2a, Pe);  // "#00ff00ff" : "#00ff009f"
 
                                 string TimeApsis;
                                 bool Apsis_ok;
@@ -726,11 +804,11 @@ namespace SpeedUnitAnnex
                                         Apsis_ok = Pe_ok;
                                         TimeApsis = Formatter.Time(FlightGlobals.ship_orbit.timeToPe, P_prefix);
                                     }
-                                    titleText = String.Format("{0} <color={1}>{2}</color>",
+                                    titleText += String.Format("{0} <color={1}>{2}</color>",
                                     Apsises, Apsis_ok ? "#ffffffff" : "#ffffff9f", TimeApsis);
                                 }
                                 else
-                                    titleText = Orb + Apsises;
+                                    titleText += Apsises;
 
 
                             }
@@ -749,18 +827,17 @@ namespace SpeedUnitAnnex
                                     Apsis_ok = Pe_ok;
                                     TimeApsis = Formatter.TimeLong(FlightGlobals.ship_orbit.timeToPe, PeT_prefix);
                                 }
-                                titleText = String.Format("<color={0}>{1}</color>",
-                                Apsis_ok ? html_title_default : html_title_default_twice_alpha, TimeApsis); // "#00ff00ff" : "#00ff009f" 
+                                titleText += String.Format("<color={0}>{1}</color>",
+                                Apsis_ok ? html_title_default : html_title_2a, TimeApsis); // "#00ff00ff" : "#00ff009f" 
                             }
-                            else
-                            {
-                                titleText = Orb_full;
-                            }
+                     
                         }
                         else
                         {
                             titleText = Orb_full;
                         }
+                        
+                        //display.textTitle.rectTransform.anchoredPosition += new Vector2(-10f, 0);
 
                         display.textTitle.text = titleText;
                         display.textSpeed.text = SpeedConverter(FlightGlobals.ship_obtSpeed);
@@ -798,21 +875,11 @@ namespace SpeedUnitAnnex
                         if (targetAngles == TargetAngles.YawPitchRoll && isMDN)
                         {
                             Vector3 angles = GetOrientationDeviation(obj);
-
-                            if (settingsTgt.targetAngle1Decimal)
-                            {
-                                titleText =
-                                    Formatter.Angle(angles.x, false) +
-                                    Formatter.Angle(angles.y, false) +
-                                    Formatter.Angle(angles.z, false);
-                            }
-                            else
-                            {
-                                titleText = Trg +
-                                    Formatter.Angle(angles.x) +
-                                    Formatter.Angle(angles.y) +
-                                    Formatter.Angle(angles.z);
-                            }
+                           
+                            titleText = (!ZTheme_installed && settingsTgt.targetAngle1Decimal ?"": Trg) +
+                                Formatter.Angle(angles.x, !settingsTgt.targetAngle1Decimal) +
+                                Formatter.Angle(angles.y, !settingsTgt.targetAngle1Decimal) +
+                                Formatter.Angle(angles.z, !settingsTgt.targetAngle1Decimal);
                         }
                         else
                         {
@@ -822,29 +889,13 @@ namespace SpeedUnitAnnex
                             if (targetAngles == TargetAngles.Roll && isMDN)
                             {
                                 Vector3 angles = GetOrientationDeviation(obj);
-                                if (settingsTgt.targetAngle1Decimal)
-                                    TargetAngle = Formatter.Angle(angles.z, false);
-                                else
-                                    TargetAngle = Formatter.Angle(angles.z);
-
+                                TargetAngle = Formatter.Angle(angles.z, !settingsTgt.targetAngle1Decimal);
                             }
 
                             if (settingsTgt.targetDistance)
                                 distanceToTarget = CalcTargetDistance(obj);
-
-                            bool isAngleAndDistance = settingsTgt.targetDistance && targetAngles == TargetAngles.Roll && isMDN;
-
-                            if (settingsTgt.targetName && !isAngleAndDistance)
-                            {
-                                if (Target != obj)
-                                {
-                                    TargetName = CutName(Trg + distanceToTarget + TargetAngle, GetTargetName(obj));
-                                    Target = obj;
-                                }
-                                titleText = Trg + distanceToTarget + TargetName + TargetAngle;
-                            }
-                            else
-                                titleText = Trg + distanceToTarget + " " + TargetAngle; // 2 spaces
+                     
+                            titleText = Trg + distanceToTarget + TargetAngle + TargetName;
                         }
 
 
@@ -890,7 +941,7 @@ namespace SpeedUnitAnnex
             }
 
             // need to be there, for every tick. Doesn't work in the  Start() or onSetSpeedMode()
-            display.textTitle.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+            display.textTitle.alignment = TMPro.TextAlignmentOptions.Midline;
         }
     }
 }

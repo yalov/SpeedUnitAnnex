@@ -29,7 +29,7 @@
 	int i2 = 0;
 	string s;
 
-	string versionfile =  @"C:\Users\User\Games\Development\SpeedUnitAnnex\SpeedUnitAnnex.version";
+	string versionfile =  @"d:\Repos\SpeedUnitAnnex\SpeedUnitAnnex.version";
 	if (!File.Exists(versionfile))
 	{
 		Write("File: " + versionfile + " missing\n");		

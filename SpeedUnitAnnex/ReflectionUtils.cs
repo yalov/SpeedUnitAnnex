@@ -1,8 +1,5 @@
-﻿// https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/ReflectionUtils.cs
-
-using System;
+﻿using System;
 using System.Reflection;
-using UnityEngine;
 using static SpeedUnitAnnex.Logging;
 
 namespace SpeedUnitAnnex

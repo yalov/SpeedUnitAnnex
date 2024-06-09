@@ -94,11 +94,7 @@ namespace SpeedUnitAnnex
         public override bool HasPresets { get { return false; } }
 
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVA", toolTip = "#SpeedUnitAnnex_orbitEVA_toolTip")]
-        public bool orbit_EVA = true;
 
-        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitEVAProp", toolTip = "#SpeedUnitAnnex_orbitEVAProp_toolTip")]
-        public bool orbit_EVAProp = false;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_orbitApPe", toolTip = "#SpeedUnitAnnex_orbitApPe_toolTip")]
         public bool orbit_ApPe = true;
@@ -113,6 +109,12 @@ namespace SpeedUnitAnnex
         [GameParameters.CustomStringParameterUI("Common",  autoPersistance = true, lines = 1, title = "#SpeedUnitAnnex_common")]
         public string StringCommon = "";
 
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_EVA", toolTip = "#SpeedUnitAnnex_EVA_toolTip")]
+        public bool EVAName = true;
+
+        [GameParameters.CustomParameterUI("#SpeedUnitAnnex_EVAProp", toolTip = "#SpeedUnitAnnex_EVAProp_toolTip")]
+        public bool EVAProp = true;
+
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_lightSpeed", toolTip = "#SpeedUnitAnnex_lightSpeed_toolTip")]
         public bool lightSpeed = false;
 
@@ -121,8 +123,8 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == nameof(orbit_EVAProp))
-                return orbit_EVA;
+            if (member.Name == nameof(EVAProp))
+                return EVAName;
             if (member.Name == nameof(lightSpeedKerbal))
                 return lightSpeed;
             return true;

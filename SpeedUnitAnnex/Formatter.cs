@@ -150,10 +150,7 @@ namespace SpeedUnitAnnex
                     str += $"{years}{year_str}, {days:000}{day_str}";
                 }
                 else if (seconds < 100000000.0 * KSPUtil.dateTimeFormatter.Year)
-                {
                     str += Math.Truncate(seconds / KSPUtil.dateTimeFormatter.Year) + year_str;
-                }
-
                 else
                     str += (seconds / KSPUtil.dateTimeFormatter.Year).ToString("0.000e00") + year_str;
             }

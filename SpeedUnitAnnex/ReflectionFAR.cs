@@ -4,7 +4,7 @@ using static SpeedUnitAnnex.Logging;
 
 namespace SpeedUnitAnnex
 {
-    class FARReflections
+    class ReflectionFAR
     {
         public bool isLoadedFAR = false;
 
@@ -14,7 +14,7 @@ namespace SpeedUnitAnnex
         public delegate double FAR_ActiveVesselIASDelegate();
         public FAR_ActiveVesselIASDelegate FAR_ActiveVesselIAS;
 
-        public FARReflections()
+        public ReflectionFAR()
         {
             isLoadedFAR = ReflectionUtils.IsAssemblyLoaded("FerramAerospaceResearch");
             if (isLoadedFAR)
