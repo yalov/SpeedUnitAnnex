@@ -40,10 +40,18 @@ namespace SpeedUnitAnnex
             Always
         }
 
+        enum SurfaceSpeedSplit
+        {
+            No,
+            Landers,
+            Always
+        }
+
         RoverSpeed roverSpeed;
         AircraftSpeed aircraftSpeed;
         TargetAngles targetAngles;
         TargetSpeedSplit targetSpeedSplit;
+        SurfaceSpeedSplit surfaceSpeedSplit;
 
         SpeedDisplay display;
 
@@ -484,6 +492,13 @@ namespace SpeedUnitAnnex
             else //if (settings.aircraft == mph)
                 aircraftSpeed = AircraftSpeed.mph;
 
+            if (settingsSurf.split_vertical_mode == Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitNo"))
+                surfaceSpeedSplit = SurfaceSpeedSplit.No;
+            else if (settingsSurf.split_vertical_mode == Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitLander"))
+                surfaceSpeedSplit = SurfaceSpeedSplit.Landers;
+            else // if (settingsSurf.split_vertical_mode == Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitAlways"))
+                surfaceSpeedSplit = SurfaceSpeedSplit.Always;
+
             if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetAnglesYawPitchRoll"))
                 targetAngles = TargetAngles.YawPitchRoll;
             else if (settingsTgt.targetDockportAngles == Localizer.Format("#SpeedUnitAnnex_targetAnglesRoll"))
@@ -610,7 +625,7 @@ namespace SpeedUnitAnnex
                         double spd = FlightGlobals.ship_srfSpeed;
                         string speedText = "";
 
-                        if (!settingsSurf.split_vertical)
+                        if (surfaceSpeedSplit != SurfaceSpeedSplit.Always)
                             speedText = SpeedConverter(spd);
 
                         switch (vesselType)
@@ -663,7 +678,7 @@ namespace SpeedUnitAnnex
                                             break;
                                     }
 
-                                    if (settingsSurf.ias && !settingsSurf.split_vertical)
+                                    if (settingsSurf.ias && surfaceSpeedSplit != SurfaceSpeedSplit.Always)
                                     {
                                         double speedIAS = 0;
 
@@ -685,7 +700,6 @@ namespace SpeedUnitAnnex
                                         case RoverSpeed.mph:  titleText = Srf + (spd * mphTOms).ToString("F1") + mph_s; break;
                                         default:              titleText = Srf; break;
                                     }
-
                                 }
 
                                 break;
@@ -741,7 +755,9 @@ namespace SpeedUnitAnnex
                                 display.textSpeed.color = color_speed_default;
                         }
 
-                        if (settingsSurf.split_vertical)
+                        if (surfaceSpeedSplit == SurfaceSpeedSplit.Always || 
+                            (surfaceSpeedSplit == SurfaceSpeedSplit.Landers && FlightGlobals.ActiveVessel.vesselType == VesselType.Lander && FlightGlobals.ship_verticalSpeed < -0.1)
+                            )
                         {
                             speedText = SpeedConverter(
                                 FlightGlobals.ActiveVessel.horizontalSrfSpeed,

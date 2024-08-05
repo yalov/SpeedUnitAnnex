@@ -1,5 +1,9 @@
 ## ChangeLog:
 
+### Version 1.6.1
+* Chinese localization (thanks to @zhangyuesai)
+* option to split speed only for descending landers
+
 ### Version 1.6.0
 * Added support for HUDReplacer (ZTheme):
   more data fit into wider panel of ZTheme

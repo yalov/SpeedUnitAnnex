@@ -36,7 +36,8 @@ namespace SpeedUnitAnnex
         public bool color_vertical = false;
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_split_vertical", toolTip = "#SpeedUnitAnnex_split_vertical_toolTip")]
-        public bool split_vertical = false;
+        public string split_vertical_mode = Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitLander");
+
 
         [GameParameters.CustomParameterUI("#SpeedUnitAnnex_rover_for_all", toolTip = "#SpeedUnitAnnex_rover_for_all_toolTip")]
         public bool rover_for_all = false;
@@ -48,14 +49,12 @@ namespace SpeedUnitAnnex
 
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
-            if (member.Name == nameof(ias))
-                return !split_vertical;
             return true;
         }
 
         public override IList ValidValues(MemberInfo member)
         {
-            if (member.Name == "rover")
+            if (member.Name == nameof(rover))
             {
                 List<string> myList = new List<string>
                 {
@@ -65,7 +64,7 @@ namespace SpeedUnitAnnex
 
                 return myList;
             }
-            else if (member.Name == "aircraft")
+            else if (member.Name == nameof(aircraft))
             {
                 List<string> myList = new List<string>
                 {
@@ -77,12 +76,26 @@ namespace SpeedUnitAnnex
 
                 return myList;
             }
+            else if (member.Name == nameof(split_vertical_mode))
+            {
+                List<string> myList = new List<string>
+                {
+                    Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitNo"),
+                    Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitLander"),
+                    Localizer.Format("#SpeedUnitAnnex_surfaceSpeedSplitAlways")
+                };
+
+                return myList;
+            }
             else
             {
                 return null;
             }
         }
     }
+
+
+
 
     public class SUASettingsOrbit : GameParameters.CustomParameterNode
     {
@@ -175,7 +188,7 @@ namespace SpeedUnitAnnex
 
         public override IList ValidValues(MemberInfo member)
         {
-            if (member.Name == "targetDockportAngles")
+            if (member.Name == nameof(targetDockportAngles))
             {
                 List<string> myList = new List<string>
                 {
@@ -186,7 +199,7 @@ namespace SpeedUnitAnnex
 
                 return myList;
             }
-            else if (member.Name == "targetSpeedSplit")
+            else if (member.Name == nameof(targetSpeedSplit))
             {
                 List<string> myList = new List<string>
                 {
